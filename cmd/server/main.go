@@ -9,6 +9,7 @@ import (
 	"filmogophery/internal/config"
 	"filmogophery/internal/db"
 	"filmogophery/internal/health"
+	"filmogophery/internal/movie"
 )
 
 func main() {
@@ -29,6 +30,9 @@ func main() {
 	// ハンドラの設定
 	healthHandler := health.NewHandler(conf)
 	healthHandler.RegisterRoutes(e)
+
+	movieHandler := movie.NewHandler()
+	movieHandler.RegisterRoutes(e)
 
 	// サーバーの起動
 	serverAddr := ":" + conf.Server.Port
