@@ -11,7 +11,8 @@ services:
       - 8000:8000
     volumes:
       - .:/usr/src/app
-    command: air
+    command: >
+      bash -c 'go mod tidy && air'
     env_file:
       - .env
     depends_on:
