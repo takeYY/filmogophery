@@ -1,11 +1,12 @@
 package health
 
 import (
-	"filmogophery/internal/config"
-	"filmogophery/pkg/response"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"filmogophery/internal/config"
+	"filmogophery/pkg/response"
 )
 
 type (
