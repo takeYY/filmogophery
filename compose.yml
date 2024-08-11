@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  api:
+    container_name: filmogophery_api
+    build:
+      context: .
+      dockerfile: ./docker/server/Dockerfile
+      target: dev
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/usr/src/app
+    command: air
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0.32
+    container_name: filmogophery_mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-volumes:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "db4dev"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 10s
+      retries: 10
+
+volumes:
+  mysql-volumes:
