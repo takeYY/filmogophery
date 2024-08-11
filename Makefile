@@ -42,5 +42,5 @@ migrate:
 
 gen_models:
 	make up_d
-	docker compose exec api go run scripts/generate_models.go
+	docker compose exec api go run cmd/gen/gorm_gen.go
 	docker compose stop
