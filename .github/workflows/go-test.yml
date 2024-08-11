@@ -1,0 +1,30 @@
+name: Go Test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  ARCH: x64
+
+jobs:
+  test:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        run: |
+          cp .example.env .env
+
+      - name: Build Image & Run Container
+        run: |
+          make up_d
+
+      - name: Run Tests in Container
+        run: |
+          docker compose exec api gotest -v ./tests/... -cover
