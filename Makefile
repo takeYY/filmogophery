@@ -6,6 +6,7 @@
 	stop		\
 	down_v		\
 	test		\
+	migrate		\
 	gen_models
 
 
@@ -31,6 +32,13 @@ test:
 	make up_d
 	docker compose exec api gotest -v ./tests/... -cover
 	docker compose stop
+
+
+migrate:
+	make up_d
+	docker compose exec api go run cmd/migration/migrate.go
+	docker compose stop
+
 
 gen_models:
 	make up_d
