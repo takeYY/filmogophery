@@ -1,0 +1,5 @@
+DROP DATABASE IF EXISTS db4dev;
+
+CREATE DATABASE db4dev;
+
+USE db4dev;
