@@ -24,7 +24,8 @@ func NewQueryService() *QueryService {
 }
 
 func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*model.Movie, error) {
-	return qs.MovieRepo.FindByID(ctx, movieID)
+	id := int32(*movieID)
+	return qs.MovieRepo.FindByID(ctx, &id)
 }
 
 func (qs *QueryService) GetMovies(ctx context.Context) ([]*model.Movie, error) {
