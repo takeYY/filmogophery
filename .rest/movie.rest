@@ -1,0 +1,13 @@
+@endpoint = http://localhost:8000
+
+POST {{endpoint}}/movie
+content-type: application/json
+
+{
+    "title": "ターミネーター1999",
+    "overview": "存在しない映画です。",
+    "release_date": "1984-05-04T00:00:00Z07:00",
+    "run_time": 108,
+    "tmdb_id": 218,
+    "genres": []
+}
