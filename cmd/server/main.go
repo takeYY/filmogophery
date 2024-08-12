@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -10,13 +8,18 @@ import (
 	"filmogophery/internal/db"
 	"filmogophery/internal/health"
 	"filmogophery/internal/movie"
+	"filmogophery/pkg/logger"
 )
 
 func main() {
+	// ロガーの初期化と取得
+	logger.InitializeLogger("info")
+	logger := logger.GetLogger()
+
 	// 設定ファイルの読み込み
 	conf, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
+		logger.Fatal().Msgf("Error loading config: %v", err)
 	}
 
 	// DB 接続
@@ -24,7 +27,13 @@ func main() {
 
 	e := echo.New()
 
-	e.Use(middleware.Logger())
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogURI:    true,
+		LogStatus: true,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			return nil
+		},
+	}))
 	e.Use(middleware.Recover())
 
 	// ハンドラの設定
@@ -36,6 +45,6 @@ func main() {
 
 	// サーバーの起動
 	serverAddr := ":" + conf.Server.Port
-	log.Printf("Starting server on %s", serverAddr)
+	logger.Info().Msgf("Starting server on %s", serverAddr)
 	e.Logger.Fatal(e.Start(serverAddr))
 }

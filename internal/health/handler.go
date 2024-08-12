@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/config"
+	"filmogophery/pkg/logger"
 	"filmogophery/pkg/response"
 )
 
@@ -28,6 +29,10 @@ func (h *handler) RegisterRoutes(e *echo.Echo) {
 }
 
 func (h *ReaderHandler) Health(c echo.Context) error {
+	logger := logger.GetLogger()
+
+	logger.Info().Msg("accessed health check!!")
+
 	return c.JSON(http.StatusOK, response.OK{
 		Message: "system all green",
 	})
