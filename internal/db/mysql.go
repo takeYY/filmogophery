@@ -50,6 +50,7 @@ func useGORM(conf *config.Database) *gorm.DB {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
+		CreateBatchSize: 1000,
 	})
 	if err != nil {
 		log.Error(fmt.Printf("failed to use gorm %s", err))
