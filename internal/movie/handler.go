@@ -2,6 +2,7 @@ package movie
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,9 +15,13 @@ type (
 	ReaderHandler struct {
 		queryService *QueryService
 	}
+	WriterHandler struct {
+		commandService *CommandService
+	}
 
 	handler struct {
 		ReaderHandler ReaderHandler
+		WriterHandler WriterHandler
 	}
 )
 
@@ -25,6 +30,9 @@ func NewHandler() *handler {
 		ReaderHandler: ReaderHandler{
 			queryService: NewQueryService(),
 		},
+		WriterHandler: WriterHandler{
+			commandService: NewCommandService(),
+		},
 	}
 }
 
@@ -32,6 +40,8 @@ func (h *handler) RegisterRoutes(e *echo.Echo) {
 	// Read
 	e.GET("/movies", h.ReaderHandler.GetMovies)
 	e.GET("/movies/:id", h.ReaderHandler.GetMovieById)
+	// Create
+	e.POST("movie", h.WriterHandler.Create)
 }
 
 func (rh *ReaderHandler) GetMovieById(c echo.Context) error {
@@ -61,4 +71,22 @@ func (rh *ReaderHandler) GetMovies(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, movies)
+}
+
+func (wh *WriterHandler) Create(c echo.Context) error {
+	var dto CreateMovieDto
+	if err := c.Bind(&dto); err != nil {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse{
+			Message: err.Error(),
+		})
+	}
+
+	movie, err := wh.commandService.CreateMovie(&dto)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse{
+			Message: fmt.Sprintf("movie can not create: %v", err),
+		})
+	}
+
+	return c.JSON(http.StatusOK, movie)
 }
