@@ -27,13 +27,10 @@ func newMovieImpression(db *gorm.DB, opts ...gen.DOOption) movieImpression {
 
 	tableName := _movieImpression.movieImpressionDo.TableName()
 	_movieImpression.ALL = field.NewAsterisk(tableName)
-	_movieImpression.ID = field.NewInt64(tableName, "id")
-	_movieImpression.CreatedAt = field.NewTime(tableName, "created_at")
-	_movieImpression.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_movieImpression.DeletedAt = field.NewField(tableName, "deleted_at")
-	_movieImpression.MovieID = field.NewInt64(tableName, "movie_id")
-	_movieImpression.Status = field.NewInt32(tableName, "status")
-	_movieImpression.Rating = field.NewInt32(tableName, "rating")
+	_movieImpression.ID = field.NewInt32(tableName, "id")
+	_movieImpression.MovieID = field.NewInt32(tableName, "movie_id")
+	_movieImpression.Status = field.NewBool(tableName, "status")
+	_movieImpression.Rating = field.NewBool(tableName, "rating")
 	_movieImpression.Note = field.NewString(tableName, "note")
 	_movieImpression.Movie = movieImpressionHasOneMovie{
 		db: db.Session(&gorm.Session{}),
@@ -80,16 +77,13 @@ func newMovieImpression(db *gorm.DB, opts ...gen.DOOption) movieImpression {
 type movieImpression struct {
 	movieImpressionDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	MovieID   field.Int64
-	Status    field.Int32
-	Rating    field.Int32
-	Note      field.String
-	Movie     movieImpressionHasOneMovie
+	ALL     field.Asterisk
+	ID      field.Int32
+	MovieID field.Int32
+	Status  field.Bool
+	Rating  field.Bool
+	Note    field.String
+	Movie   movieImpressionHasOneMovie
 
 	fieldMap map[string]field.Expr
 }
@@ -106,13 +100,10 @@ func (m movieImpression) As(alias string) *movieImpression {
 
 func (m *movieImpression) updateTableName(table string) *movieImpression {
 	m.ALL = field.NewAsterisk(table)
-	m.ID = field.NewInt64(table, "id")
-	m.CreatedAt = field.NewTime(table, "created_at")
-	m.UpdatedAt = field.NewTime(table, "updated_at")
-	m.DeletedAt = field.NewField(table, "deleted_at")
-	m.MovieID = field.NewInt64(table, "movie_id")
-	m.Status = field.NewInt32(table, "status")
-	m.Rating = field.NewInt32(table, "rating")
+	m.ID = field.NewInt32(table, "id")
+	m.MovieID = field.NewInt32(table, "movie_id")
+	m.Status = field.NewBool(table, "status")
+	m.Rating = field.NewBool(table, "rating")
 	m.Note = field.NewString(table, "note")
 
 	m.fillFieldMap()
@@ -130,11 +121,8 @@ func (m *movieImpression) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (m *movieImpression) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 9)
+	m.fieldMap = make(map[string]field.Expr, 6)
 	m.fieldMap["id"] = m.ID
-	m.fieldMap["created_at"] = m.CreatedAt
-	m.fieldMap["updated_at"] = m.UpdatedAt
-	m.fieldMap["deleted_at"] = m.DeletedAt
 	m.fieldMap["movie_id"] = m.MovieID
 	m.fieldMap["status"] = m.Status
 	m.fieldMap["rating"] = m.Rating

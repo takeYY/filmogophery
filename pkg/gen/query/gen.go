@@ -25,7 +25,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		MovieSeries:      newMovieSeries(db, opts...),
 		MovieWatchRecord: newMovieWatchRecord(db, opts...),
 		Poster:           newPoster(db, opts...),
-		User:             newUser(db, opts...),
 		WatchMedia:       newWatchMedia(db, opts...),
 	}
 }
@@ -40,7 +39,6 @@ type Query struct {
 	MovieSeries      movieSeries
 	MovieWatchRecord movieWatchRecord
 	Poster           poster
-	User             user
 	WatchMedia       watchMedia
 }
 
@@ -56,7 +54,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		MovieSeries:      q.MovieSeries.clone(db),
 		MovieWatchRecord: q.MovieWatchRecord.clone(db),
 		Poster:           q.Poster.clone(db),
-		User:             q.User.clone(db),
 		WatchMedia:       q.WatchMedia.clone(db),
 	}
 }
@@ -79,7 +76,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		MovieSeries:      q.MovieSeries.replaceDB(db),
 		MovieWatchRecord: q.MovieWatchRecord.replaceDB(db),
 		Poster:           q.Poster.replaceDB(db),
-		User:             q.User.replaceDB(db),
 		WatchMedia:       q.WatchMedia.replaceDB(db),
 	}
 }
@@ -92,7 +88,6 @@ type queryCtx struct {
 	MovieSeries      *movieSeriesDo
 	MovieWatchRecord *movieWatchRecordDo
 	Poster           *posterDo
-	User             *userDo
 	WatchMedia       *watchMediaDo
 }
 
@@ -105,7 +100,6 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		MovieSeries:      q.MovieSeries.WithContext(ctx),
 		MovieWatchRecord: q.MovieWatchRecord.WithContext(ctx),
 		Poster:           q.Poster.WithContext(ctx),
-		User:             q.User.WithContext(ctx),
 		WatchMedia:       q.WatchMedia.WithContext(ctx),
 	}
 }

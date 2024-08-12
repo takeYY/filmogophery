@@ -27,8 +27,9 @@ func newMovieGenres(db *gorm.DB, opts ...gen.DOOption) movieGenres {
 
 	tableName := _movieGenres.movieGenresDo.TableName()
 	_movieGenres.ALL = field.NewAsterisk(tableName)
-	_movieGenres.MovieID = field.NewInt64(tableName, "movie_id")
-	_movieGenres.GenreID = field.NewInt64(tableName, "genre_id")
+	_movieGenres.ID = field.NewInt32(tableName, "id")
+	_movieGenres.MovieID = field.NewInt32(tableName, "movie_id")
+	_movieGenres.GenreID = field.NewInt32(tableName, "genre_id")
 
 	_movieGenres.fillFieldMap()
 
@@ -39,8 +40,9 @@ type movieGenres struct {
 	movieGenresDo
 
 	ALL     field.Asterisk
-	MovieID field.Int64
-	GenreID field.Int64
+	ID      field.Int32
+	MovieID field.Int32
+	GenreID field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -57,8 +59,9 @@ func (m movieGenres) As(alias string) *movieGenres {
 
 func (m *movieGenres) updateTableName(table string) *movieGenres {
 	m.ALL = field.NewAsterisk(table)
-	m.MovieID = field.NewInt64(table, "movie_id")
-	m.GenreID = field.NewInt64(table, "genre_id")
+	m.ID = field.NewInt32(table, "id")
+	m.MovieID = field.NewInt32(table, "movie_id")
+	m.GenreID = field.NewInt32(table, "genre_id")
 
 	m.fillFieldMap()
 
@@ -75,7 +78,8 @@ func (m *movieGenres) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *movieGenres) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 2)
+	m.fieldMap = make(map[string]field.Expr, 3)
+	m.fieldMap["id"] = m.ID
 	m.fieldMap["movie_id"] = m.MovieID
 	m.fieldMap["genre_id"] = m.GenreID
 }

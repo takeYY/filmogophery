@@ -27,16 +27,13 @@ func newMovie(db *gorm.DB, opts ...gen.DOOption) movie {
 
 	tableName := _movie.movieDo.TableName()
 	_movie.ALL = field.NewAsterisk(tableName)
-	_movie.ID = field.NewInt64(tableName, "id")
-	_movie.CreatedAt = field.NewTime(tableName, "created_at")
-	_movie.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_movie.DeletedAt = field.NewField(tableName, "deleted_at")
+	_movie.ID = field.NewInt32(tableName, "id")
 	_movie.Title = field.NewString(tableName, "title")
 	_movie.Overview = field.NewString(tableName, "overview")
 	_movie.ReleaseDate = field.NewTime(tableName, "release_date")
 	_movie.RunTime = field.NewInt32(tableName, "run_time")
-	_movie.PosterID = field.NewInt64(tableName, "poster_id")
-	_movie.SeriesID = field.NewInt64(tableName, "series_id")
+	_movie.PosterID = field.NewInt32(tableName, "poster_id")
+	_movie.SeriesID = field.NewInt32(tableName, "series_id")
 	_movie.TmdbID = field.NewInt32(tableName, "tmdb_id")
 	_movie.Genres = movieManyToManyGenres{
 		db: db.Session(&gorm.Session{}),
@@ -75,16 +72,13 @@ type movie struct {
 	movieDo
 
 	ALL         field.Asterisk
-	ID          field.Int64
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	DeletedAt   field.Field
+	ID          field.Int32
 	Title       field.String
 	Overview    field.String
 	ReleaseDate field.Time
 	RunTime     field.Int32
-	PosterID    field.Int64
-	SeriesID    field.Int64
+	PosterID    field.Int32
+	SeriesID    field.Int32
 	TmdbID      field.Int32
 	Genres      movieManyToManyGenres
 
@@ -107,16 +101,13 @@ func (m movie) As(alias string) *movie {
 
 func (m *movie) updateTableName(table string) *movie {
 	m.ALL = field.NewAsterisk(table)
-	m.ID = field.NewInt64(table, "id")
-	m.CreatedAt = field.NewTime(table, "created_at")
-	m.UpdatedAt = field.NewTime(table, "updated_at")
-	m.DeletedAt = field.NewField(table, "deleted_at")
+	m.ID = field.NewInt32(table, "id")
 	m.Title = field.NewString(table, "title")
 	m.Overview = field.NewString(table, "overview")
 	m.ReleaseDate = field.NewTime(table, "release_date")
 	m.RunTime = field.NewInt32(table, "run_time")
-	m.PosterID = field.NewInt64(table, "poster_id")
-	m.SeriesID = field.NewInt64(table, "series_id")
+	m.PosterID = field.NewInt32(table, "poster_id")
+	m.SeriesID = field.NewInt32(table, "series_id")
 	m.TmdbID = field.NewInt32(table, "tmdb_id")
 
 	m.fillFieldMap()
@@ -134,11 +125,8 @@ func (m *movie) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *movie) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 14)
+	m.fieldMap = make(map[string]field.Expr, 11)
 	m.fieldMap["id"] = m.ID
-	m.fieldMap["created_at"] = m.CreatedAt
-	m.fieldMap["updated_at"] = m.UpdatedAt
-	m.fieldMap["deleted_at"] = m.DeletedAt
 	m.fieldMap["title"] = m.Title
 	m.fieldMap["overview"] = m.Overview
 	m.fieldMap["release_date"] = m.ReleaseDate

@@ -27,11 +27,8 @@ func newMovieWatchRecord(db *gorm.DB, opts ...gen.DOOption) movieWatchRecord {
 
 	tableName := _movieWatchRecord.movieWatchRecordDo.TableName()
 	_movieWatchRecord.ALL = field.NewAsterisk(tableName)
-	_movieWatchRecord.ID = field.NewInt64(tableName, "id")
-	_movieWatchRecord.CreatedAt = field.NewTime(tableName, "created_at")
-	_movieWatchRecord.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_movieWatchRecord.DeletedAt = field.NewField(tableName, "deleted_at")
-	_movieWatchRecord.WatchMediaID = field.NewInt64(tableName, "watch_media_id")
+	_movieWatchRecord.ID = field.NewInt32(tableName, "id")
+	_movieWatchRecord.WatchMediaID = field.NewInt32(tableName, "watch_media_id")
 	_movieWatchRecord.WatchDate = field.NewTime(tableName, "watch_date")
 	_movieWatchRecord.WatchMedia = movieWatchRecordHasOneWatchMedia{
 		db: db.Session(&gorm.Session{}),
@@ -48,11 +45,8 @@ type movieWatchRecord struct {
 	movieWatchRecordDo
 
 	ALL          field.Asterisk
-	ID           field.Int64
-	CreatedAt    field.Time
-	UpdatedAt    field.Time
-	DeletedAt    field.Field
-	WatchMediaID field.Int64
+	ID           field.Int32
+	WatchMediaID field.Int32
 	WatchDate    field.Time
 	WatchMedia   movieWatchRecordHasOneWatchMedia
 
@@ -71,11 +65,8 @@ func (m movieWatchRecord) As(alias string) *movieWatchRecord {
 
 func (m *movieWatchRecord) updateTableName(table string) *movieWatchRecord {
 	m.ALL = field.NewAsterisk(table)
-	m.ID = field.NewInt64(table, "id")
-	m.CreatedAt = field.NewTime(table, "created_at")
-	m.UpdatedAt = field.NewTime(table, "updated_at")
-	m.DeletedAt = field.NewField(table, "deleted_at")
-	m.WatchMediaID = field.NewInt64(table, "watch_media_id")
+	m.ID = field.NewInt32(table, "id")
+	m.WatchMediaID = field.NewInt32(table, "watch_media_id")
 	m.WatchDate = field.NewTime(table, "watch_date")
 
 	m.fillFieldMap()
@@ -93,11 +84,8 @@ func (m *movieWatchRecord) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (m *movieWatchRecord) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 7)
+	m.fieldMap = make(map[string]field.Expr, 4)
 	m.fieldMap["id"] = m.ID
-	m.fieldMap["created_at"] = m.CreatedAt
-	m.fieldMap["updated_at"] = m.UpdatedAt
-	m.fieldMap["deleted_at"] = m.DeletedAt
 	m.fieldMap["watch_media_id"] = m.WatchMediaID
 	m.fieldMap["watch_date"] = m.WatchDate
 

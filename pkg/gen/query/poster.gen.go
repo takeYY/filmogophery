@@ -27,10 +27,7 @@ func newPoster(db *gorm.DB, opts ...gen.DOOption) poster {
 
 	tableName := _poster.posterDo.TableName()
 	_poster.ALL = field.NewAsterisk(tableName)
-	_poster.ID = field.NewInt64(tableName, "id")
-	_poster.CreatedAt = field.NewTime(tableName, "created_at")
-	_poster.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_poster.DeletedAt = field.NewField(tableName, "deleted_at")
+	_poster.ID = field.NewInt32(tableName, "id")
 	_poster.URL = field.NewString(tableName, "url")
 
 	_poster.fillFieldMap()
@@ -41,12 +38,9 @@ func newPoster(db *gorm.DB, opts ...gen.DOOption) poster {
 type poster struct {
 	posterDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	URL       field.String
+	ALL field.Asterisk
+	ID  field.Int32
+	URL field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -63,10 +57,7 @@ func (p poster) As(alias string) *poster {
 
 func (p *poster) updateTableName(table string) *poster {
 	p.ALL = field.NewAsterisk(table)
-	p.ID = field.NewInt64(table, "id")
-	p.CreatedAt = field.NewTime(table, "created_at")
-	p.UpdatedAt = field.NewTime(table, "updated_at")
-	p.DeletedAt = field.NewField(table, "deleted_at")
+	p.ID = field.NewInt32(table, "id")
 	p.URL = field.NewString(table, "url")
 
 	p.fillFieldMap()
@@ -84,11 +75,8 @@ func (p *poster) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *poster) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 5)
+	p.fieldMap = make(map[string]field.Expr, 2)
 	p.fieldMap["id"] = p.ID
-	p.fieldMap["created_at"] = p.CreatedAt
-	p.fieldMap["updated_at"] = p.UpdatedAt
-	p.fieldMap["deleted_at"] = p.DeletedAt
 	p.fieldMap["url"] = p.URL
 }
 

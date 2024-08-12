@@ -27,12 +27,9 @@ func newMovieSeries(db *gorm.DB, opts ...gen.DOOption) movieSeries {
 
 	tableName := _movieSeries.movieSeriesDo.TableName()
 	_movieSeries.ALL = field.NewAsterisk(tableName)
-	_movieSeries.ID = field.NewInt64(tableName, "id")
-	_movieSeries.CreatedAt = field.NewTime(tableName, "created_at")
-	_movieSeries.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_movieSeries.DeletedAt = field.NewField(tableName, "deleted_at")
+	_movieSeries.ID = field.NewInt32(tableName, "id")
 	_movieSeries.Name = field.NewString(tableName, "name")
-	_movieSeries.PosterID = field.NewInt64(tableName, "poster_id")
+	_movieSeries.PosterID = field.NewInt32(tableName, "poster_id")
 	_movieSeries.Poster = movieSeriesHasOnePoster{
 		db: db.Session(&gorm.Session{}),
 
@@ -47,14 +44,11 @@ func newMovieSeries(db *gorm.DB, opts ...gen.DOOption) movieSeries {
 type movieSeries struct {
 	movieSeriesDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	Name      field.String
-	PosterID  field.Int64
-	Poster    movieSeriesHasOnePoster
+	ALL      field.Asterisk
+	ID       field.Int32
+	Name     field.String
+	PosterID field.Int32
+	Poster   movieSeriesHasOnePoster
 
 	fieldMap map[string]field.Expr
 }
@@ -71,12 +65,9 @@ func (m movieSeries) As(alias string) *movieSeries {
 
 func (m *movieSeries) updateTableName(table string) *movieSeries {
 	m.ALL = field.NewAsterisk(table)
-	m.ID = field.NewInt64(table, "id")
-	m.CreatedAt = field.NewTime(table, "created_at")
-	m.UpdatedAt = field.NewTime(table, "updated_at")
-	m.DeletedAt = field.NewField(table, "deleted_at")
+	m.ID = field.NewInt32(table, "id")
 	m.Name = field.NewString(table, "name")
-	m.PosterID = field.NewInt64(table, "poster_id")
+	m.PosterID = field.NewInt32(table, "poster_id")
 
 	m.fillFieldMap()
 
@@ -93,11 +84,8 @@ func (m *movieSeries) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *movieSeries) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 7)
+	m.fieldMap = make(map[string]field.Expr, 4)
 	m.fieldMap["id"] = m.ID
-	m.fieldMap["created_at"] = m.CreatedAt
-	m.fieldMap["updated_at"] = m.UpdatedAt
-	m.fieldMap["deleted_at"] = m.DeletedAt
 	m.fieldMap["name"] = m.Name
 	m.fieldMap["poster_id"] = m.PosterID
 

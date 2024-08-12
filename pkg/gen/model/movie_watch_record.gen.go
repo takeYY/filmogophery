@@ -6,21 +6,16 @@ package model
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 const TableNameMovieWatchRecord = "movie_watch_record"
 
 // MovieWatchRecord mapped from table <movie_watch_record>
 type MovieWatchRecord struct {
-	ID           int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	CreatedAt    time.Time      `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt    time.Time      `gorm:"column:updated_at" json:"updated_at"`
-	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
-	WatchMediaID int64          `gorm:"column:watch_media_id" json:"watch_media_id"`
-	WatchDate    time.Time      `gorm:"column:watch_date" json:"watch_date"`
-	WatchMedia   WatchMedia     `gorm:"foreignKey:ID" json:"watch_media"`
+	ID           int32      `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	WatchMediaID *int32     `gorm:"column:watch_media_id" json:"watch_media_id"`
+	WatchDate    *time.Time `gorm:"column:watch_date" json:"watch_date"`
+	WatchMedia   WatchMedia `gorm:"default:null;foreignKey:WatchMediaID;references:ID" json:"watch_media"`
 }
 
 // TableName MovieWatchRecord's table name

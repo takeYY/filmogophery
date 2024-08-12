@@ -27,10 +27,7 @@ func newWatchMedia(db *gorm.DB, opts ...gen.DOOption) watchMedia {
 
 	tableName := _watchMedia.watchMediaDo.TableName()
 	_watchMedia.ALL = field.NewAsterisk(tableName)
-	_watchMedia.ID = field.NewInt64(tableName, "id")
-	_watchMedia.CreatedAt = field.NewTime(tableName, "created_at")
-	_watchMedia.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_watchMedia.DeletedAt = field.NewField(tableName, "deleted_at")
+	_watchMedia.ID = field.NewInt32(tableName, "id")
 	_watchMedia.Code = field.NewString(tableName, "code")
 	_watchMedia.Name = field.NewString(tableName, "name")
 
@@ -42,13 +39,10 @@ func newWatchMedia(db *gorm.DB, opts ...gen.DOOption) watchMedia {
 type watchMedia struct {
 	watchMediaDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	Code      field.String
-	Name      field.String
+	ALL  field.Asterisk
+	ID   field.Int32
+	Code field.String
+	Name field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -65,10 +59,7 @@ func (w watchMedia) As(alias string) *watchMedia {
 
 func (w *watchMedia) updateTableName(table string) *watchMedia {
 	w.ALL = field.NewAsterisk(table)
-	w.ID = field.NewInt64(table, "id")
-	w.CreatedAt = field.NewTime(table, "created_at")
-	w.UpdatedAt = field.NewTime(table, "updated_at")
-	w.DeletedAt = field.NewField(table, "deleted_at")
+	w.ID = field.NewInt32(table, "id")
 	w.Code = field.NewString(table, "code")
 	w.Name = field.NewString(table, "name")
 
@@ -87,11 +78,8 @@ func (w *watchMedia) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (w *watchMedia) fillFieldMap() {
-	w.fieldMap = make(map[string]field.Expr, 6)
+	w.fieldMap = make(map[string]field.Expr, 3)
 	w.fieldMap["id"] = w.ID
-	w.fieldMap["created_at"] = w.CreatedAt
-	w.fieldMap["updated_at"] = w.UpdatedAt
-	w.fieldMap["deleted_at"] = w.DeletedAt
 	w.fieldMap["code"] = w.Code
 	w.fieldMap["name"] = w.Name
 }

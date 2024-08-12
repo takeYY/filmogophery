@@ -27,10 +27,7 @@ func newGenre(db *gorm.DB, opts ...gen.DOOption) genre {
 
 	tableName := _genre.genreDo.TableName()
 	_genre.ALL = field.NewAsterisk(tableName)
-	_genre.ID = field.NewInt64(tableName, "id")
-	_genre.CreatedAt = field.NewTime(tableName, "created_at")
-	_genre.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_genre.DeletedAt = field.NewField(tableName, "deleted_at")
+	_genre.ID = field.NewInt32(tableName, "id")
 	_genre.Code = field.NewString(tableName, "code")
 	_genre.Name = field.NewString(tableName, "name")
 	_genre.Movies = genreManyToManyMovies{
@@ -47,14 +44,11 @@ func newGenre(db *gorm.DB, opts ...gen.DOOption) genre {
 type genre struct {
 	genreDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	Code      field.String
-	Name      field.String
-	Movies    genreManyToManyMovies
+	ALL    field.Asterisk
+	ID     field.Int32
+	Code   field.String
+	Name   field.String
+	Movies genreManyToManyMovies
 
 	fieldMap map[string]field.Expr
 }
@@ -71,10 +65,7 @@ func (g genre) As(alias string) *genre {
 
 func (g *genre) updateTableName(table string) *genre {
 	g.ALL = field.NewAsterisk(table)
-	g.ID = field.NewInt64(table, "id")
-	g.CreatedAt = field.NewTime(table, "created_at")
-	g.UpdatedAt = field.NewTime(table, "updated_at")
-	g.DeletedAt = field.NewField(table, "deleted_at")
+	g.ID = field.NewInt32(table, "id")
 	g.Code = field.NewString(table, "code")
 	g.Name = field.NewString(table, "name")
 
@@ -93,11 +84,8 @@ func (g *genre) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *genre) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 7)
+	g.fieldMap = make(map[string]field.Expr, 4)
 	g.fieldMap["id"] = g.ID
-	g.fieldMap["created_at"] = g.CreatedAt
-	g.fieldMap["updated_at"] = g.UpdatedAt
-	g.fieldMap["deleted_at"] = g.DeletedAt
 	g.fieldMap["code"] = g.Code
 	g.fieldMap["name"] = g.Name
 
