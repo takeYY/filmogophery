@@ -13,10 +13,15 @@ type (
 		Password string
 		Name     string
 	}
+	Tmdb struct {
+		ACCESS_TOKEN string
+	}
+
 	Config struct {
 		Server         server
 		ReaderDatabase Database
 		WriterDatabase Database
+		Tmdb           Tmdb
 	}
 )
 
@@ -37,6 +42,9 @@ func LoadConfig() (*Config, error) {
 			User:     os.Getenv("WRITER_DB_USER"),
 			Password: os.Getenv("WRITER_DB_PWD"),
 			Name:     os.Getenv("WRITER_DB_NAME"),
+		},
+		Tmdb: Tmdb{
+			ACCESS_TOKEN: os.Getenv("TMDB_ACCESS_TOKEN"),
 		},
 	}
 
