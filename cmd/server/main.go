@@ -8,7 +8,9 @@ import (
 	"filmogophery/internal/db"
 	"filmogophery/internal/health"
 	"filmogophery/internal/movie"
+	"filmogophery/internal/tmdb"
 	"filmogophery/pkg/logger"
+	"filmogophery/pkg/tokenizer"
 )
 
 func main() {
@@ -48,6 +50,9 @@ func main() {
 
 	movieHandler := movie.NewHandler()
 	movieHandler.RegisterRoutes(e)
+
+	tmdbHandler := tmdb.NewHandler(conf)
+	tmdbHandler.RegisterRoutes(e)
 
 	// サーバーの起動
 	serverAddr := ":" + conf.Server.Port
