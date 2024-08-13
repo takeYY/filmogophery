@@ -25,6 +25,12 @@ func main() {
 	// DB 接続
 	db.ConnectDB(conf)
 
+	// 形態素解析器の初期化
+	er := tokenizer.NewTokenizer()
+	if er != nil {
+		logger.Fatal().Msgf("failed to create tokenizer: %v", er)
+	}
+
 	e := echo.New()
 
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
