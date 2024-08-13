@@ -24,5 +24,10 @@
   "[sql]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode"
+  },
+  "[html]": {
+    "editor.formatOnSave": true,
+    "editor.suggest.insertMode": "replace",
+    "editor.defaultFormatter": "vscode.html-language-features"
   }
 }
