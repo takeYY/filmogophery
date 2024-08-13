@@ -12,7 +12,7 @@ services:
     volumes:
       - .:/usr/src/app
     command: >
-      bash -c 'go mod tidy && go run ./cmd/server/main.go'
+      bash -c 'go mod tidy && air'
     env_file:
       - .env
     depends_on:
