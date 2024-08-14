@@ -1,12 +1,13 @@
 package tmdb
 
 import (
-	"filmogophery/internal/config"
-	"filmogophery/pkg/response"
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"filmogophery/internal/config"
+	"filmogophery/pkg/response"
 )
 
 type (

@@ -19,7 +19,7 @@ jobs:
 
       - name: Setup Environment
         run: |
-          cp .example.env .env
+          cp ./filmogophery-api/.example.env ./filmogophery-api/.env
 
       - name: Build Image & Run Container
         run: |

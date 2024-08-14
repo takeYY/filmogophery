@@ -1,10 +1,11 @@
 package tmdb
 
 import (
+	"strings"
+
 	"filmogophery/internal/config"
 	"filmogophery/pkg/logger"
 	"filmogophery/pkg/tokenizer"
-	"strings"
 )
 
 type (
