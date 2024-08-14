@@ -7,6 +7,7 @@ import (
 	"filmogophery/internal/config"
 	"filmogophery/internal/db"
 	"filmogophery/internal/health"
+	"filmogophery/internal/media"
 	"filmogophery/internal/movie"
 	"filmogophery/internal/tmdb"
 	"filmogophery/pkg/logger"
@@ -53,6 +54,9 @@ func main() {
 
 	tmdbHandler := tmdb.NewHandler(conf)
 	tmdbHandler.RegisterRoutes(e)
+
+	mediaHandler := media.NewHandler()
+	mediaHandler.RegisterRoutes(e)
 
 	// サーバーの起動
 	serverAddr := ":" + conf.Server.Port
