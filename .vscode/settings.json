@@ -29,5 +29,13 @@
     "editor.formatOnSave": true,
     "editor.suggest.insertMode": "replace",
     "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
   }
 }
