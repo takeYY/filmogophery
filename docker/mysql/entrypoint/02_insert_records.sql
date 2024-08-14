@@ -26,7 +26,7 @@ VALUES
 INSERT INTO
     `watch_media` (`id`, `code`, `name`)
 VALUES
-    (1, 'amazon_prime', 'Amazon Prime Video'),
+    (1, 'prime_video', 'Prime Video'),
     (2, 'netflix', 'Netflix'),
     (3, 'u_next', 'U-NEXT'),
     (4, 'disney_plus', 'Disney+'),
@@ -35,7 +35,8 @@ VALUES
     (7, 'hulu', 'Hulu'),
     (8, 'd_anime', 'dアニメ'),
     (9, 'telasa', 'TELASA'),
-    (10, 'cinema', '映画館');
+    (10, 'cinema', '映画館'),
+    (99, 'unknown', '不明');
 
 -- Create `poster`
 INSERT INTO
