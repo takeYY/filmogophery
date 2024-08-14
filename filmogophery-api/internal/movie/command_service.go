@@ -1,11 +1,12 @@
 package movie
 
 import (
-	"filmogophery/internal/db"
-	"filmogophery/pkg/gen/model"
 	"strconv"
 	"strings"
 	"time"
+
+	"filmogophery/internal/db"
+	"filmogophery/pkg/gen/model"
 )
 
 type (
