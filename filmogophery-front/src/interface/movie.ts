@@ -40,6 +40,7 @@ export type MovieDetail = {
 };
 
 export type WatchMedia = {
+  id: number;
   code: string;
   name: string;
 };
