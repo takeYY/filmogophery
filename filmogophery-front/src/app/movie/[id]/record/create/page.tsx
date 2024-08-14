@@ -1,26 +1,34 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { WatchMedia, MovieDetail, Movie } from "@/interface/movie";
+import { WatchMedia, MovieDetail } from "@/interface/movie";
 import Image from "next/image";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [watchMedia, setMedia] = useState<WatchMedia[]>([]);
+  const [watchMedia, setMedia] = useState<WatchMedia[]>();
   const [movie, setMovie] = useState<MovieDetail>();
 
   useEffect(() => {
-    const media = fetchMedia();
-    const mov = fetchMovie(params.id);
+    const fetchMedia = async () => {
+      console.log("mediaのデータ取得中...");
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/media`);
+        const media: WatchMedia[] = await response.json();
+        console.log("mediaのデータ取得: 完了");
 
-    setMedia(media);
+        return setMedia(media);
+      } catch {
+        console.log("mediaデータ取得エラー");
+      }
+    };
+
+    fetchMedia();
+    const mov = fetchMovie(params.id);
     setMovie(mov);
   }, [params.id]);
-
-  //const watchMedia = fetchMedia();
-  //const movie = fetchMovie(params.id);
 
   const [rangeValue, onChange] = useState(movie?.impression.rating.toString());
 
@@ -37,7 +45,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
     try {
       /*  API との通信
-      const response = await fetch("/api/submit", {
+      const response = await fetch("http://localhost:8000/XXX", {
         method: "POST",
         body: formData,
       });
@@ -78,6 +86,7 @@ export default function Page({ params }: { params: { id: string } }) {
               width={300}
               height={300}
               alt="ポスター"
+              priority={false}
             ></Image>
           </div>
 
@@ -93,25 +102,26 @@ export default function Page({ params }: { params: { id: string } }) {
               </label>
               <div className="col-sm-8 d-flex align-items-center">
                 <div className="px-2 row">
-                  {watchMedia.map((wm: WatchMedia, i: number) => {
-                    return (
-                      <div
-                        key={i}
-                        className="form-check form-check-inline col-md-3"
-                      >
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="media"
-                          id={wm.code}
-                          value={wm.code}
-                        />
-                        <label className="form-check-label" htmlFor={wm.code}>
-                          {wm.name}
-                        </label>
-                      </div>
-                    );
-                  })}
+                  {watchMedia !== undefined &&
+                    watchMedia.map((wm: WatchMedia, i: number) => {
+                      return (
+                        <div
+                          key={i}
+                          className="form-check form-check-inline col-md-3"
+                        >
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="media"
+                            id={wm.code}
+                            value={wm.code}
+                          />
+                          <label className="form-check-label" htmlFor={wm.code}>
+                            {wm.name}
+                          </label>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </div>
@@ -200,26 +210,6 @@ export default function Page({ params }: { params: { id: string } }) {
       </form>
     </div>
   );
-}
-
-function fetchMedia(): WatchMedia[] {
-  console.log("データ取得中...");
-  const watchMedia: WatchMedia[] = [
-    { code: "amazon_prime", name: "Prime Video" },
-    { code: "netflix", name: "Netflix" },
-    { code: "u_next", name: "U-NEXT" },
-    { code: "disney_plus", name: "Disney+" },
-    { code: "youtube", name: "YouTube" },
-    { code: "apple_tv", name: "Apple TV+" },
-    { code: "hulu", name: "Hulu" },
-    { code: "d_anime", name: "dアニメ" },
-    { code: "telasa", name: "TELASA" },
-    { code: "cinema", name: "映画館" },
-    { code: "unknown", name: "不明" },
-  ];
-  console.log("データ取得: 完了");
-
-  return watchMedia;
 }
 
 function fetchMovie(id: string): MovieDetail {
