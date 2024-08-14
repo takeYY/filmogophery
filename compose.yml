@@ -10,11 +10,11 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - .:/usr/src/app
+      - ./filmogophery-api/:/usr/src/app
     command: >
       bash -c 'go mod tidy && air'
     env_file:
-      - .env
+      - ./filmogophery-api/.env
     depends_on:
       db:
         condition: service_healthy
@@ -27,7 +27,7 @@ services:
     volumes:
       - mysql-volumes:/var/lib/mysql
       - ./docker/mysql/entrypoint/:/docker-entrypoint-initdb.d
-      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./filmogophery-api/my.cnf:/etc/mysql/conf.d/my.cnf
     environment:
       MYSQL_USER: "user"
       MYSQL_PASSWORD: "password"
