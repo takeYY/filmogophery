@@ -45,6 +45,9 @@ func main() {
 	}))
 	e.Use(middleware.Recover())
 
+	// CORSの設定追加
+	e.Use(middleware.CORS())
+
 	// ハンドラの設定
 	healthHandler := health.NewHandler(conf)
 	healthHandler.RegisterRoutes(e)
