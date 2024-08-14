@@ -38,3 +38,8 @@ export type MovieDetail = {
   impression: Impression;
   watchRecords: WatchRecord[];
 };
+
+export type WatchMedia = {
+  code: string;
+  name: string;
+};
