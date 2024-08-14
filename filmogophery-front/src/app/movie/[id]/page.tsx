@@ -121,7 +121,7 @@ export default function Page({ params }: { params: { id: string } }) {
         <div className="col-md-3">
           <Link
             className="btn btn-outline-primary"
-            href={`/movie/${params.id}/record`}
+            href={`/movie/${params.id}/record/create`}
           >
             視聴履歴を作成
           </Link>
