@@ -7,8 +7,10 @@ import (
 	"filmogophery/internal/config"
 	"filmogophery/internal/db"
 	"filmogophery/internal/health"
+	"filmogophery/internal/impression"
 	"filmogophery/internal/media"
 	"filmogophery/internal/movie"
+	"filmogophery/internal/record"
 	"filmogophery/internal/tmdb"
 	"filmogophery/pkg/logger"
 	"filmogophery/pkg/tokenizer"
@@ -60,6 +62,12 @@ func main() {
 
 	mediaHandler := media.NewHandler()
 	mediaHandler.RegisterRoutes(e)
+
+	impressionHandler := impression.NewHandler()
+	impressionHandler.RegisterRoutes(e)
+
+	movieWatchRecordHandler := record.NewHandler()
+	movieWatchRecordHandler.RegisterRoutes(e)
 
 	// サーバーの起動
 	serverAddr := ":" + conf.Server.Port
