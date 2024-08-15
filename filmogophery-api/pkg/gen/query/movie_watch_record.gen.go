@@ -28,6 +28,7 @@ func newMovieWatchRecord(db *gorm.DB, opts ...gen.DOOption) movieWatchRecord {
 	tableName := _movieWatchRecord.movieWatchRecordDo.TableName()
 	_movieWatchRecord.ALL = field.NewAsterisk(tableName)
 	_movieWatchRecord.ID = field.NewInt32(tableName, "id")
+	_movieWatchRecord.MovieImpressionID = field.NewInt32(tableName, "movie_impression_id")
 	_movieWatchRecord.WatchMediaID = field.NewInt32(tableName, "watch_media_id")
 	_movieWatchRecord.WatchDate = field.NewTime(tableName, "watch_date")
 	_movieWatchRecord.WatchMedia = movieWatchRecordHasOneWatchMedia{
@@ -44,11 +45,12 @@ func newMovieWatchRecord(db *gorm.DB, opts ...gen.DOOption) movieWatchRecord {
 type movieWatchRecord struct {
 	movieWatchRecordDo
 
-	ALL          field.Asterisk
-	ID           field.Int32
-	WatchMediaID field.Int32
-	WatchDate    field.Time
-	WatchMedia   movieWatchRecordHasOneWatchMedia
+	ALL               field.Asterisk
+	ID                field.Int32
+	MovieImpressionID field.Int32
+	WatchMediaID      field.Int32
+	WatchDate         field.Time
+	WatchMedia        movieWatchRecordHasOneWatchMedia
 
 	fieldMap map[string]field.Expr
 }
@@ -66,6 +68,7 @@ func (m movieWatchRecord) As(alias string) *movieWatchRecord {
 func (m *movieWatchRecord) updateTableName(table string) *movieWatchRecord {
 	m.ALL = field.NewAsterisk(table)
 	m.ID = field.NewInt32(table, "id")
+	m.MovieImpressionID = field.NewInt32(table, "movie_impression_id")
 	m.WatchMediaID = field.NewInt32(table, "watch_media_id")
 	m.WatchDate = field.NewTime(table, "watch_date")
 
@@ -84,8 +87,9 @@ func (m *movieWatchRecord) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (m *movieWatchRecord) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 4)
+	m.fieldMap = make(map[string]field.Expr, 5)
 	m.fieldMap["id"] = m.ID
+	m.fieldMap["movie_impression_id"] = m.MovieImpressionID
 	m.fieldMap["watch_media_id"] = m.WatchMediaID
 	m.fieldMap["watch_date"] = m.WatchDate
 

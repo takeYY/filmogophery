@@ -12,17 +12,18 @@ const TableNameMovie = "movie"
 
 // Movie mapped from table <movie>
 type Movie struct {
-	ID          int32        `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	Title       string       `gorm:"column:title;not null" json:"title"`
-	Overview    *string      `gorm:"column:overview" json:"overview"`
-	ReleaseDate time.Time    `gorm:"column:release_date;not null" json:"release_date"`
-	RunTime     int32        `gorm:"column:run_time;not null" json:"run_time"`
-	PosterID    *int32       `gorm:"column:poster_id" json:"poster_id"`
-	SeriesID    *int32       `gorm:"column:series_id" json:"series_id"`
-	TmdbID      *int32       `gorm:"column:tmdb_id" json:"tmdb_id"`
-	Genres      []*Genre     `gorm:"many2many:movie_genres" json:"genres"`
-	Poster      *Poster      `gorm:"default:null;constraint:OnUpdate:SET NULL;constraint:OnDelete:SET NULL;foreignKey:PosterID;references:ID" json:"poster"`
-	Series      *MovieSeries `gorm:"default:null;constraint:OnUpdate:SET NULL;constraint:OnDelete:SET NULL;foreignKey:SeriesID;references:ID" json:"series"`
+	ID              int32            `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	Title           string           `gorm:"column:title;not null" json:"title"`
+	Overview        *string          `gorm:"column:overview" json:"overview"`
+	ReleaseDate     time.Time        `gorm:"column:release_date;not null" json:"release_date"`
+	RunTime         int32            `gorm:"column:run_time;not null" json:"run_time"`
+	PosterID        *int32           `gorm:"column:poster_id" json:"poster_id"`
+	SeriesID        *int32           `gorm:"column:series_id" json:"series_id"`
+	TmdbID          *int32           `gorm:"column:tmdb_id" json:"tmdb_id"`
+	Genres          []*Genre         `gorm:"many2many:movie_genres" json:"genres"`
+	Poster          *Poster          `gorm:"default:null;constraint:OnUpdate:SET NULL;constraint:OnDelete:SET NULL;foreignKey:PosterID;references:ID" json:"poster"`
+	Series          *MovieSeries     `gorm:"default:null;constraint:OnUpdate:SET NULL;constraint:OnDelete:SET NULL;foreignKey:SeriesID;references:ID" json:"series"`
+	MovieImpression *MovieImpression `gorm:"foreignKey:MovieID;references:ID" json:"movie_impression"`
 }
 
 // TableName Movie's table name

@@ -63,6 +63,30 @@ func newMovie(db *gorm.DB, opts ...gen.DOOption) movie {
 		},
 	}
 
+	_movie.MovieImpression = movieBelongsToMovieImpression{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("MovieImpression", "model.MovieImpression"),
+		Movie: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("MovieImpression.Movie", "model.Movie"),
+		},
+		WatchRecords: struct {
+			field.RelationField
+			WatchMedia struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("MovieImpression.WatchRecords", "model.MovieWatchRecord"),
+			WatchMedia: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("MovieImpression.WatchRecords.WatchMedia", "model.WatchMedia"),
+			},
+		},
+	}
+
 	_movie.fillFieldMap()
 
 	return _movie
@@ -85,6 +109,8 @@ type movie struct {
 	Poster movieHasOnePoster
 
 	Series movieHasOneSeries
+
+	MovieImpression movieBelongsToMovieImpression
 
 	fieldMap map[string]field.Expr
 }
@@ -125,7 +151,7 @@ func (m *movie) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *movie) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 11)
+	m.fieldMap = make(map[string]field.Expr, 12)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["title"] = m.Title
 	m.fieldMap["overview"] = m.Overview
@@ -365,6 +391,87 @@ func (a movieHasOneSeriesTx) Clear() error {
 }
 
 func (a movieHasOneSeriesTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type movieBelongsToMovieImpression struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Movie struct {
+		field.RelationField
+	}
+	WatchRecords struct {
+		field.RelationField
+		WatchMedia struct {
+			field.RelationField
+		}
+	}
+}
+
+func (a movieBelongsToMovieImpression) Where(conds ...field.Expr) *movieBelongsToMovieImpression {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a movieBelongsToMovieImpression) WithContext(ctx context.Context) *movieBelongsToMovieImpression {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a movieBelongsToMovieImpression) Session(session *gorm.Session) *movieBelongsToMovieImpression {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a movieBelongsToMovieImpression) Model(m *model.Movie) *movieBelongsToMovieImpressionTx {
+	return &movieBelongsToMovieImpressionTx{a.db.Model(m).Association(a.Name())}
+}
+
+type movieBelongsToMovieImpressionTx struct{ tx *gorm.Association }
+
+func (a movieBelongsToMovieImpressionTx) Find() (result *model.MovieImpression, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a movieBelongsToMovieImpressionTx) Append(values ...*model.MovieImpression) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a movieBelongsToMovieImpressionTx) Replace(values ...*model.MovieImpression) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a movieBelongsToMovieImpressionTx) Delete(values ...*model.MovieImpression) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a movieBelongsToMovieImpressionTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a movieBelongsToMovieImpressionTx) Count() int64 {
 	return a.tx.Count()
 }
 

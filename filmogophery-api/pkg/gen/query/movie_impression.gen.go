@@ -30,42 +30,22 @@ func newMovieImpression(db *gorm.DB, opts ...gen.DOOption) movieImpression {
 	_movieImpression.ID = field.NewInt32(tableName, "id")
 	_movieImpression.MovieID = field.NewInt32(tableName, "movie_id")
 	_movieImpression.Status = field.NewBool(tableName, "status")
-	_movieImpression.Rating = field.NewBool(tableName, "rating")
+	_movieImpression.Rating = field.NewFloat32(tableName, "rating")
 	_movieImpression.Note = field.NewString(tableName, "note")
 	_movieImpression.Movie = movieImpressionHasOneMovie{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Movie", "model.Movie"),
-		Genres: struct {
-			field.RelationField
-			Movies struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("Movie.Genres", "model.Genre"),
-			Movies: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Movie.Genres.Movies", "model.Movie"),
-			},
-		},
-		Poster: struct {
+	}
+
+	_movieImpression.WatchRecords = movieImpressionHasManyWatchRecords{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("WatchRecords", "model.MovieWatchRecord"),
+		WatchMedia: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("Movie.Poster", "model.Poster"),
-		},
-		Series: struct {
-			field.RelationField
-			Poster struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("Movie.Series", "model.MovieSeries"),
-			Poster: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Movie.Series.Poster", "model.Poster"),
-			},
+			RelationField: field.NewRelation("WatchRecords.WatchMedia", "model.WatchMedia"),
 		},
 	}
 
@@ -81,9 +61,11 @@ type movieImpression struct {
 	ID      field.Int32
 	MovieID field.Int32
 	Status  field.Bool
-	Rating  field.Bool
+	Rating  field.Float32
 	Note    field.String
 	Movie   movieImpressionHasOneMovie
+
+	WatchRecords movieImpressionHasManyWatchRecords
 
 	fieldMap map[string]field.Expr
 }
@@ -103,7 +85,7 @@ func (m *movieImpression) updateTableName(table string) *movieImpression {
 	m.ID = field.NewInt32(table, "id")
 	m.MovieID = field.NewInt32(table, "movie_id")
 	m.Status = field.NewBool(table, "status")
-	m.Rating = field.NewBool(table, "rating")
+	m.Rating = field.NewFloat32(table, "rating")
 	m.Note = field.NewString(table, "note")
 
 	m.fillFieldMap()
@@ -121,7 +103,7 @@ func (m *movieImpression) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (m *movieImpression) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 6)
+	m.fieldMap = make(map[string]field.Expr, 7)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["movie_id"] = m.MovieID
 	m.fieldMap["status"] = m.Status
@@ -144,22 +126,6 @@ type movieImpressionHasOneMovie struct {
 	db *gorm.DB
 
 	field.RelationField
-
-	Genres struct {
-		field.RelationField
-		Movies struct {
-			field.RelationField
-		}
-	}
-	Poster struct {
-		field.RelationField
-	}
-	Series struct {
-		field.RelationField
-		Poster struct {
-			field.RelationField
-		}
-	}
 }
 
 func (a movieImpressionHasOneMovie) Where(conds ...field.Expr) *movieImpressionHasOneMovie {
@@ -224,6 +190,81 @@ func (a movieImpressionHasOneMovieTx) Clear() error {
 }
 
 func (a movieImpressionHasOneMovieTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type movieImpressionHasManyWatchRecords struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	WatchMedia struct {
+		field.RelationField
+	}
+}
+
+func (a movieImpressionHasManyWatchRecords) Where(conds ...field.Expr) *movieImpressionHasManyWatchRecords {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a movieImpressionHasManyWatchRecords) WithContext(ctx context.Context) *movieImpressionHasManyWatchRecords {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a movieImpressionHasManyWatchRecords) Session(session *gorm.Session) *movieImpressionHasManyWatchRecords {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a movieImpressionHasManyWatchRecords) Model(m *model.MovieImpression) *movieImpressionHasManyWatchRecordsTx {
+	return &movieImpressionHasManyWatchRecordsTx{a.db.Model(m).Association(a.Name())}
+}
+
+type movieImpressionHasManyWatchRecordsTx struct{ tx *gorm.Association }
+
+func (a movieImpressionHasManyWatchRecordsTx) Find() (result []*model.MovieWatchRecord, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a movieImpressionHasManyWatchRecordsTx) Append(values ...*model.MovieWatchRecord) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a movieImpressionHasManyWatchRecordsTx) Replace(values ...*model.MovieWatchRecord) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a movieImpressionHasManyWatchRecordsTx) Delete(values ...*model.MovieWatchRecord) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a movieImpressionHasManyWatchRecordsTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a movieImpressionHasManyWatchRecordsTx) Count() int64 {
 	return a.tx.Count()
 }
 

@@ -8,12 +8,13 @@ const TableNameMovieImpression = "movie_impression"
 
 // MovieImpression mapped from table <movie_impression>
 type MovieImpression struct {
-	ID      int32   `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	MovieID *int32  `gorm:"column:movie_id" json:"movie_id"`
-	Status  bool    `gorm:"column:status;not null" json:"status"`
-	Rating  *bool   `gorm:"column:rating" json:"rating"`
-	Note    *string `gorm:"column:note" json:"note"`
-	Movie   Movie   `gorm:"default:null;foreignKey:MovieID;references:ID" json:"movie"`
+	ID           int32               `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	MovieID      int32               `gorm:"column:movie_id;not null" json:"movie_id"`
+	Status       bool                `gorm:"column:status;not null" json:"status"`
+	Rating       *float32            `gorm:"column:rating" json:"rating"`
+	Note         *string             `gorm:"column:note" json:"note"`
+	Movie        Movie               `gorm:"foreignKey:MovieID;references:ID" json:"movie"`
+	WatchRecords []*MovieWatchRecord `gorm:"foreignKey:MovieImpressionID;references:ID" json:"watch_records"`
 }
 
 // TableName MovieImpression's table name
