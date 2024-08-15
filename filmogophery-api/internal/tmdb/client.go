@@ -14,6 +14,7 @@ import (
 type (
 	ITmdbClient interface {
 		SearchMovies(query string) (*SearchMovieResultSet, error)
+		GetMovieDetail(id *int32) (*MovieDetail, error)
 	}
 
 	TmdbClient struct {
@@ -59,6 +60,40 @@ func (tc *TmdbClient) SearchMovies(query string) (*SearchMovieResultSet, error) 
 	}
 
 	var result SearchMovieResultSet
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (tc *TmdbClient) GetMovieDetail(id *int32) (*MovieDetail, error) {
+	url := fmt.Sprintf("%s/movie/%d?language=ja-JP", tc.baseURL, *id)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+tc.AccessToken)
+
+	res, err := tc.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch movies: %s", res.Status)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var result MovieDetail
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, err
 	}
