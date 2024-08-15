@@ -1,10 +1,40 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
 import StarRating from "@/app/ui/Rating";
 import { MovieDetail, WatchRecord } from "@/interface/movie";
 import Image from "next/image";
 import Link from "next/link";
+import { posterUrlPrefix } from "@/constants/poster";
 
 export default function Page({ params }: { params: { id: string } }) {
-  const movie = fetchMovie(params.id);
+  const [movie, setMovie] = useState<MovieDetail>();
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch(`/api/movie?id=${params.id}`, {
+          method: "GET",
+        });
+        const movie: MovieDetail = await response.json();
+        console.log("moviesのデータ取得: 完了");
+        console.log("%o", movie);
+
+        return setMovie(movie);
+      } catch {
+        console.log("moviesのデータ取得: エラー。空配列で定義します");
+        return setMovie(undefined);
+      }
+    };
+
+    fetchMovies();
+  }, [params.id]);
+
+  if (!movie) {
+    return <div></div>;
+  }
+
+  // const movie = fetchMovie(params.id);
   return (
     <div className="container pb-4">
       <h3 className="text-center mb-4">Movie Detail</h3>
@@ -17,7 +47,7 @@ export default function Page({ params }: { params: { id: string } }) {
           <div className="col-md-3">
             {/* ポスター */}
             <Image
-              src={movie.posterURL}
+              src={posterUrlPrefix + movie.posterURL}
               className="img-fluid rounded-start"
               alt="ポスター画像"
               width={350}
@@ -27,10 +57,10 @@ export default function Page({ params }: { params: { id: string } }) {
             {/* 一般の評価 */}
             <div className="justify-content-center">
               <StarRating
-                rating={movie.vote_average}
+                rating={movie.voteAverage / 2}
                 size={20}
                 starColor={"#0dcaf0"}
-                sumReview={movie.vote_count.toString()}
+                sumReview={movie.voteCount.toString()}
               />
             </div>
           </div>
@@ -46,7 +76,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 </div>
               )}
               {/* ジャンル */}
-              {movie.genres.length && (
+              {movie.genres.length !== 0 && (
                 <div className="card-text d-grid gap-2 d-md-block">
                   {movie.genres.map((g: string, i: number) => {
                     return (
@@ -62,11 +92,9 @@ export default function Page({ params }: { params: { id: string } }) {
                 </div>
               )}
               {/* 公開日 */}
-              <p className="card-text">
-                公開日：{movie.release_date.toLocaleDateString()}
-              </p>
+              <p className="card-text">公開日：{movie.releaseDate}</p>
               {/* 上映時間 */}
-              <p className="card-text">上映時間：{movie.run_time}分</p>
+              <p className="card-text">上映時間：{movie.runTime}分</p>
               {/* 概要 */}
               <p className="card-text">{movie.overview}</p>
               {/* 感想 */}
@@ -80,20 +108,18 @@ export default function Page({ params }: { params: { id: string } }) {
               <div>視聴履歴</div>
               {!movie.watchRecords.length && <div>なし</div>}
 
-              {movie.watchRecords.length && (
+              {movie.watchRecords.length !== 0 && (
                 <dl className="row">
                   {movie.watchRecords.map((r: WatchRecord, i: number) => {
                     return (
                       <div key={i}>
                         <dt className="col-md-1 bg-transparent badge border border-primary rounded-pill">
-                          {`${calcDiffDate(r.watch_date)}日前`}
+                          {`${calcDiffDate(new Date(r.watchDate))}日前`}
                         </dt>
                         <dd className="col-md-10">
                           <dl className="row">
-                            <dt className="col-md-4">
-                              {r.watch_date.toLocaleDateString()}
-                            </dt>
-                            <dd className="col-md-8">{r.watch_media}</dd>
+                            <dt className="col-md-4">{r.watchDate}</dt>
+                            <dd className="col-md-8">{r.watchMedia}</dd>
                           </dl>
                         </dd>
                       </div>
@@ -138,88 +164,4 @@ function calcDiffDate(target: Date): string {
   const result = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
   return Math.abs(result).toString();
-}
-
-function fetchMovie(id: string): MovieDetail {
-  try {
-    console.log("データ取得中...");
-    const movieDetail: MovieDetail = {
-      id: parseInt(id),
-      title: "ターミネーター",
-      overview:
-        "アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が現れる。同じく...",
-      release_date: new Date("1985-05-04"),
-      run_time: 108,
-      genres: ["アクション", "SF"],
-      posterURL:
-        "https://image.tmdb.org/t/p/w600_and_h900_bestv2/iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg",
-      vote_average: 3.85,
-      vote_count: 12832,
-      series: {
-        name: "ターミネーターシリーズ",
-        posterURL:
-          "https://image.tmdb.org/t/p/w600_and_h900_bestv2/pF5GIijY2fyZcByqNDzhS8v4h1x.jpg",
-      },
-      impression: {
-        status: "鑑賞済み",
-        rating: 4.3,
-        note: "ターミネーターの元祖という感じで、恐ろしさと希望が織り成す圧巻の作品。今観るとCGのぎこちなさが目立つが、それが逆に怖さを演出している。",
-      },
-      watchRecords: [
-        {
-          watch_date: new Date("2024-08-11"),
-          watch_media: "U-NEXT",
-        },
-        {
-          watch_date: new Date("2024-02-03"),
-          watch_media: "Netflix",
-        },
-        {
-          watch_date: new Date("2024-01-02"),
-          watch_media: "Amazon Prime Video",
-        },
-      ],
-    };
-    console.log("データ取得: 完了!");
-    return movieDetail;
-  } catch (error) {
-    console.log("データ取得エラー");
-    return {
-      id: parseInt(id),
-      title: "ターミネーター",
-      overview:
-        "アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が現れる。同じく...",
-      release_date: new Date("1985-05-04"),
-      run_time: 108,
-      genres: ["アクション", "SF"],
-      posterURL:
-        "https://image.tmdb.org/t/p/w600_and_h900_bestv2/iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg",
-      vote_average: 3.85,
-      vote_count: 12832,
-      series: {
-        name: "ターミネーターシリーズ",
-        posterURL:
-          "https://image.tmdb.org/t/p/w600_and_h900_bestv2/pF5GIijY2fyZcByqNDzhS8v4h1x.jpg",
-      },
-      impression: {
-        status: "鑑賞済み",
-        rating: 4.3,
-        note: "初代です！",
-      },
-      watchRecords: [
-        {
-          watch_date: new Date("2024-08-11"),
-          watch_media: "U-NEXT",
-        },
-        {
-          watch_date: new Date("2024-02-03"),
-          watch_media: "Netflix",
-        },
-        {
-          watch_date: new Date("2024-01-02"),
-          watch_media: "Amazon Prime Video",
-        },
-      ],
-    };
-  }
 }

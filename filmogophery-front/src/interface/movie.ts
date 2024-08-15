@@ -48,26 +48,27 @@ type Series = {
 };
 
 type Impression = {
+  id: number;
   status: string;
-  rating: number;
+  rating: number | null;
   note: string | null;
 };
 
 export type WatchRecord = {
-  watch_media: string;
-  watch_date: Date;
+  watchDate: string;
+  watchMedia: string;
 };
 
 export type MovieDetail = {
   id: number;
   title: string;
   overview: string | null;
-  release_date: Date;
-  run_time: number;
+  releaseDate: string;
+  runTime: number;
   genres: string[];
   posterURL: string;
-  vote_average: number;
-  vote_count: number;
+  voteAverage: number;
+  voteCount: number;
   series: Series | null;
   impression: Impression;
   watchRecords: WatchRecord[];
