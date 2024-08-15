@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Movie, Genre } from "@/interface/movie";
+import { posterUrlPrefix } from "@/constants/poster";
 
 export default function Home() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function Home() {
                     <div className="col-md-4">
                       <Image
                         src={
-                          `https://image.tmdb.org/t/p/w600_and_h900_bestv2` +
+                          posterUrlPrefix +
                           (movie.poster
                             ? movie.poster.url
                             : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
