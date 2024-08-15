@@ -42,9 +42,9 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 	}
 	logger.Info().Msg("success to get a movie")
 
-	var genres []string
+	var genres []*string = make([]*string, 0)
 	for _, m := range movie.Genres {
-		genres = append(genres, *m.Name)
+		genres = append(genres, m.Name)
 	}
 
 	tmdbMovie, err := qs.TmdbClient.GetMovieDetail(movie.TmdbID)
@@ -54,14 +54,17 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 	}
 	logger.Info().Msgf("success to get a detail movie from tmdb")
 
-	records, err := qs.RecordRepo.FindByImpressionID(ctx, &movie.MovieImpression.ID)
-	if err != nil {
-		logger.Info().Msg("failed to get watch records")
-		return nil, err
+	var records []*model.MovieWatchRecord = make([]*model.MovieWatchRecord, 0)
+	if movie.MovieImpression != nil {
+		records, err = qs.RecordRepo.FindByImpressionID(ctx, &movie.MovieImpression.ID)
+		if err != nil {
+			logger.Info().Msg("failed to get watch records")
+			return nil, err
+		}
+		logger.Info().Msgf("success to get watch records")
 	}
-	logger.Info().Msgf("success to get watch records")
 
-	var watchRecords []*WatchRecordDetailDto
+	var watchRecords []*WatchRecordDetailDto = make([]*WatchRecordDetailDto, 0)
 	for _, r := range records {
 		watchRecord := &WatchRecordDetailDto{
 			WatchDate:  r.WatchDate.Format("2006-01-02"),
@@ -70,26 +73,39 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 		watchRecords = append(watchRecords, watchRecord)
 	}
 
-	movieDetail := &MovieDetailDto{
-		ID:          movie.ID,
-		Title:       movie.Title,
-		Overview:    movie.Overview,
-		ReleaseDate: movie.ReleaseDate.Format("2006-01-02"),
-		RunTime:     movie.RunTime,
-		Genres:      genres,
-		PosterURL:   movie.Poster.URL,
-		VoteAverage: tmdbMovie.VoteAverage,
-		VoteCount:   tmdbMovie.VoteCount,
-		Series: &SeriesDetailDto{
+	var series SeriesDetailDto
+	if movie.Series != nil {
+		series = SeriesDetailDto{
 			Name:      movie.Series.Name,
 			PosterURL: movie.Series.Poster.URL,
-		},
-		Impression: &ImpressionDetailDto{
+		}
+	}
+	var impression ImpressionDetailDto
+	if movie.MovieImpression != nil {
+		impression = ImpressionDetailDto{
 			ID:     movie.MovieImpression.ID,
 			Status: movie.MovieImpression.Status,
 			Rating: movie.MovieImpression.Rating,
 			Note:   movie.MovieImpression.Note,
-		},
+		}
+	}
+	var posterURL string
+	if movie.Poster != nil {
+		posterURL = movie.Poster.URL
+	}
+
+	movieDetail := &MovieDetailDto{
+		ID:           movie.ID,
+		Title:        movie.Title,
+		Overview:     movie.Overview,
+		ReleaseDate:  movie.ReleaseDate.Format("2006-01-02"),
+		RunTime:      movie.RunTime,
+		Genres:       genres,
+		PosterURL:    posterURL,
+		VoteAverage:  tmdbMovie.VoteAverage,
+		VoteCount:    tmdbMovie.VoteCount,
+		Series:       &series,
+		Impression:   &impression,
 		WatchRecords: watchRecords,
 	}
 
