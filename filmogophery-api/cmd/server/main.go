@@ -54,7 +54,7 @@ func main() {
 	healthHandler := health.NewHandler(conf)
 	healthHandler.RegisterRoutes(e)
 
-	movieHandler := movie.NewHandler()
+	movieHandler := movie.NewHandler(conf)
 	movieHandler.RegisterRoutes(e)
 
 	tmdbHandler := tmdb.NewHandler(conf)

@@ -6,6 +6,7 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 
+	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 	"filmogophery/pkg/gen/query"
 )
@@ -13,6 +14,7 @@ import (
 type (
 	IQueryRepository interface {
 		Find(ctx context.Context) ([]*model.MovieWatchRecord, error)
+		FindByImpressionID(ctx context.Context, id *int32) ([]*model.MovieWatchRecord, error)
 	}
 
 	MovieWatchRecordRepository struct {
@@ -20,10 +22,33 @@ type (
 	}
 )
 
+func NewQueryRepository() *MovieWatchRecordRepository {
+	return &MovieWatchRecordRepository{
+		DB: db.READER_DB,
+	}
+}
+
 func (r *MovieWatchRecordRepository) Find(ctx context.Context) ([]*model.MovieWatchRecord, error) {
 	mwr := query.Use(r.DB).MovieWatchRecord
 
 	movieWatchRecords, err := mwr.WithContext(ctx).Preload(field.Associations.Scopes(field.RelationFieldUnscoped)).Find()
+	if err != nil {
+		return nil, err
+	}
+
+	return movieWatchRecords, nil
+}
+
+func (r *MovieWatchRecordRepository) FindByImpressionID(ctx context.Context, id *int32) ([]*model.MovieWatchRecord, error) {
+	mwr := query.Use(r.DB).MovieWatchRecord
+
+	movieWatchRecords, err := mwr.WithContext(ctx).
+		Preload(
+			field.Associations.Scopes(field.RelationFieldUnscoped),
+		).
+		Where(mwr.MovieImpressionID.Eq(*id)).
+		Order(mwr.WatchDate.Desc()).
+		Find()
 	if err != nil {
 		return nil, err
 	}

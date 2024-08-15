@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"filmogophery/internal/config"
 	"filmogophery/pkg/response"
 )
 
@@ -25,10 +26,10 @@ type (
 	}
 )
 
-func NewHandler() *handler {
+func NewHandler(conf *config.Config) *handler {
 	return &handler{
 		ReaderHandler: ReaderHandler{
-			queryService: NewQueryService(),
+			queryService: NewQueryService(conf),
 		},
 		WriterHandler: WriterHandler{
 			commandService: NewCommandService(),
