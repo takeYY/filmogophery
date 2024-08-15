@@ -42,7 +42,7 @@ type (
 		Overview     *string                 `json:"overview"`
 		ReleaseDate  string                  `json:"releaseDate"`
 		RunTime      int32                   `json:"runTime"`
-		Genres       []string                `json:"genres"`
+		Genres       []*string               `json:"genres"`
 		PosterURL    string                  `json:"posterURL"`
 		VoteAverage  float32                 `json:"voteAverage"`
 		VoteCount    int32                   `json:"voteCount"`
