@@ -15,7 +15,7 @@ export default function Page({ params }: { params: { id: string } }) {
     const fetchMedia = async () => {
       console.log("mediaのデータ取得中...");
       try {
-        const response = await fetch(`http://127.0.0.1:8000/media`);
+        const response = await fetch(`/api/media`, { method: "GET" });
         const media: WatchMedia[] = await response.json();
         console.log("mediaのデータ取得: 完了");
 
