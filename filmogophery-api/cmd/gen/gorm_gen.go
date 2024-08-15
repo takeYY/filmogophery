@@ -40,6 +40,32 @@ func main() {
 		},
 	}))
 
+	watch_media := g.GenerateModel("watch_media")
+	movie_watch_record := g.GenerateModel("movie_watch_record",
+		gen.FieldRelate(field.HasOne, "WatchMedia", watch_media, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"WatchMediaID"},
+				"references": []string{"ID"},
+			},
+		}),
+	)
+
+	movie_impression := g.GenerateModel("movie_impression",
+		gen.FieldRelate(field.HasOne, "Movie", g.GenerateModel("movie"), &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"MovieID"},
+				"references": []string{"ID"},
+			},
+		}),
+		gen.FieldRelate(field.HasMany, "WatchRecords", movie_watch_record, &field.RelateConfig{
+			RelateSlicePointer: true,
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"MovieImpressionID"},
+				"references": []string{"ID"},
+			},
+		}),
+	)
+
 	genre := g.GenerateModel("genre",
 		gen.FieldRelate(field.Many2Many, "Movies", g.GenerateModel("movie"), &field.RelateConfig{
 			RelateSlicePointer: true,
@@ -69,24 +95,17 @@ func main() {
 				"default":    []string{"null"},
 				"constraint": []string{"OnUpdate:SET NULL", "OnDelete:SET NULL"},
 			},
-		}))
-
-	movie_impression := g.GenerateModel("movie_impression", gen.FieldRelate(field.HasOne, "Movie", movie, &field.RelateConfig{
-		GORMTag: field.GormTag{
-			"foreignKey": []string{"MovieID"},
-			"references": []string{"ID"},
-			"default":    []string{"null"},
-		},
-	}))
-
-	watch_media := g.GenerateModel("watch_media")
-	movie_watch_record := g.GenerateModel("movie_watch_record", gen.FieldRelate(field.HasOne, "WatchMedia", watch_media, &field.RelateConfig{
-		GORMTag: field.GormTag{
-			"foreignKey": []string{"WatchMediaID"},
-			"references": []string{"ID"},
-			"default":    []string{"null"},
-		},
-	}))
+		}),
+		gen.FieldRelate(field.BelongsTo, "MovieImpression", movie_impression, &field.RelateConfig{
+			RelatePointer: true,
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"MovieID"},
+				"references": []string{"ID"},
+				// "default":    []string{"null"},
+				// "constraint": []string{"OnUpdate:SET NULL", "OnDelete:SET NULL"},
+			},
+		}),
+	)
 
 	g.ApplyBasic(poster, movie_series, genre, movie, movie_impression, watch_media, movie_watch_record)
 	g.ApplyBasic(all...)
