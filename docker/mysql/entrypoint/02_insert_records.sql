@@ -150,4 +150,27 @@ VALUES
     (5, 15);
 
 -- Create `movie_impression`
+INSERT INTO
+    `movie_impression` (`id`, `movie_id`, `status`, `rating`, `note`)
+VALUES
+    (
+        1,
+        1,
+        1,
+        4.3,
+        'ターミネーターの元祖という感じで、恐ろしさと希望が織り成す圧巻の作品。今観るとCGのぎこちなさが目立つが、それが逆に怖さを演出している。'
+    ),
+    (2, 3, 0, NULL, NULL);
+
 -- Create `movie_watch_record`
+INSERT INTO
+    `movie_watch_record` (
+        `id`,
+        `movie_impression_id`,
+        `watch_media_id`,
+        `watch_date`
+    )
+VALUES
+    (1, 1, 99, '2016-12-25'),
+    (2, 1, 1, '2022-10-24'),
+    (3, 1, 3, '2024-08-01');
