@@ -47,7 +47,12 @@ export default function Page({ params }: { params: { id: string } }) {
           <div className="col-md-3">
             {/* ポスター */}
             <Image
-              src={posterUrlPrefix + movie.posterURL}
+              src={
+                posterUrlPrefix +
+                (movie.posterURL
+                  ? movie.posterURL
+                  : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
+              }
               className="img-fluid rounded-start"
               alt="ポスター画像"
               width={350}
@@ -98,9 +103,11 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* 概要 */}
               <p className="card-text">{movie.overview}</p>
               {/* 感想 */}
-              <div className="p-3 bg-success bg-opacity-10 border border-success border-start-0 border-end-0">
-                {movie.impression.note}
-              </div>
+              {movie.impression.note && (
+                <div className="p-3 bg-success bg-opacity-10 border border-success border-start-0 border-end-0">
+                  {movie.impression.note}
+                </div>
+              )}
               {/* */}
             </div>
             {/* 視聴履歴 */}
