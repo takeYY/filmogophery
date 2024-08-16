@@ -3,7 +3,6 @@ package tmdb
 import (
 	"strings"
 
-	"filmogophery/internal/config"
 	"filmogophery/pkg/logger"
 	"filmogophery/pkg/tokenizer"
 )
@@ -14,8 +13,7 @@ type (
 	}
 )
 
-func NewTmdbService(conf *config.Config) *TmdbService {
-	var tmdbClient ITmdbClient = *NewTmdbClient(conf)
+func NewTmdbService(tmdbClient ITmdbClient) *TmdbService {
 	return &TmdbService{
 		tmdbClient: tmdbClient,
 	}

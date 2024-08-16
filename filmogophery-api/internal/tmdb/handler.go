@@ -6,7 +6,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"filmogophery/internal/config"
 	"filmogophery/pkg/response"
 )
 
@@ -20,10 +19,10 @@ type (
 	}
 )
 
-func NewHandler(conf *config.Config) *handler {
+func NewHandler(service *TmdbService) *handler {
 	return &handler{
 		TmdbHandler: TmdbHandler{
-			TmdbService: NewTmdbService(conf),
+			TmdbService: service,
 		},
 	}
 }

@@ -57,9 +57,6 @@ func main() {
 	healthHandler := health.NewHandler(conf)
 	healthHandler.RegisterRoutes(e)
 
-	tmdbHandler := tmdb.NewHandler(conf)
-	tmdbHandler.RegisterRoutes(e)
-
 	// サーバーの起動
 	serverAddr := ":" + conf.Server.Port
 	logger.Info().Msgf("Starting server on %s", serverAddr)
@@ -73,6 +70,8 @@ func newRouter(e *echo.Echo, conf *config.Config) {
 	recordRepo := record.NewQueryRepository()
 	movieQueryRepo := movie.NewQueryRepository()
 	movieCommandRepo := movie.NewCommandRepository()
+	// 外部 API
+	tmdbClient := tmdb.NewTmdbClient(conf)
 
 	// サービスの初期化
 	impressionQueryService := impression.NewQueryService(*impressionRepo)
@@ -80,6 +79,8 @@ func newRouter(e *echo.Echo, conf *config.Config) {
 	recordQueryService := record.NewQueryService(*recordRepo)
 	movieQueryService := movie.NewQueryService(conf, *movieQueryRepo)
 	movieCommandService := movie.NewCommandService(*movieCommandRepo)
+	// 外部 API
+	tmdbService := tmdb.NewTmdbService(*tmdbClient)
 
 	// ハンドラの追加
 	impressionHandler := impression.NewHandler(impressionQueryService)
@@ -93,4 +94,7 @@ func newRouter(e *echo.Echo, conf *config.Config) {
 
 	movieHandler := movie.NewHandler(movieQueryService, movieCommandService)
 	movieHandler.RegisterRoutes(e)
+
+	tmdbHandler := tmdb.NewHandler(tmdbService)
+	tmdbHandler.RegisterRoutes(e)
 }
