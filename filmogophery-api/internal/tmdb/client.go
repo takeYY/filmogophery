@@ -24,14 +24,16 @@ type (
 	}
 )
 
-func NewTmdbClient(conf *config.Config) *TmdbClient {
-	return &TmdbClient{
+func NewTmdbClient(conf *config.Config) *ITmdbClient {
+	var tmdbClient ITmdbClient = &TmdbClient{
 		httpClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},
 		baseURL:     "https://api.themoviedb.org/3",
 		AccessToken: conf.Tmdb.ACCESS_TOKEN,
 	}
+
+	return &tmdbClient
 }
 
 func (tc *TmdbClient) SearchMovies(query string) (*SearchMovieResultSet, error) {

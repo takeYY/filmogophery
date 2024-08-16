@@ -15,7 +15,7 @@ type (
 )
 
 func NewTmdbService(conf *config.Config) *TmdbService {
-	var tmdbClient ITmdbClient = NewTmdbClient(conf)
+	var tmdbClient ITmdbClient = *NewTmdbClient(conf)
 	return &TmdbService{
 		tmdbClient: tmdbClient,
 	}
