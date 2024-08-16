@@ -2,9 +2,15 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export function NavLinks() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const q = searchParams.get("query");
+
+  const [query, setQuery] = useState<string>(q ? q : "");
 
   return (
     <nav className="navbar nav-underline navbar-expand-lg navbar-dark">
@@ -65,10 +71,15 @@ export function NavLinks() {
             type="search"
             placeholder="Search"
             aria-label="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
           />
-          <button className="btn btn-outline-primary" type="submit">
+          <Link
+            className="btn btn-outline-primary"
+            href={`/search/movie?query=${query}`}
+          >
             Search
-          </button>
+          </Link>
         </form>
       </div>
     </nav>
