@@ -50,6 +50,9 @@ func main() {
 	// CORSの設定追加
 	e.Use(middleware.CORS())
 
+	// Router 追加
+	newRouter(e)
+
 	// ハンドラの設定
 	healthHandler := health.NewHandler(conf)
 	healthHandler.RegisterRoutes(e)
@@ -63,9 +66,6 @@ func main() {
 	mediaHandler := media.NewHandler()
 	mediaHandler.RegisterRoutes(e)
 
-	impressionHandler := impression.NewHandler()
-	impressionHandler.RegisterRoutes(e)
-
 	movieWatchRecordHandler := record.NewHandler()
 	movieWatchRecordHandler.RegisterRoutes(e)
 
@@ -73,4 +73,16 @@ func main() {
 	serverAddr := ":" + conf.Server.Port
 	logger.Info().Msgf("Starting server on %s", serverAddr)
 	e.Logger.Fatal(e.Start(serverAddr))
+}
+
+func newRouter(e *echo.Echo) {
+	// repository の初期化
+	impressionRepo := impression.NewQueryRepository()
+
+	// サービスの初期化
+	impressionQueryService := impression.NewQueryService(*impressionRepo)
+
+	// ハンドラの追加
+	impressionHandler := impression.NewHandler(impressionQueryService)
+	impressionHandler.RegisterRoutes(e)
 }

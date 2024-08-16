@@ -3,7 +3,6 @@ package impression
 import (
 	"context"
 
-	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 )
 
@@ -13,11 +12,7 @@ type (
 	}
 )
 
-func NewQueryService() *QueryService {
-	var movieImpressionRepo IQueryRepository = &MovieImpressionRepository{
-		DB: db.READER_DB,
-	}
-
+func NewQueryService(movieImpressionRepo IQueryRepository) *QueryService {
 	return &QueryService{
 		MovieImpressionRepo: movieImpressionRepo,
 	}

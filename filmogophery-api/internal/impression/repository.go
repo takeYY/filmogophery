@@ -6,6 +6,7 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 
+	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 	"filmogophery/pkg/gen/query"
 )
@@ -19,6 +20,13 @@ type (
 		DB *gorm.DB
 	}
 )
+
+func NewQueryRepository() *IQueryRepository {
+	var queryRepo IQueryRepository = &MovieImpressionRepository{
+		DB: db.READER_DB,
+	}
+	return &queryRepo
+}
 
 func (r *MovieImpressionRepository) Find(ctx context.Context) ([]*model.MovieImpression, error) {
 	mi := query.Use(r.DB).MovieImpression
