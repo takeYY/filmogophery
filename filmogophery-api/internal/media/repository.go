@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 	"filmogophery/pkg/gen/query"
 )
@@ -18,6 +19,13 @@ type (
 		DB *gorm.DB
 	}
 )
+
+func NewQueryRepository() *IQueryRepository {
+	var queryRepo IQueryRepository = &WatchMediaRepository{
+		DB: db.READER_DB,
+	}
+	return &queryRepo
+}
 
 func (r *WatchMediaRepository) Find(ctx context.Context) ([]*model.WatchMedia, error) {
 	wm := query.Use(r.DB).WatchMedia

@@ -19,10 +19,10 @@ type (
 	}
 )
 
-func NewHandler() *handler {
+func NewHandler(queryService *QueryService) *handler {
 	return &handler{
 		ReaderHandler: ReaderHandler{
-			queryService: NewQueryService(),
+			queryService: queryService,
 		},
 	}
 }

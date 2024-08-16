@@ -63,9 +63,6 @@ func main() {
 	tmdbHandler := tmdb.NewHandler(conf)
 	tmdbHandler.RegisterRoutes(e)
 
-	mediaHandler := media.NewHandler()
-	mediaHandler.RegisterRoutes(e)
-
 	movieWatchRecordHandler := record.NewHandler()
 	movieWatchRecordHandler.RegisterRoutes(e)
 
@@ -78,11 +75,16 @@ func main() {
 func newRouter(e *echo.Echo) {
 	// repository の初期化
 	impressionRepo := impression.NewQueryRepository()
+	mediaRepo := media.NewQueryRepository()
 
 	// サービスの初期化
 	impressionQueryService := impression.NewQueryService(*impressionRepo)
+	mediaQueryService := media.NewQueryService(*mediaRepo)
 
 	// ハンドラの追加
 	impressionHandler := impression.NewHandler(impressionQueryService)
 	impressionHandler.RegisterRoutes(e)
+
+	mediaHandler := media.NewHandler(mediaQueryService)
+	mediaHandler.RegisterRoutes(e)
 }

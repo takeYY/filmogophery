@@ -3,7 +3,6 @@ package media
 import (
 	"context"
 
-	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 )
 
@@ -13,11 +12,7 @@ type (
 	}
 )
 
-func NewQueryService() *QueryService {
-	var watchMediaRepo IQueryRepository = &WatchMediaRepository{
-		DB: db.READER_DB,
-	}
-
+func NewQueryService(watchMediaRepo IQueryRepository) *QueryService {
 	return &QueryService{
 		WatchMediaRepo: watchMediaRepo,
 	}
