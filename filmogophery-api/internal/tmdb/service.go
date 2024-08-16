@@ -19,7 +19,7 @@ func NewTmdbService(tmdbClient ITmdbClient) *TmdbService {
 	}
 }
 
-func (ts *TmdbService) SearchMovies(q *string) (*SearchMovieResultSet, error) {
+func (ts *TmdbService) SearchMovies(q *string) ([]*SearchMovieDto, error) {
 	logger := logger.GetLogger()
 
 	ch := make(chan *tokenizer.NEologd, 1)
@@ -44,5 +44,26 @@ func (ts *TmdbService) SearchMovies(q *string) (*SearchMovieResultSet, error) {
 		return nil, err
 	}
 
-	return movies, nil
+	var results []*SearchMovieDto = make([]*SearchMovieDto, 0)
+	for _, movie := range movies.Results {
+		var genres []*string
+		for _, genre := range movie.GenreIds {
+			g := GetGenreName(genre)
+			genres = append(genres, &g)
+		}
+		result := &SearchMovieDto{
+			TmdbID:      int32(movie.ID),
+			Title:       movie.Title,
+			Overview:    *movie.Overview,
+			Popularity:  float32(movie.Popularity),
+			PosterURL:   *movie.PosterPath,
+			ReleaseDate: movie.ReleaseDate,
+			VoteAverage: float32(movie.VoteAverage),
+			VoteCount:   int32(movie.VoteCount),
+			Genres:      genres,
+		}
+		results = append(results, result)
+	}
+
+	return results, nil
 }
