@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"filmogophery/internal/config"
-	"filmogophery/internal/db"
 	"filmogophery/internal/record"
 	"filmogophery/internal/tmdb"
 	"filmogophery/pkg/gen/model"
@@ -19,15 +18,11 @@ type (
 	}
 )
 
-func NewQueryService(conf *config.Config) *QueryService {
-	var movieRepo IQueryRepository = &MovieRepository{
-		DB: db.READER_DB,
-	}
-
+func NewQueryService(conf *config.Config, movieRepo IQueryRepository) *QueryService {
 	return &QueryService{
 		MovieRepo:  movieRepo,
-		RecordRepo: record.NewQueryRepository(),
-		TmdbClient: tmdb.NewTmdbClient(conf),
+		RecordRepo: *record.NewQueryRepository(),
+		TmdbClient: *tmdb.NewTmdbClient(conf),
 	}
 }
 

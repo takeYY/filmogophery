@@ -51,14 +51,11 @@ func main() {
 	e.Use(middleware.CORS())
 
 	// Router 追加
-	newRouter(e)
+	newRouter(e, conf)
 
 	// ハンドラの設定
 	healthHandler := health.NewHandler(conf)
 	healthHandler.RegisterRoutes(e)
-
-	movieHandler := movie.NewHandler(conf)
-	movieHandler.RegisterRoutes(e)
 
 	tmdbHandler := tmdb.NewHandler(conf)
 	tmdbHandler.RegisterRoutes(e)
@@ -69,16 +66,20 @@ func main() {
 	e.Logger.Fatal(e.Start(serverAddr))
 }
 
-func newRouter(e *echo.Echo) {
+func newRouter(e *echo.Echo, conf *config.Config) {
 	// repository の初期化
 	impressionRepo := impression.NewQueryRepository()
 	mediaRepo := media.NewQueryRepository()
 	recordRepo := record.NewQueryRepository()
+	movieQueryRepo := movie.NewQueryRepository()
+	movieCommandRepo := movie.NewCommandRepository()
 
 	// サービスの初期化
 	impressionQueryService := impression.NewQueryService(*impressionRepo)
 	mediaQueryService := media.NewQueryService(*mediaRepo)
 	recordQueryService := record.NewQueryService(*recordRepo)
+	movieQueryService := movie.NewQueryService(conf, *movieQueryRepo)
+	movieCommandService := movie.NewCommandService(*movieCommandRepo)
 
 	// ハンドラの追加
 	impressionHandler := impression.NewHandler(impressionQueryService)
@@ -89,4 +90,7 @@ func newRouter(e *echo.Echo) {
 
 	recordHandler := record.NewHandler(recordQueryService)
 	recordHandler.RegisterRoutes(e)
+
+	movieHandler := movie.NewHandler(movieQueryService, movieCommandService)
+	movieHandler.RegisterRoutes(e)
 }

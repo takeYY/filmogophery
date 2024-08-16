@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 	"filmogophery/pkg/logger"
 )
@@ -17,11 +16,7 @@ type (
 	}
 )
 
-func NewCommandService() *CommandService {
-	var movieRepo ICommandRepository = &MovieRepository{
-		DB: db.WRITER_DB,
-	}
-
+func NewCommandService(movieRepo ICommandRepository) *CommandService {
 	return &CommandService{
 		MovieRepo: movieRepo,
 	}

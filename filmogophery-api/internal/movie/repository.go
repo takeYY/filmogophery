@@ -7,6 +7,7 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 
+	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 	"filmogophery/pkg/gen/query"
 )
@@ -28,6 +29,20 @@ type (
 		DB *gorm.DB
 	}
 )
+
+func NewQueryRepository() *IQueryRepository {
+	var queryRepo IQueryRepository = &MovieRepository{
+		DB: db.READER_DB,
+	}
+	return &queryRepo
+}
+
+func NewCommandRepository() *ICommandRepository {
+	var commandRepo ICommandRepository = &MovieRepository{
+		DB: db.WRITER_DB,
+	}
+	return &commandRepo
+}
 
 func (r *MovieRepository) FindByID(ctx context.Context, id *int32) (*model.Movie, error) {
 	m := query.Use(r.DB).Movie
