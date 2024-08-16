@@ -79,3 +79,15 @@ export type WatchMedia = {
   code: string;
   name: string;
 };
+
+export type SearchMovie = {
+  tmdbID: number;
+  title: string;
+  overview: string;
+  popularity: number;
+  posterURL: string;
+  releaseDate: string;
+  voteAverage: number;
+  voteCount: number;
+  genres: string[];
+};
