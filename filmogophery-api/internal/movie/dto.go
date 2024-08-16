@@ -10,15 +10,6 @@ type (
 		Genres      []string `json:"genres"`
 	}
 
-	CreateMovieRecordDto struct {
-		MovieID      int32   `json:"movieId"`
-		ImpressionID int32   `json:"impressionId"`
-		Media        string  `json:"media"`
-		WatchDate    string  `json:"watchDate"`
-		Rating       float32 `json:"rating"`
-		Note         string  `json:"note"`
-	}
-
 	SeriesDetailDto struct {
 		Name      string `json:"name"`
 		PosterURL string `json:"posterURL"`

@@ -13,6 +13,7 @@ import (
 type (
 	IQueryRepository interface {
 		Find(ctx context.Context) ([]*model.WatchMedia, error)
+		GetMediaIdByCode(ctx context.Context, code *string) (*int32, error)
 	}
 
 	WatchMediaRepository struct {
@@ -36,4 +37,14 @@ func (r *WatchMediaRepository) Find(ctx context.Context) ([]*model.WatchMedia, e
 	}
 
 	return watchMedia, nil
+}
+
+func (r *WatchMediaRepository) GetMediaIdByCode(ctx context.Context, code *string) (*int32, error) {
+	wm := query.Use(r.DB).WatchMedia
+
+	watchMedia, err := wm.WithContext(ctx).Where(wm.Code.Eq(*code)).First()
+	if err != nil {
+		return nil, err
+	}
+	return &watchMedia.ID, nil
 }

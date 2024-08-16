@@ -3,7 +3,6 @@ package movie
 import (
 	"context"
 
-	"gorm.io/gen"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 
@@ -19,10 +18,6 @@ type (
 	}
 	ICommandRepository interface {
 		Save(movie *model.Movie) (*model.Movie, error)
-
-		GetMediaIdByCode(ctx context.Context, code *string) (*int32, error)
-		UpdateImpression(ctx context.Context, movieImpression *model.MovieImpression) (*gen.ResultInfo, error)
-		SaveRecord(ctx context.Context, watchRecord *model.MovieWatchRecord) (*model.MovieWatchRecord, error)
 	}
 
 	MovieRepository struct {
@@ -88,50 +83,4 @@ func (r *MovieRepository) Save(movie *model.Movie) (*model.Movie, error) {
 	}
 
 	return movie, nil
-}
-
-// Code から Media ID を取得する
-func (r *MovieRepository) GetMediaIdByCode(ctx context.Context, code *string) (*int32, error) {
-	wm := query.Use(r.DB).WatchMedia
-
-	watchMedia, err := wm.WithContext(ctx).Where(wm.Code.Eq(*code)).First()
-	if err != nil {
-		return nil, err
-	}
-	return &watchMedia.ID, nil
-}
-
-func (r *MovieRepository) UpdateImpression(ctx context.Context, movieImpression *model.MovieImpression) (*gen.ResultInfo, error) {
-	var err error
-	defer func() {
-		if err != nil {
-			r.DB.Rollback()
-		} else {
-			r.DB.Commit()
-		}
-	}()
-
-	mi := query.Use(r.DB).MovieImpression
-
-	var result gen.ResultInfo
-	result, err = mi.WithContext(ctx).Where(mi.ID.Eq(movieImpression.ID)).Updates(movieImpression)
-
-	return &result, err
-}
-
-func (r *MovieRepository) SaveRecord(ctx context.Context, watchRecord *model.MovieWatchRecord) (*model.MovieWatchRecord, error) {
-	var err error
-	defer func() {
-		if err != nil {
-			r.DB.Rollback()
-		} else {
-			r.DB.Commit()
-		}
-	}()
-
-	mwr := query.Use(r.DB).MovieWatchRecord
-
-	err = mwr.WithContext(ctx).Create(watchRecord)
-
-	return watchRecord, err
 }

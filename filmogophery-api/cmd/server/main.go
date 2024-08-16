@@ -64,19 +64,30 @@ func main() {
 }
 
 func newRouter(e *echo.Echo, conf *config.Config) {
-	// repository の初期化
-	impressionRepo := impression.NewQueryRepository()
-	mediaRepo := media.NewQueryRepository()
-	recordRepo := record.NewQueryRepository()
+	// ----- repository の初期化 ----- //
+	// impression
+	impressionQueryRepo := impression.NewQueryRepository()
+	impressionCommandRepo := impression.NewCommandRepository()
+	// media
+	mediaQueryRepo := media.NewQueryRepository()
+	// record
+	recordQueryRepo := record.NewQueryRepository()
+	recordCommandRepo := record.NewCommandRepository()
+	// movie
 	movieQueryRepo := movie.NewQueryRepository()
 	movieCommandRepo := movie.NewCommandRepository()
 	// 外部 API
 	tmdbClient := tmdb.NewTmdbClient(conf)
 
-	// サービスの初期化
-	impressionQueryService := impression.NewQueryService(*impressionRepo)
-	mediaQueryService := media.NewQueryService(*mediaRepo)
-	recordQueryService := record.NewQueryService(*recordRepo)
+	// ----- サービスの初期化 ----- //
+	// impression
+	impressionQueryService := impression.NewQueryService(*impressionQueryRepo)
+	// media
+	mediaQueryService := media.NewQueryService(*mediaQueryRepo)
+	// record
+	recordQueryService := record.NewQueryService(*recordQueryRepo)
+	recordCommandService := record.NewCommandService(*recordCommandRepo, *mediaQueryRepo, *impressionCommandRepo)
+	// movie
 	movieQueryService := movie.NewQueryService(conf, *movieQueryRepo)
 	movieCommandService := movie.NewCommandService(*movieCommandRepo)
 	// 外部 API
@@ -89,7 +100,7 @@ func newRouter(e *echo.Echo, conf *config.Config) {
 	mediaHandler := media.NewHandler(mediaQueryService)
 	mediaHandler.RegisterRoutes(e)
 
-	recordHandler := record.NewHandler(recordQueryService)
+	recordHandler := record.NewHandler(recordQueryService, recordCommandService)
 	recordHandler.RegisterRoutes(e)
 
 	movieHandler := movie.NewHandler(movieQueryService, movieCommandService)

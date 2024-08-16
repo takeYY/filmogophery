@@ -42,7 +42,6 @@ func (h *handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/movies/:id", h.ReaderHandler.GetMovieById)
 	// Create
 	e.POST("/movie", h.WriterHandler.Create)
-	e.POST("/movie/record", h.WriterHandler.CreateRecord)
 }
 
 func (rh *ReaderHandler) GetMovieById(c echo.Context) error {
@@ -90,24 +89,4 @@ func (wh *WriterHandler) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, movie)
-}
-
-func (wh *WriterHandler) CreateRecord(c echo.Context) error {
-	var dto CreateMovieRecordDto
-	if err := c.Bind(&dto); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse{
-			Message: err.Error(),
-		})
-	}
-
-	result := wh.commandService.CreateMovieRecord(&dto)
-	if result != nil {
-		return c.JSON(http.StatusInternalServerError, response.ErrorResponse{
-			Message: result.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusCreated, response.OK{
-		Message: "movie record is created",
-	})
 }

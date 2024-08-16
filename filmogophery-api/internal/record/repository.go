@@ -16,6 +16,9 @@ type (
 		Find(ctx context.Context) ([]*model.MovieWatchRecord, error)
 		FindByImpressionID(ctx context.Context, id *int32) ([]*model.MovieWatchRecord, error)
 	}
+	ICommandRepository interface {
+		Save(ctx context.Context, watchRecord *model.MovieWatchRecord) (*model.MovieWatchRecord, error)
+	}
 
 	MovieWatchRecordRepository struct {
 		DB *gorm.DB
@@ -27,6 +30,13 @@ func NewQueryRepository() *IQueryRepository {
 		DB: db.READER_DB,
 	}
 	return &queryRepo
+}
+
+func NewCommandRepository() *ICommandRepository {
+	var commandRepo ICommandRepository = &MovieWatchRecordRepository{
+		DB: db.WRITER_DB,
+	}
+	return &commandRepo
 }
 
 func (r *MovieWatchRecordRepository) Find(ctx context.Context) ([]*model.MovieWatchRecord, error) {
@@ -55,4 +65,21 @@ func (r *MovieWatchRecordRepository) FindByImpressionID(ctx context.Context, id 
 	}
 
 	return movieWatchRecords, nil
+}
+
+func (r *MovieWatchRecordRepository) Save(ctx context.Context, watchRecord *model.MovieWatchRecord) (*model.MovieWatchRecord, error) {
+	var err error
+	defer func() {
+		if err != nil {
+			r.DB.Rollback()
+		} else {
+			r.DB.Commit()
+		}
+	}()
+
+	mwr := query.Use(r.DB).MovieWatchRecord
+
+	err = mwr.WithContext(ctx).Create(watchRecord)
+
+	return watchRecord, err
 }
