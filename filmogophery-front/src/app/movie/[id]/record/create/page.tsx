@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { WatchMedia, MovieDetail } from "@/interface/movie";
 import Image from "next/image";
+import { posterUrlPrefix } from "@/constants/poster";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -10,6 +11,11 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [watchMedia, setMedia] = useState<WatchMedia[]>();
   const [movie, setMovie] = useState<MovieDetail>();
+  const [rangeValue, onChange] = useState<string>(
+    movie?.impression.rating?.toString()
+      ? movie?.impression.rating?.toString()
+      : ""
+  );
 
   useEffect(() => {
     const fetchMedia = async () => {
@@ -25,12 +31,25 @@ export default function Page({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchMedia();
-    const mov = fetchMovie(params.id);
-    setMovie(mov);
-  }, [params.id]);
+    const fetchMovie = async () => {
+      try {
+        const response = await fetch(`/api/movie?id=${params.id}`, {
+          method: "GET",
+        });
+        const movie: MovieDetail = await response.json();
+        console.log("moviesのデータ取得: 完了");
+        console.log("%o", movie);
 
-  const [rangeValue, onChange] = useState(movie?.impression.rating.toString());
+        return setMovie(movie);
+      } catch {
+        console.log("moviesのデータ取得: エラー。空配列で定義します");
+        return setMovie(undefined);
+      }
+    };
+
+    fetchMedia();
+    fetchMovie();
+  }, [params.id]);
 
   // /*
   useEffect(() => {
@@ -57,8 +76,10 @@ export default function Page({ params }: { params: { id: string } }) {
       const data = await response.json();
        */
 
+      console.log(`movieID: ` + params.id);
+      console.log(`impressionID: ` + movie?.impression.id);
       console.log(`media: ` + formData.get("media"));
-      console.log(`watchDate: ` + formData.get("watch_date"));
+      console.log(`watchDate: ` + formData.get("watchDate"));
       console.log(`rating: ` + formData.get("rating"));
       console.log(`note: ` + formData.get("note"));
     } catch (error) {
@@ -81,7 +102,12 @@ export default function Page({ params }: { params: { id: string } }) {
         <div className="my-4 row">
           <div className="col-md-4">
             <Image
-              src={movie.posterURL}
+              src={
+                posterUrlPrefix +
+                (movie.posterURL
+                  ? movie.posterURL
+                  : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
+              }
               className="img-fluid"
               width={300}
               height={300}
@@ -138,7 +164,8 @@ export default function Page({ params }: { params: { id: string } }) {
                 <input
                   type="date"
                   className="form-control w-50 bg-dark text-light"
-                  name="watch_date"
+                  name="watchDate"
+                  defaultValue={new Date().toLocaleDateString("sv-SE")}
                 />
               </div>
             </div>
@@ -156,9 +183,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </label>
               <div className="col-sm-8">
                 <div id="rangeValue">{`${
-                  rangeValue === undefined
-                    ? movie?.impression.rating
-                    : rangeValue
+                  rangeValue ? rangeValue : "評価なし"
                 }`}</div>
                 <input
                   type="range"
@@ -188,9 +213,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   className="form-control bg-dark text-light"
                   name="note"
                   defaultValue={`${
-                    movie.impression.note === undefined
-                      ? ""
-                      : movie.impression.note
+                    movie.impression.note ? movie.impression.note : ""
                   }`}
                 />
               </div>
@@ -210,88 +233,4 @@ export default function Page({ params }: { params: { id: string } }) {
       </form>
     </div>
   );
-}
-
-function fetchMovie(id: string): MovieDetail {
-  try {
-    console.log("データ取得中...");
-    const movieDetail: MovieDetail = {
-      id: parseInt(id),
-      title: "ターミネーター",
-      overview:
-        "アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が現れる。同じく...",
-      release_date: new Date("1985-05-04"),
-      run_time: 108,
-      genres: ["アクション", "SF"],
-      posterURL:
-        "https://image.tmdb.org/t/p/w600_and_h900_bestv2/iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg",
-      vote_average: 3.85,
-      vote_count: 12832,
-      series: {
-        name: "ターミネーターシリーズ",
-        posterURL:
-          "https://image.tmdb.org/t/p/w600_and_h900_bestv2/pF5GIijY2fyZcByqNDzhS8v4h1x.jpg",
-      },
-      impression: {
-        status: "鑑賞済み",
-        rating: 4.3,
-        note: "ターミネーターの元祖という感じで、恐ろしさと希望が織り成す圧巻の作品。今観るとCGのぎこちなさが目立つが、それが逆に怖さを演出している。",
-      },
-      watchRecords: [
-        {
-          watch_date: new Date("2024-08-11"),
-          watch_media: "U-NEXT",
-        },
-        {
-          watch_date: new Date("2024-02-03"),
-          watch_media: "Netflix",
-        },
-        {
-          watch_date: new Date("2024-01-02"),
-          watch_media: "Amazon Prime Video",
-        },
-      ],
-    };
-    console.log("データ取得: 完了!");
-    return movieDetail;
-  } catch (error) {
-    console.log("データ取得エラー");
-    return {
-      id: parseInt(id),
-      title: "ターミネーター",
-      overview:
-        "アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が現れる。同じく...",
-      release_date: new Date("1985-05-04"),
-      run_time: 108,
-      genres: ["アクション", "SF"],
-      posterURL:
-        "https://image.tmdb.org/t/p/w600_and_h900_bestv2/iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg",
-      vote_average: 3.85,
-      vote_count: 12832,
-      series: {
-        name: "ターミネーターシリーズ",
-        posterURL:
-          "https://image.tmdb.org/t/p/w600_and_h900_bestv2/pF5GIijY2fyZcByqNDzhS8v4h1x.jpg",
-      },
-      impression: {
-        status: "鑑賞済み",
-        rating: 4.3,
-        note: "初代です！",
-      },
-      watchRecords: [
-        {
-          watch_date: new Date("2024-08-11"),
-          watch_media: "U-NEXT",
-        },
-        {
-          watch_date: new Date("2024-02-03"),
-          watch_media: "Netflix",
-        },
-        {
-          watch_date: new Date("2024-01-02"),
-          watch_media: "Amazon Prime Video",
-        },
-      ],
-    };
-  }
 }
