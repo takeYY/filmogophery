@@ -63,9 +63,6 @@ func main() {
 	tmdbHandler := tmdb.NewHandler(conf)
 	tmdbHandler.RegisterRoutes(e)
 
-	movieWatchRecordHandler := record.NewHandler()
-	movieWatchRecordHandler.RegisterRoutes(e)
-
 	// サーバーの起動
 	serverAddr := ":" + conf.Server.Port
 	logger.Info().Msgf("Starting server on %s", serverAddr)
@@ -76,10 +73,12 @@ func newRouter(e *echo.Echo) {
 	// repository の初期化
 	impressionRepo := impression.NewQueryRepository()
 	mediaRepo := media.NewQueryRepository()
+	recordRepo := record.NewQueryRepository()
 
 	// サービスの初期化
 	impressionQueryService := impression.NewQueryService(*impressionRepo)
 	mediaQueryService := media.NewQueryService(*mediaRepo)
+	recordQueryService := record.NewQueryService(*recordRepo)
 
 	// ハンドラの追加
 	impressionHandler := impression.NewHandler(impressionQueryService)
@@ -87,4 +86,7 @@ func newRouter(e *echo.Echo) {
 
 	mediaHandler := media.NewHandler(mediaQueryService)
 	mediaHandler.RegisterRoutes(e)
+
+	recordHandler := record.NewHandler(recordQueryService)
+	recordHandler.RegisterRoutes(e)
 }

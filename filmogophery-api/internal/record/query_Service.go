@@ -3,7 +3,6 @@ package record
 import (
 	"context"
 
-	"filmogophery/internal/db"
 	"filmogophery/pkg/gen/model"
 )
 
@@ -13,11 +12,7 @@ type (
 	}
 )
 
-func NewQueryService() *QueryService {
-	var movieWatchRecordRepo IQueryRepository = &MovieWatchRecordRepository{
-		DB: db.READER_DB,
-	}
-
+func NewQueryService(movieWatchRecordRepo IQueryRepository) *QueryService {
 	return &QueryService{
 		MovieWatchRecordRepo: movieWatchRecordRepo,
 	}

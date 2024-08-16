@@ -22,10 +22,11 @@ type (
 	}
 )
 
-func NewQueryRepository() *MovieWatchRecordRepository {
-	return &MovieWatchRecordRepository{
+func NewQueryRepository() *IQueryRepository {
+	var queryRepo IQueryRepository = &MovieWatchRecordRepository{
 		DB: db.READER_DB,
 	}
+	return &queryRepo
 }
 
 func (r *MovieWatchRecordRepository) Find(ctx context.Context) ([]*model.MovieWatchRecord, error) {
