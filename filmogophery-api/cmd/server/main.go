@@ -89,7 +89,7 @@ func newRouter(e *echo.Echo, conf *config.Config) {
 	recordCommandService := record.NewCommandService(*recordCommandRepo, *mediaQueryRepo, *impressionCommandRepo)
 	// movie
 	movieQueryService := movie.NewQueryService(conf, *movieQueryRepo)
-	movieCommandService := movie.NewCommandService(*movieCommandRepo)
+	movieCommandService := movie.NewCommandService(*movieCommandRepo, *impressionCommandRepo)
 	// 外部 API
 	tmdbService := tmdb.NewTmdbService(*tmdbClient)
 

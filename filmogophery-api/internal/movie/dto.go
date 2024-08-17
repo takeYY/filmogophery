@@ -6,7 +6,9 @@ type (
 		Overview    *string  `json:"overview"`
 		ReleaseDate string   `json:"release_date"`
 		RunTime     int32    `json:"run_time"`
-		TmdbID      *int32   `json:"tmdb_id"`
+		PosterURL   *string  `json:"posterURL"`
+		TmdbID      int32    `json:"tmdb_id"`
+		Status      bool     `json:"status"`
 		Genres      []string `json:"genres"`
 	}
 

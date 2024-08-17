@@ -17,7 +17,7 @@ type (
 		Find(ctx context.Context) ([]*model.Movie, error)
 	}
 	ICommandRepository interface {
-		Save(movie *model.Movie) (*model.Movie, error)
+		Save(ctx context.Context, movie *model.Movie) (*model.Movie, error)
 	}
 
 	MovieRepository struct {
@@ -66,7 +66,7 @@ func (r *MovieRepository) Find(ctx context.Context) ([]*model.Movie, error) {
 	return movies, nil
 }
 
-func (r *MovieRepository) Save(movie *model.Movie) (*model.Movie, error) {
+func (r *MovieRepository) Save(ctx context.Context, movie *model.Movie) (*model.Movie, error) {
 	var err error
 	defer func() {
 		if err != nil {
@@ -77,7 +77,7 @@ func (r *MovieRepository) Save(movie *model.Movie) (*model.Movie, error) {
 	}()
 
 	m := query.Use(r.DB).Movie
-	err = m.Create(movie)
+	err = m.WithContext(ctx).Create(movie)
 	if err != nil {
 		return nil, err
 	}

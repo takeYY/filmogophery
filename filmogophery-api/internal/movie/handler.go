@@ -81,12 +81,14 @@ func (wh *WriterHandler) Create(c echo.Context) error {
 		})
 	}
 
-	movie, err := wh.commandService.CreateMovie(&dto)
+	err := wh.commandService.CreateMovieAndImpression(&dto)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.ErrorResponse{
 			Message: fmt.Sprintf("movie can not create: %v", err),
 		})
 	}
 
-	return c.JSON(http.StatusOK, movie)
+	return c.JSON(http.StatusCreated, response.OK{
+		Message: "movie and impression are created",
+	})
 }

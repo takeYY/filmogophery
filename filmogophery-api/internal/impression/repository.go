@@ -18,6 +18,7 @@ type (
 	}
 	ICommandRepository interface {
 		UpdateImpression(ctx context.Context, movieImpression *model.MovieImpression) (*gen.ResultInfo, error)
+		Save(ctx context.Context, impression *model.MovieImpression) (*model.MovieImpression, error)
 	}
 
 	MovieImpressionRepository struct {
@@ -66,4 +67,23 @@ func (r *MovieImpressionRepository) UpdateImpression(ctx context.Context, movieI
 	result, err = mi.WithContext(ctx).Where(mi.ID.Eq(movieImpression.ID)).Updates(movieImpression)
 
 	return &result, err
+}
+
+func (r *MovieImpressionRepository) Save(ctx context.Context, impression *model.MovieImpression) (*model.MovieImpression, error) {
+	var err error
+	defer func() {
+		if err != nil {
+			r.DB.Rollback()
+		} else {
+			r.DB.Commit()
+		}
+	}()
+
+	mi := query.Use(r.DB).MovieImpression
+	err = mi.Create(impression)
+	if err != nil {
+		return nil, err
+	}
+
+	return impression, nil
 }
