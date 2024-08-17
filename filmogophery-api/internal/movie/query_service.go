@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/gen/model"
+	"filmogophery/internal/pkg/logger"
 	"filmogophery/internal/record"
 	"filmogophery/internal/tmdb"
-	"filmogophery/pkg/gen/model"
-	"filmogophery/pkg/logger"
 )
 
 type (
@@ -72,7 +72,7 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 	if movie.Series != nil {
 		series = SeriesDetailDto{
 			Name:      movie.Series.Name,
-			PosterURL: movie.Series.Poster.URL,
+			PosterURL: *movie.Series.PosterURL,
 		}
 	}
 	var impression ImpressionDetailDto
@@ -84,10 +84,6 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 			Note:   movie.MovieImpression.Note,
 		}
 	}
-	var posterURL string
-	if movie.Poster != nil {
-		posterURL = movie.Poster.URL
-	}
 
 	movieDetail := &MovieDetailDto{
 		ID:           movie.ID,
@@ -96,7 +92,7 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 		ReleaseDate:  movie.ReleaseDate.Format("2006-01-02"),
 		RunTime:      movie.RunTime,
 		Genres:       genres,
-		PosterURL:    posterURL,
+		PosterURL:    *movie.PosterURL,
 		VoteAverage:  tmdbMovie.VoteAverage,
 		VoteCount:    tmdbMovie.VoteCount,
 		Series:       &series,

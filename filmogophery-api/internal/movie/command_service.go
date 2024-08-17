@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"filmogophery/pkg/gen/model"
+	"filmogophery/internal/pkg/gen/model"
 )
 
 type (

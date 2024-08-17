@@ -10,10 +10,10 @@ import (
 	"filmogophery/internal/impression"
 	"filmogophery/internal/media"
 	"filmogophery/internal/movie"
+	"filmogophery/internal/pkg/logger"
+	"filmogophery/internal/pkg/tokenizer"
 	"filmogophery/internal/record"
 	"filmogophery/internal/tmdb"
-	"filmogophery/pkg/logger"
-	"filmogophery/pkg/tokenizer"
 )
 
 func main() {

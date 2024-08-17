@@ -8,8 +8,8 @@ import (
 	"gorm.io/gorm"
 
 	"filmogophery/internal/db"
-	"filmogophery/pkg/gen/model"
-	"filmogophery/pkg/gen/query"
+	"filmogophery/internal/pkg/gen/model"
+	"filmogophery/internal/pkg/gen/query"
 )
 
 type (

@@ -3,7 +3,7 @@ package impression
 import (
 	"context"
 
-	"filmogophery/pkg/gen/model"
+	"filmogophery/internal/pkg/gen/model"
 )
 
 type (

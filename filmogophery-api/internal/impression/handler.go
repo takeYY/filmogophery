@@ -2,10 +2,11 @@ package impression
 
 import (
 	"context"
-	"filmogophery/pkg/response"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"filmogophery/internal/pkg/response"
 )
 
 type (

@@ -8,7 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"filmogophery/pkg/response"
+	"filmogophery/internal/pkg/response"
 )
 
 type (

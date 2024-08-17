@@ -3,8 +3,8 @@ package tmdb
 import (
 	"strings"
 
-	"filmogophery/pkg/logger"
-	"filmogophery/pkg/tokenizer"
+	"filmogophery/internal/pkg/logger"
+	"filmogophery/internal/pkg/tokenizer"
 )
 
 type (

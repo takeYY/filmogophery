@@ -8,8 +8,8 @@ import (
 
 	"filmogophery/internal/impression"
 	"filmogophery/internal/media"
-	"filmogophery/pkg/gen/model"
-	"filmogophery/pkg/logger"
+	"filmogophery/internal/pkg/gen/model"
+	"filmogophery/internal/pkg/logger"
 )
 
 type (

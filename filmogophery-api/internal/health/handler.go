@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/config"
-	"filmogophery/pkg/logger"
-	"filmogophery/pkg/response"
+	"filmogophery/internal/pkg/logger"
+	"filmogophery/internal/pkg/response"
 )
 
 type (
