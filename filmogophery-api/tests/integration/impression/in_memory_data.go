@@ -3,7 +3,7 @@ package impression
 import (
 	"time"
 
-	"filmogophery/pkg/gen/model"
+	"filmogophery/internal/pkg/gen/model"
 )
 
 func InitImpressionNoData() []*model.MovieImpression {
@@ -15,7 +15,7 @@ func InitImpression() []*model.MovieImpression {
 	note := "テスト感想_1"
 
 	movieOverview := "テスト概要_1"
-	moviePosterID := int32(1)
+	moviePosterURL := "/poster.jpg"
 	movieSeriesID := int32(1)
 	movieTmdbID := int32(456)
 	movies := []model.Movie{
@@ -25,11 +25,10 @@ func InitImpression() []*model.MovieImpression {
 			Overview:        &movieOverview,
 			ReleaseDate:     time.Date(2024, 1, 2, 3, 4, 5, 6789, time.Local),
 			RunTime:         123,
-			PosterID:        &moviePosterID,
+			PosterURL:       &moviePosterURL,
 			SeriesID:        &movieSeriesID,
 			TmdbID:          &movieTmdbID,
 			Genres:          nil,
-			Poster:          nil,
 			Series:          nil,
 			MovieImpression: nil,
 		},
@@ -39,11 +38,10 @@ func InitImpression() []*model.MovieImpression {
 			Overview:        nil,
 			ReleaseDate:     time.Date(2020, 2, 3, 4, 5, 6, 789, time.Local),
 			RunTime:         456,
-			PosterID:        nil,
+			PosterURL:       nil,
 			SeriesID:        nil,
 			TmdbID:          nil,
 			Genres:          nil,
-			Poster:          nil,
 			Series:          nil,
 			MovieImpression: nil,
 		},

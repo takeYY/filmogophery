@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"filmogophery/internal/impression"
-	"filmogophery/pkg/gen/model"
+	"filmogophery/internal/pkg/gen/model"
 )
 
 func TestImpressionWithoutData(t *testing.T) {
@@ -94,7 +94,7 @@ func TestImpression(t *testing.T) {
 					"overview":"テスト概要_1",
 					"release_date":"2024-01-02T03:04:05.000006789+09:00",
 					"run_time":123,
-					"poster_id":1,
+					"poster_url":"/poster.jpg",
 					"series_id":1,
 					"tmdb_id":456,
 					"genres":null,
@@ -139,7 +139,7 @@ func TestImpression(t *testing.T) {
 					"overview":null,
 					"release_date":"2020-02-03T04:05:06.000000789+09:00",
 					"run_time":456,
-					"poster_id":null,
+					"poster_url":null,
 					"series_id":null,
 					"tmdb_id":null,
 					"genres":null,

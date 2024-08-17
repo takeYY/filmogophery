@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"filmogophery/internal/impression"
-	"filmogophery/pkg/gen/model"
+	"filmogophery/internal/pkg/gen/model"
 )
 
 type InMemoryRepository struct {
