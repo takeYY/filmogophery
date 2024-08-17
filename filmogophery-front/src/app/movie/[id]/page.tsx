@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import StarRating from "@/app/ui/Rating";
+import StarRating from "@/app/components/Rating";
 import { MovieDetail, WatchRecord } from "@/interface/movie";
 import Image from "next/image";
 import Link from "next/link";
