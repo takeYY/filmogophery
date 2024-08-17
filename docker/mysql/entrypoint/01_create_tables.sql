@@ -1,17 +1,9 @@
 CREATE TABLE
-    `poster` (
-        `id` int AUTO_INCREMENT,
-        `url` varchar(255) NOT NULL,
-        PRIMARY KEY (`id`)
-    );
-
-CREATE TABLE
     `movie_series` (
         `id` int AUTO_INCREMENT,
         `name` varchar(255) NOT NULL,
-        `poster_id` int,
-        PRIMARY KEY (`id`),
-        FOREIGN KEY (`poster_id`) REFERENCES `poster` (`id`) ON DELETE SET NULL
+        `poster_url` varchar(255),
+        PRIMARY KEY (`id`)
     );
 
 CREATE TABLE
@@ -29,11 +21,10 @@ CREATE TABLE
         `overview` text,
         `release_date` date NOT NULL,
         `run_time` int NOT NULL,
-        `poster_id` int,
+        `poster_url` varchar(255),
         `series_id` int,
         `tmdb_id` int,
         primary key (`id`),
-        FOREIGN KEY (`poster_id`) REFERENCES `poster` (`id`) ON DELETE SET NULL,
         FOREIGN KEY (`series_id`) REFERENCES `movie_series` (`id`) ON DELETE SET NULL
     );
 
