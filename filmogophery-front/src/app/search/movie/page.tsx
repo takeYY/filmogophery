@@ -5,9 +5,11 @@ import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { posterUrlPrefix } from "@/constants/poster";
-import StarRating from "@/app/ui/Rating";
+import StarRating from "@/app/components/Rating";
+import { APIBaseURL } from "@/constants/api";
+import Link from "next/link";
 
-export default function Search() {
+export default function Page() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
 
@@ -19,7 +21,7 @@ export default function Search() {
         // TODO: 何故か Dynamic Routing が効かないので、後で直すこと!!
         //const response = await fetch(`/api/search/movie?query=${query}`, {
         const response = await fetch(
-          `http://127.0.0.1:8000/tmdb/search/movies?query=${query}`,
+          `${APIBaseURL}/tmdb/search/movies?query=${query}`,
           {
             method: "GET",
           }
@@ -36,6 +38,27 @@ export default function Search() {
     };
     fetchMovie();
   }, [query]);
+
+  async function addWatchList(movie: SearchMovie) {
+    console.log(`movie is %o`, movie);
+    try {
+      const response = await fetch(`/api/movie`, {
+        method: "POST",
+        body: JSON.stringify({
+          tmdbID: movie.tmdbID,
+          status: false,
+        }),
+      });
+      const status = response.status;
+      if (status === 201) {
+        console.log("success to add watch list");
+      } else {
+        console.log("failed to add watch list");
+      }
+    } catch {
+      console.log("failed to add watch list");
+    }
+  }
 
   return (
     <div className="container-fluid pb-4">
@@ -100,6 +123,24 @@ export default function Search() {
                           ? movie.overview.substring(0, 37) + "..."
                           : movie.overview}
                       </p>
+
+                      <div className="border-top border-success">
+                        <div className="row mt-2">
+                          <div className="col-md-6 text-center">
+                            <button
+                              className="btn btn-outline-warning"
+                              onClick={() => addWatchList(movie)}
+                            >
+                              Watch List
+                            </button>
+                          </div>
+                          <div className="col-md-6 text-center">
+                            <Link className="btn btn-outline-success" href="">
+                              Note
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
