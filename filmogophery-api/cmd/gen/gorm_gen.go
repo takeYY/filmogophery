@@ -12,9 +12,9 @@ import (
 
 func main() {
 	g := gen.NewGenerator(gen.Config{
-		OutPath:        "./pkg/gen/query",
+		OutPath:        "./internal/pkg/gen/query",
 		Mode:           gen.WithoutContext,
-		ModelPkgPath:   "./pkg/gen/model",
+		ModelPkgPath:   "./internal/pkg/gen/model",
 		FieldNullable:  true,
 		FieldCoverable: true,
 	})
@@ -31,14 +31,7 @@ func main() {
 	all := g.GenerateAllTable()
 
 	// 外部キーの関係を持つ構造体を作る
-	poster := g.GenerateModel("poster")
-	movie_series := g.GenerateModel("movie_series", gen.FieldRelate(field.HasOne, "Poster", poster, &field.RelateConfig{
-		GORMTag: field.GormTag{
-			"foreignKey": []string{"PosterID"},
-			"references": []string{"ID"},
-			"default":    []string{"null"},
-		},
-	}))
+	movie_series := g.GenerateModel("movie_series")
 
 	watch_media := g.GenerateModel("watch_media")
 	movie_watch_record := g.GenerateModel("movie_watch_record",
@@ -76,17 +69,6 @@ func main() {
 			RelateSlicePointer: true,
 			GORMTag:            field.GormTag{"many2many": []string{"movie_genres"}},
 		}),
-		// gen.FieldIgnore("PosterID"),
-		// gen.FieldIgnore("SeriesID"),
-		gen.FieldRelate(field.HasOne, "Poster", poster, &field.RelateConfig{
-			RelatePointer: true,
-			GORMTag: field.GormTag{
-				"foreignKey": []string{"PosterID"},
-				"references": []string{"ID"},
-				"default":    []string{"null"},
-				"constraint": []string{"OnUpdate:SET NULL", "OnDelete:SET NULL"},
-			},
-		}),
 		gen.FieldRelate(field.HasOne, "Series", movie_series, &field.RelateConfig{
 			RelatePointer: true,
 			GORMTag: field.GormTag{
@@ -107,7 +89,7 @@ func main() {
 		}),
 	)
 
-	g.ApplyBasic(poster, movie_series, genre, movie, movie_impression, watch_media, movie_watch_record)
+	g.ApplyBasic(movie_series, genre, movie, movie_impression, watch_media, movie_watch_record)
 	g.ApplyBasic(all...)
 
 	g.Execute()
