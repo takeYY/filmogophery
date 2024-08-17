@@ -6,6 +6,7 @@ import (
 
 	"filmogophery/internal/config"
 	"filmogophery/internal/db"
+	"filmogophery/internal/genre"
 	"filmogophery/internal/health"
 	"filmogophery/internal/impression"
 	"filmogophery/internal/media"
@@ -65,6 +66,8 @@ func main() {
 
 func newRouter(e *echo.Echo, conf *config.Config) {
 	// ----- repository の初期化 ----- //
+	// genre
+	genreQueryRepo := genre.NewQueryRepository()
 	// impression
 	impressionQueryRepo := impression.NewQueryRepository()
 	impressionCommandRepo := impression.NewCommandRepository()
@@ -89,7 +92,7 @@ func newRouter(e *echo.Echo, conf *config.Config) {
 	recordCommandService := record.NewCommandService(*recordCommandRepo, *mediaQueryRepo, *impressionCommandRepo)
 	// movie
 	movieQueryService := movie.NewQueryService(conf, *movieQueryRepo)
-	movieCommandService := movie.NewCommandService(*movieCommandRepo, *impressionCommandRepo)
+	movieCommandService := movie.NewCommandService(*movieCommandRepo, *genreQueryRepo, *impressionCommandRepo, *tmdbClient)
 	// 外部 API
 	tmdbService := tmdb.NewTmdbService(*tmdbClient)
 

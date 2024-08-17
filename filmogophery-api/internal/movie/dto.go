@@ -2,14 +2,8 @@ package movie
 
 type (
 	CreateMovieDto struct {
-		Title       string   `json:"title"`
-		Overview    *string  `json:"overview"`
-		ReleaseDate string   `json:"release_date"`
-		RunTime     int32    `json:"run_time"`
-		PosterURL   *string  `json:"posterURL"`
-		TmdbID      int32    `json:"tmdb_id"`
-		Status      bool     `json:"status"`
-		Genres      []string `json:"genres"`
+		TmdbID int32 `json:"tmdbID"`
+		Status bool  `json:"status"`
 	}
 
 	SeriesDetailDto struct {
