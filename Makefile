@@ -6,7 +6,8 @@
 	stop		\
 	down_v		\
 	test		\
-	gen_models
+	gen_models  \
+	start
 
 
 build:
@@ -36,3 +37,8 @@ gen_models:
 	make up_d
 	docker compose exec api go run cmd/gen/gorm_gen.go
 	docker compose stop
+
+start:
+	make up_d
+	cd filmogophery-front
+	npm run dev
