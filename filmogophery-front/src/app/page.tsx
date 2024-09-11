@@ -63,8 +63,8 @@ export default function Home() {
                         <Image
                           src={
                             posterUrlPrefix +
-                            (movie.poster
-                              ? movie.poster.url
+                            (movie.poster_url
+                              ? movie.poster_url
                               : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
                           }
                           alt="ポスター画像"
@@ -95,8 +95,8 @@ export default function Home() {
                       <Image
                         src={
                           posterUrlPrefix +
-                          (movie.poster?.url
-                            ? movie.poster?.url
+                          (movie.poster_url
+                            ? movie.poster_url
                             : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
                         }
                         className="card-img-top"

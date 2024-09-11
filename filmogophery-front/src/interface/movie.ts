@@ -33,11 +33,10 @@ export type Movie = {
   overview: string;
   release_date: string;
   run_time: number;
-  poster_id: number;
+  poster_url: string;
   series_id: number;
   tmdb_id: number;
   genres: Genre[];
-  poster: Poster | null;
   series: SeriesNeo;
   movie_impression: MovieImpression;
 };
