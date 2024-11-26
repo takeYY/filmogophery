@@ -1,8 +1,6 @@
 export type Genre = {
-  id: number;
   code: string;
   name: string;
-  movies: null;
 };
 
 type Poster = {
@@ -10,20 +8,20 @@ type Poster = {
   url: string;
 };
 
-type SeriesNeo = {
+export type SeriesNeo = {
   id: number;
   name: string;
   poster_id: number;
-  poster: Poster;
+  poster: Poster | null;
 };
 
-type MovieImpression = {
+export type MovieImpression = {
   id: number;
   movie_id: number;
   status: boolean;
   rating: number;
   note: string;
-  movie: Movie;
+  movie: Movie | null;
   watch_records: null;
 };
 
@@ -31,14 +29,11 @@ export type Movie = {
   id: number;
   title: string;
   overview: string;
-  release_date: string;
-  run_time: number;
-  poster_url: string;
-  series_id: number;
-  tmdb_id: number;
+  releaseDate: string;
+  runTime: number;
+  posterURL: string | null;
+  tmdbID: number;
   genres: Genre[];
-  series: SeriesNeo;
-  movie_impression: MovieImpression;
 };
 
 type Series = {
@@ -46,7 +41,7 @@ type Series = {
   posterURL: string;
 };
 
-type Impression = {
+export type Impression = {
   id: number;
   status: string;
   rating: number | null;
@@ -66,10 +61,10 @@ export type MovieDetail = {
   runTime: number;
   genres: string[];
   posterURL: string;
-  voteAverage: number;
+  voteAverage: number; // Min:0.0, Max:5.0
   voteCount: number;
   series: Series | null;
-  impression: Impression;
+  impression: Impression | null;
   watchRecords: WatchRecord[];
 };
 
