@@ -1,8 +1,8 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { SearchMovie } from "@/interface/movie";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { posterUrlPrefix } from "@/constants/poster";
 import StarRating from "@/app/components/Rating";

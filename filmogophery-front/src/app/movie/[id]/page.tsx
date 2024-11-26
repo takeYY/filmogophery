@@ -6,17 +6,21 @@ import { MovieDetail, WatchRecord } from "@/interface/movie";
 import Image from "next/image";
 import Link from "next/link";
 import { posterUrlPrefix } from "@/constants/poster";
+import { movieDetailData } from "@/app/lib/movies_detail_data";
 
 export default function Page({ params }: { params: { id: string } }) {
-  const [movie, setMovie] = useState<MovieDetail>();
+  const [movie, setMovie] = useState<MovieDetail | null>();
 
   useEffect(() => {
     const fetchMovies = async () => {
+      console.log("movieのデータ取得中...");
       try {
-        const response = await fetch(`/api/movie?id=${params.id}`, {
-          method: "GET",
-        });
-        const movie: MovieDetail = await response.json();
+        // const response = await fetch(`/api/movie?id=${params.id}`, {
+        //   method: "GET",
+        // });
+        // const movie: MovieDetail = await response.json();
+        const movie: MovieDetail | null =
+          movieDetailData.get(params.id) ?? null;
         console.log("moviesのデータ取得: 完了");
         console.log("%o", movie);
 
@@ -31,16 +35,17 @@ export default function Page({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   if (!movie) {
-    return <div></div>;
+    return <div>Movie({params.id}) is not found</div>;
   }
 
   // const movie = fetchMovie(params.id);
   return (
-    <div className="container pb-4">
+    <div className="container-fluid pb-4">
       <h3 className="text-center mb-4">Movie Detail</h3>
+
       <div
         className={`card mb-3 bg-dark ${
-          movie.impression.status === "鑑賞済み" ? "border-success" : ""
+          movie.impression?.status === "鑑賞済み" ? "border-success" : ""
         }`}
       >
         <div className="row g-0">
@@ -62,7 +67,7 @@ export default function Page({ params }: { params: { id: string } }) {
             {/* 一般の評価 */}
             <div className="justify-content-center">
               <StarRating
-                rating={movie.voteAverage / 2}
+                rating={movie.voteAverage}
                 size={20}
                 starColor={"#0dcaf0"}
                 sumReview={movie.voteCount.toString()}
@@ -103,9 +108,9 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* 概要 */}
               <p className="card-text">{movie.overview}</p>
               {/* 感想 */}
-              {movie.impression.note && (
+              {movie.impression?.note && (
                 <div className="p-3 bg-success bg-opacity-10 border border-success border-start-0 border-end-0">
-                  {movie.impression.note}
+                  {movie.impression?.note}
                 </div>
               )}
               {/* */}

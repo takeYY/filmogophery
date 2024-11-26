@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Movie, Genre } from "@/interface/movie";
 import { posterUrlPrefix } from "@/constants/poster";
 import { Carousel } from "react-bootstrap";
+import { moviesData } from "@/app/lib/movies_data";
 
 export default function Home() {
   const router = useRouter();
@@ -27,8 +28,9 @@ export default function Home() {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch(`/api/movies`, { method: "GET" });
-        const movies: Movie[] = await response.json();
+        // const response = await fetch(`/api/movies`, { method: "GET" });
+        // const movies: Movie[] = await response.json();
+        const movies = moviesData;
         console.log("moviesのデータ取得: 完了");
 
         setMovies(movies);
@@ -43,7 +45,7 @@ export default function Home() {
   }, []);
 
   if (!movies) {
-    return <div></div>;
+    return <div>Movies are not found</div>;
   }
 
   return (
@@ -63,8 +65,8 @@ export default function Home() {
                         <Image
                           src={
                             posterUrlPrefix +
-                            (movie.poster_url
-                              ? movie.poster_url
+                            (movie.posterURL
+                              ? movie.posterURL
                               : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
                           }
                           alt="ポスター画像"
@@ -95,8 +97,8 @@ export default function Home() {
                       <Image
                         src={
                           posterUrlPrefix +
-                          (movie.poster_url
-                            ? movie.poster_url
+                          (movie.posterURL
+                            ? movie.posterURL
                             : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
                         }
                         className="card-img-top"
@@ -127,7 +129,7 @@ export default function Home() {
                         )}
                         {/* 公開日 */}
                         <p className="card-text">
-                          公開日：{movie.release_date.substring(0, 10)}
+                          公開日：{movie.releaseDate.substring(0, 10)}
                         </p>
                         {/* 概要 */}
                         <p className="card-text">

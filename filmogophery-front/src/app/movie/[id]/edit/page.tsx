@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { WatchMedia, MovieDetail } from "@/interface/movie";
-import StarRating from "@/app/components/Rating";
+import { Impression } from "@/interface/movie";
+import { impressionData } from "@/app/lib/movies_detail_data";
 import Image from "next/image";
-import { posterUrlPrefix } from "@/constants/poster";
-import { watchMediaData } from "@/app/lib/watch_media";
+import StarRating from "@/app/components/Rating";
+import { MovieDetail } from "@/interface/movie";
 import { movieDetailData } from "@/app/lib/movies_detail_data";
+import { posterUrlPrefix } from "@/constants/poster";
 
-// 感傷履歴を作るページ
+// 感想を編集するページ
 export default function Page({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [watchMedia, setMedia] = useState<WatchMedia[]>();
+  const [impression, setImpression] = useState<Impression>();
   const [movieDetail, setMovie] = useState<MovieDetail>();
-  // TODO: rangeValue に値が入ると、"" になってしまうので直したい...
   const [rangeValue, onChange] = useState<string>(
     movieDetail?.impression?.rating?.toString()
       ? movieDetail?.impression.rating?.toString()
@@ -21,23 +21,23 @@ export default function Page({ params }: { params: { id: string } }) {
   );
 
   useEffect(() => {
-    const fetchMedia = async () => {
-      console.log("mediaのデータ取得中...");
+    const fetchImpression = async () => {
+      console.log("impressionのデータ取得中...");
       try {
-        // const response = await fetch(`/api/media`, { method: "GET" });
-        // const media: WatchMedia[] = await response.json();
-
         // FIXME: APIから取得するように修正すること
-        const media: WatchMedia[] = watchMediaData;
-        console.log("mediaのデータ取得: 完了");
+        const impression: Impression | undefined = impressionData.get(
+          parseInt(params.id, 10)
+        );
+        console.log("impressionのデータ: 完了");
+        console.log("%o", impression);
 
-        return setMedia(media);
+        return setImpression(impression);
       } catch {
-        console.log("mediaデータ取得エラー");
+        console.log("impression取得エラー");
+        return setImpression(undefined);
       }
     };
-
-    const fetchMovie = async () => {
+    const fetchMovieDetail = async () => {
       console.log("movieDetailのデータ取得中...");
       try {
         // const response = await fetch(`/api/movie?id=${params.id}`, {
@@ -59,42 +59,16 @@ export default function Page({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchMedia();
-    fetchMovie();
+    fetchImpression();
+    fetchMovieDetail();
   }, [params.id]);
-
-  // /*
-  useEffect(() => {
-    const tooltip = document.getElementById("rangeValue");
-    console.log(tooltip);
-  });
-  // */
 
   async function onSubmit(formData: FormData) {
     setIsLoading(true);
     try {
-      /*  API との通信
-      const response = await fetch("http://localhost:8000/XXX", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit the data. Please try again.");
-      }
-
-      const data = await response.json();
-       */
-
-      console.log(`movieID: ` + params.id);
-      console.log(`impressionID: ` + movieDetail?.impression?.id);
-      console.log(`media: ` + formData.get("media"));
-      console.log(`watchDate: ` + formData.get("watchDate"));
-      console.log(`rating: ` + formData.get("rating"));
-      console.log(`note: ` + formData.get("note"));
+      // TODO: API との通信
     } catch (error) {
-      // Capture the error message to display to the user
-      console.error(error);
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -106,14 +80,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="container-fluid pb-4">
-      <h3 className="text-center mb-4">Create Movie Watch Record</h3>
+      <h3 className="text-center mb-4">Edit Movie Impression</h3>
 
       <form action={onSubmit}>
         <div
           className={`card mb-3 bg-dark ${
-            movieDetail.impression?.status === "鑑賞済み"
-              ? "border-success"
-              : ""
+            impression?.status === "鑑賞済み" ? "border-success" : ""
           }`}
         >
           <div className="row g-0">
@@ -132,7 +104,6 @@ export default function Page({ params }: { params: { id: string } }) {
                 alt="ポスター"
                 priority={false}
               />
-
               {/* 一般の評価 */}
               <div className="justify-content-center">
                 <StarRating
@@ -146,66 +117,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
             <div className="col-md-9">
               <div className="card-body text-light">
-                {/* 鑑賞媒体 */}
-                <div className="form-group row">
-                  <label className="col-sm-4 col-form-label d-flex align-items-center">
-                    <div className="bg-transparent badge border border-danger rounded-pill">
-                      必須
-                    </div>
-                    {"　"}
-                    鑑賞媒体
-                  </label>
-                  <div className="col-sm-8 d-flex align-items-center">
-                    <div className="px-2 row">
-                      {watchMedia !== undefined &&
-                        watchMedia.map((wm: WatchMedia, i: number) => {
-                          return (
-                            <div
-                              key={i}
-                              className="form-check form-check-inline col-md-3"
-                            >
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="media"
-                                id={wm.code}
-                                value={wm.code}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor={wm.code}
-                              >
-                                {wm.name}
-                              </label>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 鑑賞日 */}
-                <div className="form-group row mt-4">
-                  <label className="col-sm-4 col-form-label d-flex align-items-center">
-                    <div className="bg-transparent badge border border-info rounded-pill">
-                      任意
-                    </div>
-                    {"　"}鑑賞日
-                  </label>
-                  <div className="col-sm-8">
-                    <input
-                      type="date"
-                      className="form-control w-50 bg-dark text-light"
-                      name="watchDate"
-                      defaultValue={new Date().toLocaleDateString("sv-SE")}
-                    />
-                  </div>
-                </div>
-
-                <div className="h4 pb-2 mb-4 text-success border-bottom border-success mt-4">
-                  My Impression
-                </div>
-
+                {/* 評価 */}
                 <div className="form-group row mt-4">
                   <label className="col-sm-4 col-form-label d-flex align-items-center">
                     <div className="bg-transparent badge border border-info rounded-pill">
@@ -257,9 +169,9 @@ export default function Page({ params }: { params: { id: string } }) {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="btn btn-outline-primary"
+                    className="btn btn-outline-success"
                   >
-                    {isLoading ? "Loading..." : "Create"}
+                    {isLoading ? "Loading..." : "Edit"}
                   </button>
                 </div>
               </div>
