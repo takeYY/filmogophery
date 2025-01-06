@@ -3,34 +3,50 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 
-	default_mysql "github.com/go-sql-driver/mysql"
+	defaultMySQL "github.com/go-sql-driver/mysql"
 	"github.com/labstack/gommon/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"gorm.io/plugin/dbresolver"
 
 	"filmogophery/internal/config"
 )
 
 var (
-	READER_DB *gorm.DB
-	WRITER_DB *gorm.DB
+	gormDB *gorm.DB = nil
 )
 
-func useGORM(conf *config.Database) *gorm.DB {
+func ConnectDB(conf *config.Config) *gorm.DB {
+	if gormDB != nil {
+		return gormDB
+	}
+
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		log.Error(fmt.Printf("failed to load location %s", err))
 	}
 
-	c := default_mysql.Config{
-		DBName:               conf.Name,
-		User:                 conf.User,
-		Passwd:               conf.Password,
-		Addr:                 conf.Addr,
+	readerDB := defaultMySQL.Config{
+		DBName:               conf.ReaderDatabase.Name,
+		User:                 conf.ReaderDatabase.User,
+		Passwd:               conf.ReaderDatabase.Password,
+		Addr:                 conf.ReaderDatabase.Addr,
+		Net:                  "tcp",
+		ParseTime:            true,
+		AllowNativePasswords: true,
+		Collation:            "utf8mb4_unicode_ci",
+		Loc:                  jst,
+	}
+	writerDB := defaultMySQL.Config{
+		DBName:               conf.WriterDatabase.Name,
+		User:                 conf.WriterDatabase.User,
+		Passwd:               conf.WriterDatabase.Password,
+		Addr:                 conf.WriterDatabase.Addr,
 		Net:                  "tcp",
 		ParseTime:            true,
 		AllowNativePasswords: true,
@@ -38,12 +54,21 @@ func useGORM(conf *config.Database) *gorm.DB {
 		Loc:                  jst,
 	}
 
-	db, err := sql.Open("mysql", c.FormatDSN())
+	db, err := sql.Open("mysql", writerDB.FormatDSN())
 	if err != nil {
 		log.Error(fmt.Printf("failed to connect mysql %s", err))
 	}
 
-	gormDB, err := gorm.Open(mysql.New(mysql.Config{
+	// Connection Config
+	coreCount, err := strconv.Atoi(conf.WriterDatabase.DBCore)
+	if err != nil {
+		log.Error(fmt.Printf("failed to convert from string to integer: %s", conf.WriterDatabase.DBCore))
+	}
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(coreCount * 2)
+	db.SetConnMaxLifetime(time.Hour)
+
+	gormDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: db,
 	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
@@ -51,15 +76,21 @@ func useGORM(conf *config.Database) *gorm.DB {
 			SingularTable: true,
 		},
 		CreateBatchSize: 1000,
+		TranslateError:  true,
 	})
 	if err != nil {
 		log.Error(fmt.Printf("failed to use gorm %s", err))
 	}
 
-	return gormDB
-}
+	// DbResolver Config
+	gormDB.Use(
+		dbresolver.Register(
+			// Read Replica Config
+			dbresolver.Config{
+				Replicas: []gorm.Dialector{mysql.Open(readerDB.FormatDSN())},
+			},
+		),
+	)
 
-func ConnectDB(conf *config.Config) {
-	READER_DB = useGORM(&conf.ReaderDatabase)
-	WRITER_DB = useGORM(&conf.WriterDatabase)
+	return gormDB
 }
