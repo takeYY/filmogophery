@@ -3,25 +3,29 @@ package movie
 import (
 	"context"
 
+	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/config"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
-	"filmogophery/internal/record"
 	"filmogophery/internal/tmdb"
 )
 
 type (
 	QueryService struct {
-		MovieRepo  IQueryRepository
-		RecordRepo record.IQueryRepository
+		MovieRepo  repositories.IMovieRepository
+		RecordRepo repositories.IRecordRepository
 		TmdbClient tmdb.ITmdbClient
 	}
 )
 
-func NewQueryService(conf *config.Config, movieRepo IQueryRepository) *QueryService {
+func NewQueryService(
+	conf *config.Config,
+	movieRepo repositories.IMovieRepository,
+	recordRepo repositories.IRecordRepository,
+) *QueryService {
 	return &QueryService{
 		MovieRepo:  movieRepo,
-		RecordRepo: *record.NewQueryRepository(),
+		RecordRepo: recordRepo,
 		TmdbClient: *tmdb.NewTmdbClient(conf),
 	}
 }
@@ -42,7 +46,7 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 		genres = append(genres, m.Name)
 	}
 
-	tmdbMovie, err := qs.TmdbClient.GetMovieDetail(movie.TmdbID)
+	tmdbMovie, err := qs.TmdbClient.GetMovieDetail(&movie.TmdbID)
 	if err != nil {
 		logger.Info().Msg("failed to get a detail movie from tmdb")
 		return nil, err
@@ -88,7 +92,7 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 	movieDetail := &MovieDetailDto{
 		ID:           movie.ID,
 		Title:        movie.Title,
-		Overview:     movie.Overview,
+		Overview:     &movie.Overview,
 		ReleaseDate:  movie.ReleaseDate.Format("2006-01-02"),
 		RunTime:      movie.RunTime,
 		Genres:       genres,
@@ -104,5 +108,5 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 }
 
 func (qs *QueryService) GetMovies(ctx context.Context) ([]*model.Movie, error) {
-	return qs.MovieRepo.Find(ctx)
+	return qs.MovieRepo.FindAll(ctx)
 }

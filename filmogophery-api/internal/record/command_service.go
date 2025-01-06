@@ -6,29 +6,28 @@ import (
 	"strings"
 	"time"
 
-	"filmogophery/internal/impression"
-	"filmogophery/internal/media"
+	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
 
 type (
 	CommandService struct {
-		MovieWatchRecordRepo ICommandRepository
-		WatchMediaRepo       media.IQueryRepository
-		ImpressionRepo       impression.ICommandRepository
+		MovieWatchRecordRepo repositories.IRecordRepository
+		WatchMediaRepo       repositories.IMediaRepository
+		ImpressionRepo       repositories.IImpressionRepository
 	}
 )
 
 func NewCommandService(
-	recordRepo ICommandRepository,
-	watchMediaRepo media.IQueryRepository,
-	impressionRepo impression.ICommandRepository,
+	recordRepo repositories.IRecordRepository,
+	watchMediaRepo repositories.IMediaRepository,
+	impressionRepo repositories.IImpressionRepository,
 ) *CommandService {
 	return &CommandService{
-		MovieWatchRecordRepo: recordRepo,
-		WatchMediaRepo:       watchMediaRepo,
-		ImpressionRepo:       impressionRepo,
+		recordRepo,
+		watchMediaRepo,
+		impressionRepo,
 	}
 }
 
@@ -36,7 +35,7 @@ func (cs *CommandService) CreateRecord(dto *CreateMovieRecordDto) error {
 	logger := logger.GetLogger()
 
 	code := dto.Media
-	watchMediaID, err := cs.WatchMediaRepo.GetMediaIdByCode(context.Background(), &code)
+	watchMedia, err := cs.WatchMediaRepo.FindByCode(context.Background(), &code)
 	if err != nil {
 		return err
 	}
@@ -49,22 +48,22 @@ func (cs *CommandService) CreateRecord(dto *CreateMovieRecordDto) error {
 		Rating:  &dto.Rating,
 		Note:    &dto.Note,
 	}
-	result, err := cs.ImpressionRepo.UpdateImpression(ctx, &impression)
+	affected, err := cs.ImpressionRepo.Update(ctx, repositories.UpdateImpressionInput{Target: &impression})
 	if err != nil {
 		return err
 	}
-	logger.Info().Msgf("updated impression: %d", result.RowsAffected)
+	logger.Info().Msgf("updated impression: %d", affected)
 
 	date := strings.Split(dto.WatchDate, "-")
 	year, _ := strconv.ParseInt(date[0], 10, 64)
 	month, _ := strconv.ParseInt(date[1], 10, 64)
 	day, _ := strconv.ParseInt(date[2], 10, 64)
 	watchRecord := model.MovieWatchRecord{
-		WatchMediaID: *watchMediaID,
+		WatchMediaID: watchMedia.ID,
 		WatchDate:    time.Date(int(year), time.Month(int(month)), int(day), 0, 0, 0, 0, time.Local),
 	}
 
-	_, err = cs.MovieWatchRecordRepo.Save(ctx, &watchRecord)
+	err = cs.MovieWatchRecordRepo.Save(ctx, repositories.SaveRecordInput{Target: &watchRecord})
 	if err != nil {
 		return err
 	}

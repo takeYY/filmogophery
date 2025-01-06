@@ -6,27 +6,28 @@ import (
 	"strings"
 	"time"
 
+	"gorm.io/gorm"
+
+	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/config"
 	"filmogophery/internal/db"
-	"filmogophery/internal/genre"
-	"filmogophery/internal/impression"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/gen/query"
 	"filmogophery/internal/tmdb"
 )
 
 type (
 	CommandService struct {
-		MovieRepo      ICommandRepository
-		GenreRepo      genre.IQueryRepository
-		ImpressionRepo impression.ICommandRepository
+		MovieRepo      repositories.IMovieRepository
+		GenreRepo      repositories.IGenreRepository
+		ImpressionRepo repositories.IImpressionRepository
 		TmdbClient     tmdb.ITmdbClient
 	}
 )
 
 func NewCommandService(
-	movieRepo ICommandRepository,
-	genreRepo genre.IQueryRepository,
-	impressionRepo impression.ICommandRepository,
+	movieRepo repositories.IMovieRepository,
+	genreRepo repositories.IGenreRepository,
+	impressionRepo repositories.IImpressionRepository,
 	tmdbClient tmdb.ITmdbClient,
 ) *CommandService {
 	return &CommandService{
@@ -38,6 +39,9 @@ func NewCommandService(
 }
 
 func (cs *CommandService) CreateMovieAndImpression(dto *CreateMovieDto) error {
+	conf := config.LoadConfig()
+	gormDB := db.ConnectDB(conf)
+
 	tmdbMovie, err := cs.TmdbClient.GetMovieDetail(&dto.TmdbID)
 	if err != nil {
 		return err
@@ -54,7 +58,7 @@ func (cs *CommandService) CreateMovieAndImpression(dto *CreateMovieDto) error {
 		genreNames = append(genreNames, genre)
 	}
 
-	genres, err := cs.GenreRepo.FindByName(context.Background(), genreNames)
+	genres, err := cs.GenreRepo.FindByNames(context.Background(), genreNames)
 	if err != nil {
 		return err
 	}
@@ -62,11 +66,11 @@ func (cs *CommandService) CreateMovieAndImpression(dto *CreateMovieDto) error {
 	movie := model.Movie{
 		ID:          dto.TmdbID,
 		Title:       tmdbMovie.Title,
-		Overview:    &tmdbMovie.Overview,
+		Overview:    tmdbMovie.Overview,
 		ReleaseDate: time.Date(int(year), time.Month(int(month)), int(day), 0, 0, 0, 0, time.Local),
 		RunTime:     int32(tmdbMovie.Runtime),
 		PosterURL:   &tmdbMovie.PosterPath,
-		TmdbID:      &dto.TmdbID,
+		TmdbID:      dto.TmdbID,
 		Genres:      genres,
 	}
 
@@ -75,18 +79,20 @@ func (cs *CommandService) CreateMovieAndImpression(dto *CreateMovieDto) error {
 		Status:  dto.Status,
 	}
 
-	q := query.Use(db.WRITER_DB)
 	ctx := context.Background()
-	q.Transaction(func(tx *query.Query) error {
-		if _, err := cs.MovieRepo.Save(ctx, &movie); err != nil {
-			return err
+	err = gormDB.Transaction(func(tx *gorm.DB) error {
+		if e := cs.MovieRepo.Save(ctx, repositories.SaveMovieInput{Target: &movie}); e != nil {
+			return e
 		}
-		if _, err := cs.ImpressionRepo.Save(ctx, &impression); err != nil {
-			return err
+		if e := cs.ImpressionRepo.Save(ctx, repositories.SaveImpressionInput{Target: &impression}); e != nil {
+			return e
 		}
 
 		return nil
 	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

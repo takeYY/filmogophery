@@ -1,12 +1,14 @@
 package impression
 
+import "filmogophery/internal/app/repositories"
+
 type (
 	CommandService struct {
-		ImpressionRepo ICommandRepository
+		ImpressionRepo repositories.IImpressionRepository
 	}
 )
 
-func NewCommandService(impressionRepo ICommandRepository) *CommandService {
+func NewCommandService(impressionRepo repositories.IImpressionRepository) *CommandService {
 	return &CommandService{
 		ImpressionRepo: impressionRepo,
 	}
