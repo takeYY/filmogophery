@@ -7,7 +7,12 @@ type (
 	server struct {
 		Port string
 	}
+	Logger struct {
+		Level  string
+		Format string
+	}
 	Database struct {
+		DBCore   string
 		Addr     string
 		User     string
 		Password string
@@ -19,25 +24,40 @@ type (
 
 	Config struct {
 		Server         server
+		Logger         Logger
 		ReaderDatabase Database
 		WriterDatabase Database
 		Tmdb           Tmdb
 	}
 )
 
+var (
+	conf *Config = nil
+)
+
 // 設定ファイルを読み込み、Config構造体を返す
-func LoadConfig() (*Config, error) {
-	config := &Config{
+func LoadConfig() *Config {
+	if conf != nil {
+		return conf
+	}
+
+	conf = &Config{
 		Server: server{
 			Port: os.Getenv("SERVER_PORT"),
 		},
+		Logger: Logger{
+			Level:  os.Getenv("LOG_LEVEL"),
+			Format: os.Getenv("LOG_FORMAT"),
+		},
 		ReaderDatabase: Database{
+			DBCore:   os.Getenv("READER_DB_CORE_COUNT"),
 			Addr:     os.Getenv("READER_DB_HOST"),
 			User:     os.Getenv("READER_DB_USER"),
 			Password: os.Getenv("READER_DB_PWD"),
 			Name:     os.Getenv("READER_DB_NAME"),
 		},
 		WriterDatabase: Database{
+			DBCore:   os.Getenv("WRITER_DB_CORE_COUNT"),
 			Addr:     os.Getenv("WRITER_DB_HOST"),
 			User:     os.Getenv("WRITER_DB_USER"),
 			Password: os.Getenv("WRITER_DB_PWD"),
@@ -48,5 +68,5 @@ func LoadConfig() (*Config, error) {
 		},
 	}
 
-	return config, nil
+	return conf
 }
