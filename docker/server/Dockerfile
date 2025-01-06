@@ -10,7 +10,7 @@ WORKDIR ${APP_DIR}
 # ローカルでテストする時は、gotest を使う
 RUN go install github.com/rakyll/gotest@latest
 # ホットリロードのために、air を使う
-RUN go install github.com/air-verse/air@latest
+RUN go install github.com/air-verse/air@v1.52.3
 
 RUN go mod tidy
 
