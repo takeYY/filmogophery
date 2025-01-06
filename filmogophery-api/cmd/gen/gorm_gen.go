@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 
@@ -20,13 +18,10 @@ func main() {
 	})
 
 	// 設定ファイルの読み込み
-	conf, err := config.LoadConfig()
-	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
-	}
-	db.ConnectDB(conf)
+	conf := config.LoadConfig()
+	gormDB := db.ConnectDB(conf)
 
-	g.UseDB(db.READER_DB)
+	g.UseDB(gormDB)
 
 	all := g.GenerateAllTable()
 
