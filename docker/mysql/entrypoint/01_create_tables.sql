@@ -18,12 +18,12 @@ CREATE TABLE
     `movie` (
         `id` int AUTO_INCREMENT,
         `title` varchar(255) NOT NULL,
-        `overview` text,
+        `overview` text NOT NULL,
         `release_date` date NOT NULL,
         `run_time` int NOT NULL,
         `poster_url` varchar(255),
         `series_id` int,
-        `tmdb_id` int,
+        `tmdb_id` int NOT NULL,
         primary key (`id`),
         FOREIGN KEY (`series_id`) REFERENCES `movie_series` (`id`) ON DELETE SET NULL
     );
