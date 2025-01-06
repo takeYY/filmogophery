@@ -10,7 +10,7 @@ import (
 func BuildCheckHealthHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		logger := logger.GetLogger()
-		logger.Info().Msg("[Mock] accessed GET health")
+		logger.Info().Msg("accessed GET health check")
 
 		return c.NoContent(http.StatusOK)
 	}
