@@ -3,10 +3,12 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"gorm.io/gorm"
 
+	"filmogophery/internal/app/api"
+	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/config"
 	"filmogophery/internal/db"
-	"filmogophery/internal/genre"
 	"filmogophery/internal/health"
 	"filmogophery/internal/impression"
 	"filmogophery/internal/media"
@@ -18,18 +20,15 @@ import (
 )
 
 func main() {
+	// 設定ファイルの読み込み
+	conf := config.LoadConfig()
+
 	// ロガーの初期化と取得
-	logger.InitializeLogger("info")
+	logger.InitializeLogger(&conf.Logger)
 	logger := logger.GetLogger()
 
-	// 設定ファイルの読み込み
-	conf, err := config.LoadConfig()
-	if err != nil {
-		logger.Fatal().Msgf("Error loading config: %v", err)
-	}
-
 	// DB 接続
-	db.ConnectDB(conf)
+	gormDB := db.ConnectDB(conf)
 
 	// 形態素解析器の初期化
 	er := tokenizer.NewTokenizer()
@@ -52,7 +51,9 @@ func main() {
 	e.Use(middleware.CORS())
 
 	// Router 追加
-	newRouter(e, conf)
+	newRouter(e, conf, gormDB)
+	api.RegisterV0Routes(e)
+	api.RegisterV1Routes(e, gormDB)
 
 	// ハンドラの設定
 	healthHandler := health.NewHandler(conf)
@@ -64,35 +65,28 @@ func main() {
 	e.Logger.Fatal(e.Start(serverAddr))
 }
 
-func newRouter(e *echo.Echo, conf *config.Config) {
-	// ----- repository の初期化 ----- //
-	// genre
-	genreQueryRepo := genre.NewQueryRepository()
-	// impression
-	impressionQueryRepo := impression.NewQueryRepository()
-	impressionCommandRepo := impression.NewCommandRepository()
-	// media
-	mediaQueryRepo := media.NewQueryRepository()
-	// record
-	recordQueryRepo := record.NewQueryRepository()
-	recordCommandRepo := record.NewCommandRepository()
-	// movie
-	movieQueryRepo := movie.NewQueryRepository()
-	movieCommandRepo := movie.NewCommandRepository()
+func newRouter(e *echo.Echo, conf *config.Config, gormDB *gorm.DB) {
+	// ----- Init Repository ----- //
+	genreRepo := repositories.NewGenreRepository(gormDB)
+	impressionRepo := repositories.NewImpressionRepository(gormDB)
+	mediaRepo := repositories.NewMediaRepository(gormDB)
+	recordRepo := repositories.NewRecordRepository(gormDB)
+	movieRepo := repositories.NewMovieRepository(gormDB)
+
 	// 外部 API
 	tmdbClient := tmdb.NewTmdbClient(conf)
 
 	// ----- サービスの初期化 ----- //
 	// impression
-	impressionQueryService := impression.NewQueryService(*impressionQueryRepo)
+	impressionQueryService := impression.NewQueryService(*impressionRepo)
 	// media
-	mediaQueryService := media.NewQueryService(*mediaQueryRepo)
+	mediaQueryService := media.NewQueryService(*mediaRepo)
 	// record
-	recordQueryService := record.NewQueryService(*recordQueryRepo)
-	recordCommandService := record.NewCommandService(*recordCommandRepo, *mediaQueryRepo, *impressionCommandRepo)
+	recordQueryService := record.NewQueryService(*recordRepo)
+	recordCommandService := record.NewCommandService(*recordRepo, *mediaRepo, *impressionRepo)
 	// movie
-	movieQueryService := movie.NewQueryService(conf, *movieQueryRepo)
-	movieCommandService := movie.NewCommandService(*movieCommandRepo, *genreQueryRepo, *impressionCommandRepo, *tmdbClient)
+	movieQueryService := movie.NewQueryService(conf, *movieRepo, *recordRepo)
+	movieCommandService := movie.NewCommandService(*movieRepo, *genreRepo, *impressionRepo, *tmdbClient)
 	// 外部 API
 	tmdbService := tmdb.NewTmdbService(*tmdbClient)
 
