@@ -38,7 +38,6 @@ func NewHandler(queryService *QueryService, commandService *CommandService) *han
 
 func (h *handler) RegisterRoutes(e *echo.Echo) {
 	// Read
-	e.GET("/movies", h.ReaderHandler.GetMovies)
 	e.GET("/movies/:id", h.ReaderHandler.GetMovieById)
 	// Create
 	e.POST("/movie", h.WriterHandler.Create)
@@ -60,17 +59,6 @@ func (rh *ReaderHandler) GetMovieById(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, movie)
-}
-
-func (rh *ReaderHandler) GetMovies(c echo.Context) error {
-	movies, err := rh.queryService.GetMovies(context.Background())
-	if err != nil {
-		return c.JSON(http.StatusNotFound, response.ErrorResponse{
-			Message: "movies are not found",
-		})
-	}
-
-	return c.JSON(http.StatusOK, movies)
 }
 
 func (wh *WriterHandler) Create(c echo.Context) error {

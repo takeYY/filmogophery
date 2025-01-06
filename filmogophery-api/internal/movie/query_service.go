@@ -106,7 +106,3 @@ func (qs *QueryService) GetMovieDetails(ctx context.Context, movieID *int64) (*M
 
 	return movieDetail, nil
 }
-
-func (qs *QueryService) GetMovies(ctx context.Context) ([]*model.Movie, error) {
-	return qs.MovieRepo.FindAll(ctx)
-}
