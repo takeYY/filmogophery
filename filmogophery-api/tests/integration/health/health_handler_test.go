@@ -1,7 +1,6 @@
 package health
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,10 +22,7 @@ func TestHealth(t *testing.T) {
 	c.SetPath("/health")
 
 	// 設定ファイルの読み込み
-	conf, err := config.LoadConfig()
-	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
-	}
+	conf := config.LoadConfig()
 	handler := health.NewHandler(conf)
 	er := handler.ReaderHandler.Health(c)
 	if er != nil {
