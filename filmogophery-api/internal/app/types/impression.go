@@ -1,0 +1,20 @@
+package types
+
+type (
+	Impression struct {
+		ID     int32   `json:"id"`
+		Status string  `json:"status"`
+		Rating *int32  `json:"rating"`
+		Note   *string `json:"note"`
+	}
+
+	MovieImpression struct {
+		ID           int32  `json:"id"`
+		MovieID      int32  `json:"movieID"`
+		Status       bool   `json:"status"`
+		Rating       int32  `json:"rating"`
+		Note         string `json:"note"`
+		Movie        *Movie `json:"movie"`
+		WatchRecords *int32 `json:"watch_records"`
+	}
+)
