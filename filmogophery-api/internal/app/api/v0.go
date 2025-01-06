@@ -1,9 +1,10 @@
 package api
 
 import (
-	"filmogophery/internal/app/features/health"
-
 	"github.com/labstack/echo/v4"
+
+	"filmogophery/internal/app/features/health"
+	"filmogophery/internal/app/features/movie"
 )
 
 func RegisterV0Routes(e *echo.Echo, m ...echo.MiddlewareFunc) {
@@ -11,4 +12,6 @@ func RegisterV0Routes(e *echo.Echo, m ...echo.MiddlewareFunc) {
 
 	// --- Handler --- //
 	g.GET("/health", health.BuildCheckHealthHandler())
+
+	g.GET("/movies", movie.BuildMockedGetMoviesHandler())
 }
