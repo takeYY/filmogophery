@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Movie, Genre } from "@/interface/movie";
 import { posterUrlPrefix } from "@/constants/poster";
 import { Carousel } from "react-bootstrap";
-import { moviesData } from "@/app/lib/movies_data";
 
 export default function Home() {
   const router = useRouter();
@@ -28,9 +27,8 @@ export default function Home() {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        // const response = await fetch(`/api/movies`, { method: "GET" });
-        // const movies: Movie[] = await response.json();
-        const movies = moviesData;
+        const response = await fetch(`/api/movies`, { method: "GET" });
+        const movies: Movie[] = await response.json();
         console.log("moviesのデータ取得: 完了");
 
         setMovies(movies);
