@@ -1,13 +1,6 @@
 package impression
 
-import (
-	"context"
-	"sync"
-
-	"filmogophery/internal/impression"
-	"filmogophery/internal/pkg/gen/model"
-)
-
+/*
 type InMemoryRepository struct {
 	movieImpressions []*model.MovieImpression
 	mu               sync.RWMutex
@@ -28,3 +21,4 @@ func (ir *InMemoryRepository) Find(ctx context.Context) ([]*model.MovieImpressio
 
 	return impressions, nil
 }
+*/

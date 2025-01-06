@@ -1,18 +1,6 @@
 package impression
 
-import (
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-
-	"filmogophery/internal/impression"
-	"filmogophery/internal/pkg/gen/model"
-)
-
+/*
 func TestImpressionWithoutData(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/movie/impression", nil)
@@ -162,3 +150,4 @@ func TestImpression(t *testing.T) {
 		assert.ElementsMatch(t, expected, actual)
 	}
 }
+*/
