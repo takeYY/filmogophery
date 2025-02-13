@@ -39,5 +39,13 @@
     "editor.formatOnSave": true,
     "editor.tabSize": 2,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }
