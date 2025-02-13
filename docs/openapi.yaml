@@ -1,0 +1,100 @@
+openapi: 3.0.2
+info:
+  title: Filmogophery
+  description: FilmogopheryのAPI
+  version: 0.0.1
+
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: ヘルスチェック
+      operationId: health
+      responses:
+        200:
+          description: 成功
+
+  /movies:
+    get:
+      tags:
+        - movie
+      summary: 映画一覧
+      operationId: getMovies
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Movie"
+
+  /movies/{id}:
+    get:
+      tags:
+        - movie
+      summary: 映画詳細
+      operationId: getMovieDetail
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            description: 映画ID
+            type: integer
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                # TODO: レスポンスを変えること
+                $ref: "#/components/schemas/Movie"
+
+components:
+  schemas:
+    Movie:
+      title: Movie
+      type: object
+      properties:
+        id:
+          description: ID
+          type: integer
+        title:
+          description: 映画タイトル
+          type: string
+        overview:
+          description: 映画概要
+          type: string
+        releaseDate:
+          description: 公開日
+          type: string
+          format: date
+        runTime:
+          description: 上映時間
+          type: integer
+          minimum: 1
+        posterURL:
+          description: ポスターURL
+          type: string
+        tmdbID:
+          description: tmdbのID
+          type: integer
+        genres:
+          description: ジャンル一覧
+          type: array
+          items:
+            $ref: "#/components/schemas/Genre"
+
+    Genre:
+      title: Genre
+      type: object
+      properties:
+        code:
+          description: ジャンルコード
+          type: string
+        name:
+          description: ジャンル名称
+          type: string
