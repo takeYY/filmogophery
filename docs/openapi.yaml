@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.0.1
+  version: 0.0.2
 
 paths:
   /health:
@@ -50,8 +50,9 @@ paths:
           content:
             application/json:
               schema:
-                # TODO: レスポンスを変えること
-                $ref: "#/components/schemas/Movie"
+                $ref: "#/components/schemas/MovieDetail"
+        404:
+          description: movie is not found
 
 components:
   schemas:
@@ -62,31 +63,97 @@ components:
         id:
           description: ID
           type: integer
+          example: 1
         title:
           description: 映画タイトル
           type: string
+          example: ターミネーター
         overview:
           description: 映画概要
           type: string
+          example: アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が...
         releaseDate:
           description: 公開日
           type: string
           format: date
+          example: 1985-05-04
         runTime:
           description: 上映時間
           type: integer
           minimum: 1
+          example: 108
         posterURL:
           description: ポスターURL
           type: string
+          example: /iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg
         tmdbID:
           description: tmdbのID
           type: integer
+          example: 218
         genres:
           description: ジャンル一覧
           type: array
           items:
             $ref: "#/components/schemas/Genre"
+
+    MovieDetail:
+      title: MovieDetail
+      type: object
+      properties:
+        id:
+          description: ID
+          type: integer
+          example: 1
+        title:
+          description: 映画タイトル
+          type: string
+          example: ターミネーター
+        overview:
+          description: 映画概要
+          type: string
+          example: アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が...
+        releaseDate:
+          description: 公開日
+          type: string
+          format: date
+          example: 1985-05-04
+        runTime:
+          description: 上映時間
+          type: integer
+          minimum: 1
+          example: 108
+        posterURL:
+          description: ポスターURL
+          type: string
+          example: /iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg
+        tmdbID:
+          description: tmdbのID
+          type: integer
+          example: 218
+        genres:
+          description: ジャンル一覧
+          type: array
+          items:
+            $ref: "#/components/schemas/Genre"
+        voteAverage:
+          description: 平均評価値
+          type: number
+          example: 3.85
+        voteCount:
+          description: 平均評価数
+          type: integer
+          example: 12951
+        series:
+          description: シリーズ
+          type: object
+          properties:
+            name:
+              description: シリーズ名
+              type: string
+              example: ターミネーターシリーズ
+        impression:
+          description: 感想
+          $ref: "#/components/schemas/Impression"
 
     Genre:
       title: Genre
@@ -95,6 +162,48 @@ components:
         code:
           description: ジャンルコード
           type: string
+          example: action
         name:
           description: ジャンル名称
           type: string
+          example: アクション
+
+    Impression:
+      title: Impression
+      type: object
+      properties:
+        id:
+          description: ID
+          type: integer
+          example: 2
+        status:
+          description: 鑑賞状況. Recordsがあるから要らないかも
+          type: string
+          example: 未鑑賞
+        rating:
+          description: 評価
+          type: number
+          example: 4.3
+        note:
+          description: 感想
+          type: string
+          example: 恐ろしさと希望が織り成す圧巻の作品
+        records:
+          description: 鑑賞記録
+          type: array
+          items:
+            $ref: "#/components/schemas/Record"
+
+    Record:
+      title: Record
+      type: object
+      properties:
+        watchDate:
+          description: 鑑賞日
+          type: string
+          format: date
+          example: 2016-12-25
+        watchMedia:
+          description: 鑑賞媒体
+          type: string
+          example: Prime Video
