@@ -21,7 +21,7 @@ flowchart TB
         H004 -- 作成 --> H001
     end
 
-    H001 -- Watch List --> WL001
-    H001 -- Watch Calendar --> WC001
-    H001 -- 検索 --> S001
+    H001 -- Watch List ----> WL001
+    H001 -- Watch Calendar ----> WC001
+    H001 -- 検索 ----> S001
 ```
