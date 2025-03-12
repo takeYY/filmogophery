@@ -11,6 +11,17 @@ type (
 		TmdbID      int32   `json:"tmdbID"`
 		Genres      []Genre `json:"genres"`
 	}
+	MovieDetail struct {
+		VoteAverage float32     `json:"voteAverage"`
+		VoteCount   int32       `json:"voteCount"`
+		Series      *int32      `json:"series"`
+		Impression  *Impression `json:"impression"`
+		Movie
+	}
+	Record struct {
+		WatchDate  string `json:"watchDate"`
+		WatchMedia string `json:"watchMedia"`
+	}
 
 	SearchMovie struct {
 		TmdbID      int32    `json:"tmdbID"`
