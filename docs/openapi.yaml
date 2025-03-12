@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.0.2
+  version: 0.0.3
 
 paths:
   /health:
