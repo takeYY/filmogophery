@@ -210,3 +210,47 @@ components:
           description: 鑑賞媒体
           type: string
           example: Prime Video
+
+    MovieImpression:
+      title: MovieImpression
+      required:
+        - rating
+        - note
+      type: object
+      properties:
+        rating:
+          description: 評価値
+          type: number
+          example: 3.14
+        note:
+          description: 感想
+          type: string
+          example: Awesome
+
+    MovieRecord:
+      title: MovieRecord
+      required:
+        - media
+        - date
+      type: object
+      properties:
+        media:
+          description: 鑑賞媒体
+          type: string
+          enum:
+            - PrimeVideo
+            - Netflix
+            - U-NEXT
+            - Disney+
+            - YouTube
+            - Apple TV+
+            - Hulu
+            - DocomoAnime
+            - TELASA
+            - Theater
+            - Unknown
+        date:
+          description: 鑑賞日
+          type: string
+          format: date
+          example: 2016-12-25
