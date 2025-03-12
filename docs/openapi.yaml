@@ -10,6 +10,7 @@ paths:
       tags:
         - health
       summary: ヘルスチェック
+      description: APIの稼働状況を確認する
       operationId: health
       responses:
         200:
@@ -20,6 +21,7 @@ paths:
       tags:
         - movie
       summary: 映画一覧
+      description: 映画情報を一覧で取得する
       operationId: getMovies
       responses:
         200:
@@ -36,6 +38,7 @@ paths:
       tags:
         - movie
       summary: 映画詳細
+      description: 映画の詳細情報を取得する
       operationId: getMovieDetail
       parameters:
         - required: true
