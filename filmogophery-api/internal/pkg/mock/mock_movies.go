@@ -126,4 +126,50 @@ T-850は未来のジョンの妻ケイトによりリプログラムされ送ら
 			Genres:      []types.Genre{SF},
 		},
 	}
+	movie218  = MockedMovies[0]
+	rating218 = float32(4.3)
+	note218   = `ターミネーターの元祖という感じで、恐ろしさと希望が織り成す圧巻の作品。今観るとVFXのぎこちなさが目立つが、それが逆に怖さを演出していて好印象。`
+
+	movie280                = MockedMovies[1]
+	MockedMovieDetailMapper = map[int32]types.MovieDetail{
+		218: {
+			VoteAverage: 77 / 10 / 2,
+			VoteCount:   12951,
+			Series:      nil,
+			Impression: &types.Impression{
+				ID:     218,
+				Status: "",
+				Rating: &rating218,
+				Note:   &note218,
+				Records: []types.Record{
+					{
+						WatchDate:  "2016-12-25",
+						WatchMedia: "不明",
+					},
+					{
+						WatchDate:  "2022-10-24",
+						WatchMedia: "Prime Video",
+					},
+					{
+						WatchDate:  "2024-08-01",
+						WatchMedia: "U-NEXT",
+					},
+				},
+			},
+			Movie: movie218,
+		},
+		280: {
+			VoteAverage: 81 / 10 / 2,
+			VoteCount:   12699,
+			Series:      nil,
+			Impression: &types.Impression{
+				ID:      280,
+				Status:  "未鑑賞",
+				Rating:  nil,
+				Note:    nil,
+				Records: []types.Record{},
+			},
+			Movie: movie280,
+		},
+	}
 )
