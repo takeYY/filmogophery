@@ -2,7 +2,7 @@ CREATE TABLE
     `movie_series` (
         `id` int AUTO_INCREMENT,
         `name` varchar(255) NOT NULL,
-        `poster_url` varchar(255),
+        `poster_url` varchar(255) NOT NULL DEFAULT "",
         PRIMARY KEY (`id`)
     );
 
@@ -10,7 +10,7 @@ CREATE TABLE
     `genre` (
         `id` int AUTO_INCREMENT,
         `code` varchar(255) NOT NULL UNIQUE,
-        `name` varchar(255),
+        `name` varchar(255) NOT NULL DEFAULT "",
         PRIMARY KEY (`id`)
     );
 
@@ -18,10 +18,10 @@ CREATE TABLE
     `movie` (
         `id` int AUTO_INCREMENT,
         `title` varchar(255) NOT NULL,
-        `overview` text NOT NULL,
+        `overview` text NOT NULL DEFAULT "",
         `release_date` date NOT NULL,
         `run_time` int NOT NULL,
-        `poster_url` varchar(255),
+        `poster_url` varchar(255) NOT NULL DEFAULT "",
         `series_id` int,
         `tmdb_id` int NOT NULL,
         primary key (`id`),
@@ -42,7 +42,7 @@ CREATE TABLE
     `watch_media` (
         `id` int AUTO_INCREMENT,
         `code` varchar(255) NOT NULL UNIQUE,
-        `name` varchar(255),
+        `name` varchar(255) NOT NULL DEFAULT "",
         PRIMARY KEY (`id`)
     );
 
@@ -52,7 +52,7 @@ CREATE TABLE
         `movie_id` int NOT NULL,
         `status` tinyint (1) NOT NULL DEFAULT 0,
         `rating` float (2, 1),
-        `note` TEXT,
+        `note` TEXT NOT NULL DEFAULT "",
         PRIMARY KEY (`id`),
         FOREIGN KEY (`movie_id`) REFERENCES `movie` (`id`) ON DELETE CASCADE
     );
@@ -62,7 +62,7 @@ CREATE TABLE
         `id` int AUTO_INCREMENT,
         `movie_impression_id` int NOT NULL,
         `watch_media_id` int NOT NULL,
-        `watch_date` date NOT NULL,
+        `watch_date` date NOT NULL DEFAULT "2016-12-25",
         PRIMARY KEY (`id`),
         FOREIGN KEY (`movie_impression_id`) REFERENCES `movie_impression` (`id`) ON DELETE CASCADE,
         FOREIGN KEY (`watch_media_id`) REFERENCES `watch_media` (`id`) ON DELETE CASCADE
