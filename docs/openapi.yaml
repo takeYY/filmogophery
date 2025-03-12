@@ -57,6 +57,91 @@ paths:
         404:
           description: movie is not found
 
+  /movies/{id}/records:
+    post:
+      tags:
+        - record
+      summary: 映画鑑賞記録登録
+      description: 映画の鑑賞記録を新規登録する
+      operationId: postMovieRecord
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            description: 映画ID
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieRecord"
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieDetail"
+        409:
+          description: movie impression is already exists
+
+  /movies/{id}/records/{recordId}:
+    put:
+      tags:
+        - record
+      summary: 映画鑑賞記録更新
+      description: 映画の鑑賞記録を更新する
+      operationId: putMovieRecord
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            description: 映画ID
+            type: integer
+        - required: true
+          in: path
+          name: recordId
+          schema:
+            description: 鑑賞記録ID
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieRecord"
+      responses:
+        204:
+          description: 成功
+        409:
+          description: movie impression is already exists
+
+  /movies/{id}/impression:
+    put:
+      tags:
+        - impression
+      summary: 映画感想更新
+      description: 映画の感想を更新する
+      operationId: putMovieImpression
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            description: 映画ID
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieImpression"
+      responses:
+        204:
+          description: 成功
+        404:
+          description: movie is not found
+
 components:
   schemas:
     Movie:
