@@ -17,7 +17,7 @@ erDiagram
     m[movie] {
         id           int          PK ""
         title        varchar(255)    "NOT NULL;"
-        overview     varchar(255)    "NOT NULL; DEFAULT=``"
+        overview     TEXT            "NOT NULL;"
         release_date date            "NOT NULL;"
         run_time     int             "NOT NULL;"
         poster_url   varchar(255)    "NOT NULL; DEFAULT=``"
@@ -44,7 +44,7 @@ erDiagram
         movie_id int         FK "NOT NULL;"
         status   tinyint(1)     "NOT NULL; DEFAULT=0"
         rating   float(2-1)     ""
-        note     TEXT           "NOT NULL; DEFAULT=``"
+        note     TEXT           "NOT NULL;"
     }
     mi o|--|| m: movie_id
 

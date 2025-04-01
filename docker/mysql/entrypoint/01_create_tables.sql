@@ -18,7 +18,7 @@ CREATE TABLE
     `movie` (
         `id` int AUTO_INCREMENT,
         `title` varchar(255) NOT NULL,
-        `overview` text NOT NULL DEFAULT "",
+        `overview` text NOT NULL,
         `release_date` date NOT NULL,
         `run_time` int NOT NULL,
         `poster_url` varchar(255) NOT NULL DEFAULT "",
@@ -52,7 +52,7 @@ CREATE TABLE
         `movie_id` int NOT NULL,
         `status` tinyint (1) NOT NULL DEFAULT 0,
         `rating` float (2, 1),
-        `note` TEXT NOT NULL DEFAULT "",
+        `note` TEXT NOT NULL,
         PRIMARY KEY (`id`),
         FOREIGN KEY (`movie_id`) REFERENCES `movie` (`id`) ON DELETE CASCADE
     );
