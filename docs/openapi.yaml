@@ -20,7 +20,7 @@ paths:
   /health:
     get:
       tags:
-        - health
+        - Health
       summary: ヘルスチェック
       description: APIの稼働状況を確認する
       operationId: health
@@ -66,6 +66,55 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MovieDetail"
+        404:
+          description: movie is not found
+
+  /movies/{id}/impression:
+    post:
+      tags:
+        - Movie
+      summary: 映画感想登録
+      description: 映画の感想を登録する
+      operationId: postMovieImpression
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            description: 映画ID
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMovieImpression"
+      responses:
+        204:
+          description: 成功
+        404:
+          description: movie is not found
+
+    put:
+      tags:
+        - Movie
+      summary: 映画感想更新
+      description: 映画の感想を更新する
+      operationId: putMovieImpression
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            description: 映画ID
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieImpression"
+      responses:
+        204:
+          description: 成功
         404:
           description: movie is not found
 
@@ -129,33 +178,55 @@ paths:
         409:
           description: movie impression is already exists
 
-  /movies/{id}/impression:
-    put:
+  /genres:
+    get:
       tags:
-        - impression
-      summary: 映画感想更新
-      description: 映画の感想を更新する
-      operationId: putMovieImpression
-      parameters:
-        - required: true
-          in: path
-          name: id
-          schema:
-            description: 映画ID
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MovieImpression"
+        - Master
+      summary: ジャンル一覧
+      description: ジャンル一覧を取得する
+      operationId: getGenres
       responses:
-        204:
+        200:
           description: 成功
-        404:
-          description: movie is not found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Genre"
+
+  /medias:
+    get:
+      tags:
+        - Master
+      summary: 鑑賞媒体一覧
+      description: 鑑賞媒体を一覧取得する
+      operationId: getMedias
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Media"
 
 components:
   schemas:
+    Media:
+      title: Media
+      type: object
+      properties:
+        code:
+          description: 媒体コード
+          type: string
+          example: unknown
+        name:
+          description: 媒体名
+          type: string
+          example: Unknown
+
     Movie:
       title: Movie
       type: object
@@ -230,19 +301,22 @@ components:
           description: tmdbのID
           type: integer
           example: 218
+        voteAverage:
+          description: 平均評価値
+          type: number
+          maximum: 5.0
+          minimum: 0.0
+          example: 3.85
+        voteCount:
+          description: 平均評価数
+          type: integer
+          minimum: 0
+          example: 12951
         genres:
           description: ジャンル一覧
           type: array
           items:
             $ref: "#/components/schemas/Genre"
-        voteAverage:
-          description: 平均評価値
-          type: number
-          example: 3.85
-        voteCount:
-          description: 平均評価数
-          type: integer
-          example: 12951
         series:
           description: シリーズ
           type: object
@@ -251,6 +325,9 @@ components:
               description: シリーズ名
               type: string
               example: ターミネーターシリーズ
+            posterURL:
+              description: シリーズポスターURL
+              type: string
         impression:
           description: 感想
           $ref: "#/components/schemas/Impression"
@@ -307,6 +384,31 @@ components:
           description: 鑑賞媒体
           type: string
           example: Prime Video
+
+    CreateMovieImpression:
+      title: MovieImpression
+      required:
+        - watchDate
+        - watchMedia
+      type: object
+      properties:
+        watchDate:
+          description: 鑑賞日
+          type: string
+          format: date
+          example: 2016-12-25
+        watchMedia:
+          description: 鑑賞媒体
+          type: string
+          example: Prime Video
+        rating:
+          description: 評価値
+          type: number
+          example: 3.14
+        note:
+          description: 感想
+          type: string
+          example: Awesome
 
     MovieImpression:
       title: MovieImpression
