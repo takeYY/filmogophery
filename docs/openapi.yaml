@@ -2,7 +2,19 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.0.3
+  version: 0.0.4v2025.05.29
+
+servers:
+  - url: http://127.0.0.1:8000
+    description: ローカル環境
+
+tags:
+  - name: Health
+    description: ヘルスチェック
+  - name: Movie
+    description: 映画
+  - name: Master
+    description: マスタデータ
 
 paths:
   /health:
