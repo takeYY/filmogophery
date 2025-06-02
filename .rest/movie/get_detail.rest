@@ -1,0 +1,15 @@
+@endpoint = http://localhost:8000/v0
+
+@movieTerminator = 218
+@movieTerminator2 = 280
+@movieNotFound = 404
+
+GET {{endpoint}}/movies/{{movieTerminator}}
+
+###
+
+GET {{endpoint}}/movies/{{movieTerminator2}}
+
+###
+
+GET {{endpoint}}/movies/{{movieNotFound}}
