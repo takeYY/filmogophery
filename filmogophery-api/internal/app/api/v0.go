@@ -17,6 +17,7 @@ func RegisterV0Routes(e *echo.Echo, m ...echo.MiddlewareFunc) {
 
 	// --- Movie --- //
 	g.GET("/movies", movie.BuildMockedGetMoviesHandler())
+	g.GET("/movies/:id", movie.BuildMockedGetMovieDetailHandler())
 
 	// --- Master --- //
 	g.GET("/genres", genre.BuildMockedGetGenresHandler())
