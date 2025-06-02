@@ -10,22 +10,24 @@ import { Carousel } from "react-bootstrap";
 export default function Home() {
   const router = useRouter();
   const [movies, setMovies] = useState<Movie[]>();
+  const [isLoading, setIsLoading] = useState(true);
 
   function separatedMovie(movies: Movie[] | undefined, size: number) {
-    if (movies?.length === 0 || movies === undefined) {
+    if (!movies || movies.length === 0) {
       return [[]];
     }
-    return movies.flatMap((_, i, a) =>
-      i % size ? [] : [movies.slice(i, i + size)]
-    );
+    const result = [];
+    for (let i = 0; i < movies.length; i += size) {
+      result.push(movies.slice(i, i + size));
+    }
+    return result;
   }
 
-  const [separated, setSeparated] = useState<Movie[][]>(
-    separatedMovie(movies, 5)
-  );
+  const [separated, setSeparated] = useState<Movie[][]>([[]]);
 
   useEffect(() => {
     const fetchMovies = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(`/api/movies`, { method: "GET" });
         const movies: Movie[] = await response.json();
@@ -33,17 +35,32 @@ export default function Home() {
 
         setMovies(movies);
         setSeparated(separatedMovie(movies, 5));
-      } catch {
+      } catch (error) {
         console.log("moviesのデータ取得: エラー。空配列で定義します");
-        return setMovies([]);
+        setMovies([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchMovies();
   }, []);
 
-  if (!movies) {
-    return <div>Movies are not found</div>;
+  if (isLoading) {
+    return (
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
+        <div className="spinner-border text-info" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!movies || movies.length === 0) {
+    return <div className="container text-center py-5">No movies found</div>;
   }
 
   return (
@@ -55,11 +72,14 @@ export default function Home() {
         <Carousel pause={"hover"} className="mb-4">
           {separated.map((movies: Movie[], index: number) => {
             return (
-              <Carousel.Item>
+              <Carousel.Item key={`carousel-item-${index}`}>
                 <div className="row justify-content-md-center">
                   {movies.map((movie: Movie, i: number) => {
                     return (
-                      <div className="col-md-2">
+                      <div
+                        className="col-md-2"
+                        key={`carousel-movie-${movie.id || i}`}
+                      >
                         <Image
                           src={
                             posterUrlPrefix +
@@ -84,7 +104,7 @@ export default function Home() {
         <div className="row row-cols-md-3 g-4">
           {movies.map((movie: Movie, index: number) => {
             return (
-              <div className="col">
+              <div className="col" key={`movie-card-${movie.id || index}`}>
                 <button
                   className="card mb-2 bg-dark border-info"
                   onClick={() => router.push(`/movie/${movie.id}`)}
