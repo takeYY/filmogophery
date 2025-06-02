@@ -133,7 +133,7 @@ T-850は未来のジョンの妻ケイトによりリプログラムされ送ら
 	movie280                = MockedMovies[1]
 	MockedMovieDetailMapper = map[int32]types.MovieDetail{
 		218: {
-			VoteAverage: 77 / 10 / 2,
+			VoteAverage: float32(77) / 10 / 2,
 			VoteCount:   12951,
 			Series:      nil,
 			Impression: &types.Impression{
@@ -159,7 +159,7 @@ T-850は未来のジョンの妻ケイトによりリプログラムされ送ら
 			Movie: movie218,
 		},
 		280: {
-			VoteAverage: 81 / 10 / 2,
+			VoteAverage: float32(81) / 10 / 2,
 			VoteCount:   12699,
 			Series:      nil,
 			Impression: &types.Impression{
