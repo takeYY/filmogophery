@@ -219,13 +219,13 @@ components:
       type: object
       properties:
         code:
-          description: 媒体コード
+          description: 鑑賞媒体コード
           type: string
           example: unknown
         name:
-          description: 媒体名
+          description: 鑑賞媒体名
           type: string
-          example: Unknown
+          example: 不明
 
     Movie:
       title: Movie
@@ -381,7 +381,7 @@ components:
           format: date
           example: 2016-12-25
         watchMedia:
-          description: 鑑賞媒体
+          description: 鑑賞媒体名
           type: string
           example: Prime Video
 
@@ -397,10 +397,10 @@ components:
           type: string
           format: date
           example: 2016-12-25
-        watchMedia:
-          description: 鑑賞媒体
+        mediaCode:
+          description: 鑑賞媒体コード
           type: string
-          example: Prime Video
+          example: prime_video
         rating:
           description: 評価値
           type: number
@@ -429,25 +429,14 @@ components:
     MovieRecord:
       title: MovieRecord
       required:
-        - media
+        - mediaCode
         - date
       type: object
       properties:
-        media:
-          description: 鑑賞媒体
+        mediaCode:
+          description: 鑑賞媒体コード
           type: string
-          enum:
-            - PrimeVideo
-            - Netflix
-            - U-NEXT
-            - Disney+
-            - YouTube
-            - Apple TV+
-            - Hulu
-            - DocomoAnime
-            - TELASA
-            - Theater
-            - Unknown
+          example: netflix
         date:
           description: 鑑賞日
           type: string
