@@ -1,6 +1,7 @@
 package movie
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -29,7 +30,10 @@ func BuildMockedGetMovieDetailHandler() func(c echo.Context) error {
 		}
 		logger.Info().Msg("successfully validated")
 
-		result := mock.MockedMovieDetailMapper[req.ID]
+		result, ok := mock.MockedMovieDetailMapper[req.ID]
+		if !ok {
+			return c.String(http.StatusNotFound, fmt.Sprintf("movie(id=%d) is not found", req.ID))
+		}
 
 		return c.JSON(http.StatusOK, result)
 	}
