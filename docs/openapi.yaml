@@ -195,13 +195,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/Genre"
 
-  /medias:
+  /media:
     get:
       tags:
         - Master
       summary: 鑑賞媒体一覧
       description: 鑑賞媒体を一覧取得する
-      operationId: getMedias
+      operationId: getMedia
       responses:
         200:
           description: 成功
