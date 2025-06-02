@@ -5,6 +5,7 @@ import (
 
 	"filmogophery/internal/app/features/genre"
 	"filmogophery/internal/app/features/health"
+	"filmogophery/internal/app/features/media"
 	"filmogophery/internal/app/features/movie"
 )
 
@@ -19,4 +20,5 @@ func RegisterV0Routes(e *echo.Echo, m ...echo.MiddlewareFunc) {
 
 	// --- Master --- //
 	g.GET("/genres", genre.BuildMockedGetGenresHandler())
+	g.GET("/media", media.BuildMockedGetMediaHandler())
 }
