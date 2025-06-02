@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.0.4v2025.05.29
+  version: 0.0.5v2025.06.02
 
 servers:
   - url: http://127.0.0.1:8000
