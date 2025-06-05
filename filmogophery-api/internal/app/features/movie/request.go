@@ -6,10 +6,10 @@ type (
 	}
 
 	PostMovieImpression struct {
-		ID         int32   `param:"id"`
-		WatchDate  string  `json:"watchDate"`
-		WatchMedia string  `json:"watchMedia"`
-		Rating     float32 `json:"rating"`
-		Note       string  `json:"note"`
+		ID        int32   `param:"id"`
+		WatchDate string  `json:"watchDate"`
+		MediaCode string  `json:"mediaCode"`
+		Rating    float32 `json:"rating"`
+		Note      string  `json:"note"`
 	}
 )
