@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
     "watchDate": "2016-12-25",
-    "watchMedia": "Prime Video"
+    "mediaCode": "Prime Video"
 }
 
 ###
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 {
     "watchDate": "2016-12-25",
-    "watchMedia": "Netflix",
+    "mediaCode": "Netflix",
     "rating": 1.59,
     "note": "アストロノート"
 }
@@ -31,5 +31,5 @@ Content-Type: application/json
 
 {
     "watchDate": "2016-12-25",
-    "watchMedia": "Prime Video"
+    "mediaCode": "Prime Video"
 }
