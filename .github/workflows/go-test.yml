@@ -23,7 +23,12 @@ jobs:
 
       - name: Build Image & Run Container
         run: |
-          make up_d
+          docker compose build
+          docker compose up -d db
+          sleep 30
+          docker compose logs db
+          docker compose up -d api
+          docker compose ps
 
       - name: Run Tests in Container
         run: |
