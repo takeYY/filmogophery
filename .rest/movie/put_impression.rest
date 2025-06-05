@@ -1,0 +1,33 @@
+@endpoint = http://localhost:8000/v0
+
+@movieTerminator = 218
+@movieTerminator2 = 280
+@movieNotFound = 404
+
+PUT {{endpoint}}/movies/{{movieTerminator}}/impression
+Content-Type: application/json
+
+{
+    "rating": 3.1,
+    "note": "Good"
+}
+
+###
+
+PUT {{endpoint}}/movies/{{movieTerminator2}}/impression
+Content-Type: application/json
+
+{
+    "rating": 5.0,
+    "note": "Awesome"
+}
+
+###
+
+PUT {{endpoint}}/movies/{{movieNotFound}}/impression
+Content-Type: application/json
+
+{
+    "rating": 1.5,
+    "note": "Oh..."
+}
