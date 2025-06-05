@@ -53,3 +53,18 @@ func BuildMockedPostMovieImpressionHandler() func(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 }
+
+func BuildMockedPutMovieImpressionHandler() func(c echo.Context) error {
+	return func(c echo.Context) error {
+		logger := logger.GetLogger()
+		logger.Info().Msg("[Mock] accessed PUT movie impression")
+
+		var req PutMovieImpression
+		if err := c.Bind(&req); err != nil {
+			return c.String(http.StatusBadRequest, "Bad Request")
+		}
+		logger.Info().Msg("successfully validated")
+
+		return c.NoContent(http.StatusNoContent)
+	}
+}
