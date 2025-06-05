@@ -18,4 +18,11 @@ type (
 		Rating float32 `json:"rating"`
 		Note   string  `json:"note"`
 	}
+
+	PutMovieRecord struct {
+		ID        int32  `param:"id"`
+		RecordID  int32  `param:"recordId"`
+		Date      string `json:"date"`
+		MediaCode string `json:"mediaCode"`
+	}
 )
