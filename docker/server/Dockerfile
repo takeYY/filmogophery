@@ -9,8 +9,8 @@ WORKDIR ${APP_DIR}
 
 # ローカルでテストする時は、gotest を使う
 RUN go install github.com/rakyll/gotest@latest
-# ハンドラのテスト用にmock生成パッケージをインストール
-RUN go install go.uber.org/mock/mockgen@latest
+# ハンドラのテスト用にmock生成パッケージをインストール（Go 1.22.4 互換バージョンを指定）
+RUN go install go.uber.org/mock/mockgen@v0.4.0
 # ホットリロードのために、air を使う
 RUN go install github.com/air-verse/air@v1.52.3
 
