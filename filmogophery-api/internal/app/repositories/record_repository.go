@@ -37,12 +37,11 @@ type (
 	}
 )
 
-func NewRecordRepository(db *gorm.DB) *IRecordRepository {
-	var repo IRecordRepository = &recordRepository{
+func NewRecordRepository(db *gorm.DB) IRecordRepository {
+	return &recordRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
 		WriterDB: db.Clauses(dbresolver.Write),
 	}
-	return &repo
 }
 
 func (r *recordRepository) Save(ctx context.Context, input SaveRecordInput) error {
