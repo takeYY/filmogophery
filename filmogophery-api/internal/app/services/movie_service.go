@@ -34,6 +34,7 @@ func (s *movieService) GetMovies(ctx context.Context) ([]*model.Movie, error) {
 
 	movies, err := s.movieRepo.FindAll(ctx)
 	if err != nil {
+		logger.Error().Msgf("failed to get movies: %s", err.Error())
 		return nil, err
 	}
 	logger.Debug().Msg("successfully fetch movies")
