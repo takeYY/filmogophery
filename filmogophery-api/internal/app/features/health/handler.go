@@ -1,11 +1,12 @@
 package health
 
 import (
-	"filmogophery/internal/app/routers"
-	"filmogophery/internal/pkg/logger"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"filmogophery/internal/app/routers"
+	"filmogophery/internal/pkg/logger"
 )
 
 type (

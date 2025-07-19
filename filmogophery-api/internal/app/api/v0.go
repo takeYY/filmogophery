@@ -2,28 +2,43 @@ package api
 
 import (
 	"github.com/labstack/echo/v4"
+	"go.uber.org/fx"
 
-	"filmogophery/internal/app/features/genre"
+	genreHandlers "filmogophery/internal/app/features/genre/handlers"
 	"filmogophery/internal/app/features/health"
-	"filmogophery/internal/app/features/media"
-	"filmogophery/internal/app/features/movie"
+	mediaHandlers "filmogophery/internal/app/features/media/handlers"
+	movieHandlers "filmogophery/internal/app/features/movie/handlers"
+	"filmogophery/internal/app/routers"
 )
 
-func RegisterV0Routes(e *echo.Echo, m ...echo.MiddlewareFunc) {
-	g := e.Group("v0", m...)
+func RegisterV0Routes() fx.Option {
+	asV0Route := func(h any) any {
+		return fx.Annotate(
+			h,
+			fx.As(new(routers.IRoute)),
+			fx.ResultTags(`group:"v0-routers"`),
+		)
+	}
 
-	// --- Handler --- //
-	g.GET("/health", health.BuildCheckHealthHandler())
+	return fx.Module(
+		"v0-route",
+		fx.Provide(
+			fx.Private,
+			asV0Route(health.NewHealthHandler),             // health
+			asV0Route(movieHandlers.NewMockedMovieHandler), // movie
+			asV0Route(genreHandlers.NewMockedGenreHandler), // genre
+			asV0Route(mediaHandlers.NewMockedMediaHandler), // media
 
-	// --- Movie --- //
-	g.GET("/movies", movie.BuildMockedGetMoviesHandler())
-	g.GET("/movies/:id", movie.BuildMockedGetMovieDetailHandler())
-	g.POST("/movies/:id/impression", movie.BuildMockedPostMovieImpressionHandler())
-	g.PUT("/movies/:id/impression", movie.BuildMockedPutMovieImpressionHandler())
-
-	g.PUT("/movies/:id/records/:recordId", movie.BuildMockedPutMovieRecordHandler())
-
-	// --- Master --- //
-	g.GET("/genres", genre.BuildMockedGetGenresHandler())
-	g.GET("/media", media.BuildMockedGetMediaHandler())
+			fx.Annotate(
+				getRouters,
+				fx.ParamTags(`group:"v0-routers"`),
+			),
+		),
+		fx.Invoke(func(e *echo.Echo, hs []routers.IRoute, m ...echo.MiddlewareFunc) {
+			g := e.Group("v0", m...)
+			for _, h := range hs {
+				h.Register(g)
+			}
+		}),
+	)
 }
