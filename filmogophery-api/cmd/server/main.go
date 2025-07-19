@@ -3,10 +3,13 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/api"
 	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/app/services"
 	"filmogophery/internal/config"
 	"filmogophery/internal/db"
 	"filmogophery/internal/health"
@@ -20,6 +23,63 @@ import (
 )
 
 func main() {
+	app := fx.New(
+		fx.Provide( // Requirements
+			config.LoadConfig, // 設定ファイル
+			newLogger,         // ロガー
+			db.ConnectDB,      // DB
+		),
+		fx.Provide( // Repositories
+			repositories.NewGenreRepository,
+			repositories.NewImpressionRepository,
+			repositories.NewMediaRepository,
+			repositories.NewMovieRepository,
+			repositories.NewRecordRepository,
+		),
+		fx.Provide( // Services
+			services.NewMovieService,
+		),
+		fx.Provide(
+			services.NewServiceContainer,
+		),
+		fx.Provide(
+			newEchoServer,
+		),
+		api.RegisterV1Routes(),
+		fx.Invoke(startServer),
+	)
+	app.Run()
+}
+
+func newLogger(conf *config.Config) zerolog.Logger {
+	logger.InitializeLogger(&conf.Logger)
+	return logger.GetLogger()
+}
+
+func newEchoServer(conf *config.Config, gormDB *gorm.DB, serviceContainer services.IServiceContainer) *echo.Echo {
+	e := echo.New()
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogURI:    true,
+		LogStatus: true,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			return nil
+		},
+	}))
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
+
+	api.RegisterV0Routes(e)
+
+	return e
+}
+
+func startServer(e *echo.Echo, conf *config.Config, logger zerolog.Logger) {
+	serverAddr := ":" + conf.Server.Port
+	logger.Info().Msgf("Starting server on %s", serverAddr)
+	e.Logger.Fatal(e.Start(serverAddr))
+}
+
+func Old() {
 	// 設定ファイルの読み込み
 	conf := config.LoadConfig()
 
@@ -53,7 +113,6 @@ func main() {
 	// Router 追加
 	newRouter(e, conf, gormDB)
 	api.RegisterV0Routes(e)
-	api.RegisterV1Routes(e, gormDB)
 
 	// ハンドラの設定
 	healthHandler := health.NewHandler(conf)
@@ -78,15 +137,15 @@ func newRouter(e *echo.Echo, conf *config.Config, gormDB *gorm.DB) {
 
 	// ----- サービスの初期化 ----- //
 	// impression
-	impressionQueryService := impression.NewQueryService(*impressionRepo)
+	impressionQueryService := impression.NewQueryService(impressionRepo)
 	// media
-	mediaQueryService := media.NewQueryService(*mediaRepo)
+	mediaQueryService := media.NewQueryService(mediaRepo)
 	// record
-	recordQueryService := record.NewQueryService(*recordRepo)
-	recordCommandService := record.NewCommandService(*recordRepo, *mediaRepo, *impressionRepo)
+	recordQueryService := record.NewQueryService(recordRepo)
+	recordCommandService := record.NewCommandService(recordRepo, mediaRepo, impressionRepo)
 	// movie
-	movieQueryService := movie.NewQueryService(conf, *movieRepo, *recordRepo)
-	movieCommandService := movie.NewCommandService(*movieRepo, *genreRepo, *impressionRepo, *tmdbClient)
+	movieQueryService := movie.NewQueryService(conf, movieRepo, recordRepo)
+	movieCommandService := movie.NewCommandService(movieRepo, genreRepo, impressionRepo, *tmdbClient)
 	// 外部 API
 	tmdbService := tmdb.NewTmdbService(*tmdbClient)
 

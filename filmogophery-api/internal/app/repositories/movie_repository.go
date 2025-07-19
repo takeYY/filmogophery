@@ -37,12 +37,11 @@ type (
 	}
 )
 
-func NewMovieRepository(db *gorm.DB) *IMovieRepository {
-	var repo IMovieRepository = &movieRepository{
+func NewMovieRepository(db *gorm.DB) IMovieRepository {
+	return &movieRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
 		WriterDB: db.Clauses(dbresolver.Write),
 	}
-	return &repo
 }
 
 func (r *movieRepository) FindByID(ctx context.Context, id *int32) (*model.Movie, error) {

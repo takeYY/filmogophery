@@ -44,12 +44,11 @@ type (
 	}
 )
 
-func NewImpressionRepository(db *gorm.DB) *IImpressionRepository {
-	var repo IImpressionRepository = &impressionRepository{
+func NewImpressionRepository(db *gorm.DB) IImpressionRepository {
+	return &impressionRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
 		WriterDB: db.Clauses(dbresolver.Write),
 	}
-	return &repo
 }
 
 func (r *impressionRepository) Save(ctx context.Context, input SaveImpressionInput) error {

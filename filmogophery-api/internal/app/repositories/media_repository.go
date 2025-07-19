@@ -27,12 +27,11 @@ type (
 	}
 )
 
-func NewMediaRepository(db *gorm.DB) *IMediaRepository {
-	var repo IMediaRepository = &mediaRepository{
+func NewMediaRepository(db *gorm.DB) IMediaRepository {
+	return &mediaRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
 		// WriterDB: db.Clauses(dbresolver.Write),
 	}
-	return &repo
 }
 
 func (r *mediaRepository) FindAll(ctx context.Context) ([]*model.WatchMedia, error) {

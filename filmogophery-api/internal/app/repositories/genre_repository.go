@@ -25,12 +25,11 @@ type (
 	}
 )
 
-func NewGenreRepository(db *gorm.DB) *IGenreRepository {
-	var repo IGenreRepository = &genreRepository{
+func NewGenreRepository(db *gorm.DB) IGenreRepository {
+	return &genreRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
 		// WriterDB: db.Clauses(dbresolver.Write),
 	}
-	return &repo
 }
 
 func (r *genreRepository) FindByNames(ctx context.Context, names []string) ([]*model.Genre, error) {

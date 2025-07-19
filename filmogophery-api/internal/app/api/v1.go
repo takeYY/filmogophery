@@ -2,25 +2,43 @@ package api
 
 import (
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+	"go.uber.org/fx"
 
 	"filmogophery/internal/app/features/health"
 	"filmogophery/internal/app/features/movie"
-	"filmogophery/internal/app/repositories"
-	"filmogophery/internal/app/services"
+	"filmogophery/internal/app/routers"
 )
 
-func RegisterV1Routes(e *echo.Echo, gormDB *gorm.DB, m ...echo.MiddlewareFunc) {
-	g := e.Group("v1", m...)
+func RegisterV1Routes() fx.Option {
+	return fx.Module(
+		"v1-route",
+		fx.Provide(
+			fx.Private,
+			asV1Route(health.NewHealthHandler),
+			asV1Route(movie.NewGetMoviesHandler),
 
-	// --- Init Repository --- //
-	movieRepo := repositories.NewMovieRepository(gormDB)
+			fx.Annotate(
+				getRouters,
+				fx.ParamTags(`group:"v1-routers"`),
+			),
+		),
+		fx.Invoke(func(e *echo.Echo, hs []routers.IRoute, m ...echo.MiddlewareFunc) {
+			g := e.Group("v1", m...)
+			for _, h := range hs {
+				h.Register(g)
+			}
+		}),
+	)
+}
 
-	// --- Init Service --- //
-	movieService := services.NewMovieService(*movieRepo)
+func asV1Route(h any) any {
+	return fx.Annotate(
+		h,
+		fx.As(new(routers.IRoute)),
+		fx.ResultTags(`group:"v1-routers"`),
+	)
+}
 
-	// --- Handler --- //
-	g.GET("/health", health.BuildCheckHealthHandler())
-
-	g.GET("/movies", movie.BuildGetMoviesHandler(movieService))
+func getRouters(h []routers.IRoute) []routers.IRoute {
+	return h
 }

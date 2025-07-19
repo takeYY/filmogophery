@@ -1,4 +1,10 @@
-@endpoint = http://localhost:8000
+@endpoint = http://localhost:8000/v1
+
+# TODO: 以下のエラーが発生しているので直してください
+# NOTE: ERR failed to get movies: Error 1146 (42S02): Table 'db4dev.movie' doesn't exist
+GET {{endpoint}}/movies
+
+###
 
 POST {{endpoint}}/movie
 content-type: application/json
