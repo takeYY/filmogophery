@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
-	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/config"
 )
 
 type (

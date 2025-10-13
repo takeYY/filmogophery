@@ -11,7 +11,7 @@ import (
 
 	"filmogophery/internal/app/features/movie"
 	"filmogophery/internal/app/services"
-	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/config"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/tests"
 )

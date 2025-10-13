@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/config"
 )
 
 type (

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"filmogophery/internal/app/types"
-	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/config"
 )
 
 type (

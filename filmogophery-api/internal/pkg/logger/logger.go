@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/config"
 )
 
 // zerolog のロガーを初期化

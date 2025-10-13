@@ -4,8 +4,8 @@ import (
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 
-	"filmogophery/internal/config"
 	"filmogophery/internal/db"
+	"filmogophery/internal/pkg/config"
 )
 
 func main() {

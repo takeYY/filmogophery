@@ -10,7 +10,7 @@ import (
 
 	"filmogophery/internal/app/features/platform"
 	"filmogophery/internal/app/services"
-	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/config"
 	"filmogophery/tests"
 )
 

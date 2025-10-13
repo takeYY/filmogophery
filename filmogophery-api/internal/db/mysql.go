@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm/schema"
 	"gorm.io/plugin/dbresolver"
 
-	"filmogophery/internal/config"
+	"filmogophery/internal/pkg/config"
 )
 
 var (
