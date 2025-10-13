@@ -5,7 +5,7 @@ import (
 	"go.uber.org/fx"
 
 	genreHandler "filmogophery/internal/app/features/genre/handlers"
-	"filmogophery/internal/app/features/health"
+	healthHandler "filmogophery/internal/app/features/health/handlers"
 	movieHandler "filmogophery/internal/app/features/movie/handlers"
 	platformHandler "filmogophery/internal/app/features/platform/handlers"
 	"filmogophery/internal/app/routers"
@@ -16,7 +16,7 @@ func RegisterV1Routes() fx.Option {
 		"v1-route",
 		fx.Provide(
 			fx.Private,
-			asV1Route(health.NewHealthHandler),
+			asV1Route(healthHandler.NewCheckHealthHandler),
 			asV1Route(movieHandler.NewGetMovieDetailHandler),
 			asV1Route(movieHandler.NewGetMoviesHandler),
 			asV1Route(genreHandler.NewGetGenresHandler),
