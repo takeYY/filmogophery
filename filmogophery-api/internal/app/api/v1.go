@@ -23,7 +23,7 @@ func RegisterV1Routes() fx.Option {
 			),
 		),
 		fx.Invoke(func(e *echo.Echo, hs []routers.IRoute, m ...echo.MiddlewareFunc) {
-			g := e.Group("v1", m...)
+			g := e.Group("/v1", m...)
 			for _, h := range hs {
 				h.Register(g)
 			}
