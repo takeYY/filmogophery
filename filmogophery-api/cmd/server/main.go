@@ -24,13 +24,14 @@ func main() {
 		),
 		fx.Provide( // Repositories
 			repositories.NewGenreRepository,
-			repositories.NewImpressionRepository,
-			repositories.NewMediaRepository,
 			repositories.NewMovieRepository,
-			repositories.NewRecordRepository,
+			repositories.NewReviewRepository,
+			repositories.NewTmdbRepository,
 		),
 		fx.Provide( // Services
 			services.NewMovieService,
+			services.NewReviewService,
+			services.NewTmdbService,
 		),
 		fx.Provide(
 			services.NewServiceContainer,
