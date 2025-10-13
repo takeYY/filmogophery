@@ -39,7 +39,6 @@ func main() {
 		fx.Provide(
 			newEchoServer,
 		),
-		api.RegisterV0Routes(),
 		api.RegisterV1Routes(),
 		fx.Invoke(startServer),
 	)
