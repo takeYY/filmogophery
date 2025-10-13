@@ -1,3 +1,5 @@
+USE db4dev;
+
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
@@ -176,3 +178,18 @@ VALUES
     (1, 1, 99, '1895-12-28'),
     (2, 1, 1, '2022-10-24'),
     (3, 1, 3, '2024-08-01');
+
+
+USE db4test;
+
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
+-- Create `users`
+INSERT INTO
+    `users` (`id`, `username`, `email`)
+VALUES (1, 'システム管理者', 'system@filmogophery.jp');
+
+-- マスタデータをdb4devからコピー
+INSERT INTO db4test.genres SELECT * FROM db4dev.genres;
+INSERT INTO db4test.platforms SELECT * FROM db4dev.platforms;

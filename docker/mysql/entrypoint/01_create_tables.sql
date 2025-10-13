@@ -1,3 +1,5 @@
+USE db4dev;
+
 -- ユーザーテーブル
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -87,3 +89,17 @@ CREATE TABLE watch_history (
     FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
     FOREIGN KEY (platform_id) REFERENCES platforms(id) ON DELETE RESTRICT
 );
+
+
+USE db4test;
+
+-- db4devのテーブル構造をコピー
+CREATE TABLE users LIKE db4dev.users;
+CREATE TABLE genres LIKE db4dev.genres;
+CREATE TABLE series LIKE db4dev.series;
+CREATE TABLE movies LIKE db4dev.movies;
+CREATE TABLE movie_genres LIKE db4dev.movie_genres;
+CREATE TABLE platforms LIKE db4dev.platforms;
+CREATE TABLE watchlist LIKE db4dev.watchlist;
+CREATE TABLE reviews LIKE db4dev.reviews;
+CREATE TABLE watch_history LIKE db4dev.watch_history;
