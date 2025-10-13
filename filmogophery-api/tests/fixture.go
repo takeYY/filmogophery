@@ -23,3 +23,19 @@ func CreateMovieGenres(t *testing.T, tx *gorm.DB, fixture *model.MovieGenres) *m
 
 	return fixture
 }
+
+func CreateSeries(t *testing.T, tx *gorm.DB, fixture *model.Series) *model.Series {
+	if result := tx.Create(fixture); result.Error != nil {
+		t.Errorf("failed to create series: %s", result.Error.Error())
+	}
+
+	return fixture
+}
+
+func CreateReviews(t *testing.T, tx *gorm.DB, fixture *model.Reviews) *model.Reviews {
+	if result := tx.Create(fixture); result.Error != nil {
+		t.Errorf("failed to create reviews: %s", result.Error.Error())
+	}
+
+	return fixture
+}
