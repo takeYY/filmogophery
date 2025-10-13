@@ -28,6 +28,7 @@ func main() {
 			repositories.NewPlatformRepository,
 			repositories.NewReviewRepository,
 			repositories.NewTmdbRepository,
+			repositories.NewWatchHistoryRepository,
 		),
 		fx.Provide( // Services
 			services.NewGenreService,

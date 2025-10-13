@@ -49,6 +49,7 @@ func (c *serviceContainer) PlatformService() IPlatformService {
 func (c *serviceContainer) ReviewService() IReviewService {
 	return NewReviewService(
 		repositories.NewReviewRepository(c.db),
+		repositories.NewWatchHistoryRepository(c.db),
 	)
 }
 

@@ -8,6 +8,7 @@ import (
 	healthHandler "filmogophery/internal/app/features/health/handlers"
 	movieHandler "filmogophery/internal/app/features/movie/handlers"
 	platformHandler "filmogophery/internal/app/features/platform/handlers"
+	reviewHandler "filmogophery/internal/app/features/review/handlers"
 	"filmogophery/internal/app/routers"
 )
 
@@ -19,6 +20,7 @@ func RegisterV1Routes() fx.Option {
 			asV1Route(healthHandler.NewCheckHealthHandler),
 			asV1Route(movieHandler.NewGetMovieDetailHandler),
 			asV1Route(movieHandler.NewGetMoviesHandler),
+			asV1Route(reviewHandler.NewGetReviewHistoryHandler),
 			asV1Route(genreHandler.NewGetGenresHandler),
 			asV1Route(platformHandler.NewGetPlatformsHandler),
 

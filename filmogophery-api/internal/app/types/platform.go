@@ -20,3 +20,10 @@ func NewPlatformsByModel(platforms []*model.Platforms) []Platform {
 
 	return result
 }
+
+func NewPlatformByModel(platform model.Platforms) Platform {
+	return Platform{
+		Code: platform.Code,
+		Name: platform.Name,
+	}
+}

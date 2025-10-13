@@ -14,6 +14,12 @@ type (
 		CreatedAt time.Time `json:"createdAt"`
 		UpdatedAt time.Time `json:"updatedAt"`
 	}
+
+	ReviewHistory struct {
+		ID        int32     `json:"id"`
+		Platform  Platform  `json:"platform"`
+		WatchedAt time.Time `json:"watchedAt"`
+	}
 )
 
 func NewReviewByModel(review *model.Reviews) *Review {
