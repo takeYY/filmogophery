@@ -7,7 +7,6 @@
 	down_v		\
 	test		\
 	gen_models  \
-	mock        \
 	start
 
 
@@ -37,12 +36,6 @@ test:
 gen_models:
 	make up_d
 	docker compose exec api go run cmd/gen/gorm_gen.go
-	docker compose stop
-
-mock:
-	make up_d
-	docker compose exec api mockgen -package=mocks -destination=tests/mocks/mock_repositories.go filmogophery/internal/app/repositories IGenreRepository,IImpressionRepository,IMediaRepository,IMovieRepository,IRecordRepository
-	docker compose exec api mockgen -package=mocks -destination=tests/mocks/mock_services.go filmogophery/internal/app/services IMovieService
 	docker compose stop
 
 start:
