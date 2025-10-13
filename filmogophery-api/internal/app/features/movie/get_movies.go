@@ -40,7 +40,7 @@ func (i *getMoviesInteractor) Run(ctx context.Context, genre string, limit int32
 			ID:             m.ID,
 			Title:          m.Title,
 			Overview:       m.Overview,
-			ReleaseDate:    m.ReleaseDate.String(),
+			ReleaseDate:    types.ConvertTime2Date(m.ReleaseDate),
 			RuntimeMinutes: m.RuntimeMinutes,
 			PosterURL:      m.PosterURL,
 			TmdbID:         m.TmdbID,

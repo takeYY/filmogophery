@@ -85,7 +85,7 @@ func (i *getMovieDetailInteractor) Run(ctx context.Context, movieID int32) (*typ
 			ID:             movie.ID,
 			Title:          movie.Title,
 			Overview:       movie.Overview,
-			ReleaseDate:    movie.ReleaseDate.String(),
+			ReleaseDate:    types.ConvertTime2Date(movie.ReleaseDate),
 			RuntimeMinutes: movie.RuntimeMinutes,
 			PosterURL:      movie.PosterURL,
 			TmdbID:         movie.TmdbID,
