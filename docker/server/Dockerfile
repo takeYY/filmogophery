@@ -11,7 +11,6 @@ WORKDIR ${APP_DIR}
 RUN go install github.com/rakyll/gotest@latest
 # ハンドラのテスト用にmock生成パッケージをインストール（Go 1.22.4 互換バージョンを指定）
 RUN go install go.uber.org/mock/mockgen@v0.4.0
-RUN go install go.uber.org/mock/mockgen/model@v0.4.0
 # ホットリロードのために、air を使う
 RUN go install github.com/air-verse/air@v1.52.3
 
