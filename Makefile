@@ -30,7 +30,7 @@ down_v:
 
 test:
 	make up_d
-	docker compose exec api gotest -v ./tests/... -cover
+	docker compose exec api gotest -v ./... -cover
 	docker compose stop
 
 gen_models:
