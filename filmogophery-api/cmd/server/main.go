@@ -10,8 +10,8 @@ import (
 	"filmogophery/internal/app/api"
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/services"
-	"filmogophery/internal/db"
 	"filmogophery/internal/pkg/config"
+	"filmogophery/internal/pkg/db"
 	"filmogophery/internal/pkg/logger"
 )
 

@@ -5,8 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"filmogophery/internal/db"
 	"filmogophery/internal/pkg/config"
+	"filmogophery/internal/pkg/db"
 )
 
 func SetupTestDB() *gorm.DB {
