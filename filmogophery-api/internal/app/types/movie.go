@@ -1,15 +1,17 @@
 package types
 
+import "filmogophery/internal/pkg/constant"
+
 type (
 	Movie struct {
-		ID             int32   `json:"id"`
-		Title          string  `json:"title"`
-		Overview       string  `json:"overview"`
-		ReleaseDate    string  `json:"releaseDate"`
-		RuntimeMinutes int32   `json:"runtimeMinutes"`
-		PosterURL      *string `json:"posterURL"`
-		TmdbID         int32   `json:"tmdbID"`
-		Genres         []Genre `json:"genres"`
+		ID             int32         `json:"id"`
+		Title          string        `json:"title"`
+		Overview       string        `json:"overview"`
+		ReleaseDate    constant.Date `json:"releaseDate"`
+		RuntimeMinutes int32         `json:"runtimeMinutes"`
+		PosterURL      *string       `json:"posterURL"`
+		TmdbID         int32         `json:"tmdbID"`
+		Genres         []Genre       `json:"genres"`
 	}
 	MovieDetail struct {
 		VoteAverage float32 `json:"voteAverage"`
