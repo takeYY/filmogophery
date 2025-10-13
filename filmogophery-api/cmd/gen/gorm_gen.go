@@ -23,69 +23,52 @@ func main() {
 
 	g.UseDB(gormDB)
 
-	all := g.GenerateAllTable()
-
 	// 外部キーの関係を持つ構造体を作る
-	movie_series := g.GenerateModel("movie_series")
-
-	watch_media := g.GenerateModel("watch_media")
-	movie_watch_record := g.GenerateModel("movie_watch_record",
-		gen.FieldRelate(field.HasOne, "WatchMedia", watch_media, &field.RelateConfig{
-			GORMTag: field.GormTag{
-				"foreignKey": []string{"WatchMediaID"},
-				"references": []string{"ID"},
-			},
-		}),
-	)
-
-	movie_impression := g.GenerateModel("movie_impression",
-		gen.FieldRelate(field.HasOne, "Movie", g.GenerateModel("movie"), &field.RelateConfig{
-			GORMTag: field.GormTag{
-				"foreignKey": []string{"MovieID"},
-				"references": []string{"ID"},
-			},
-		}),
-		gen.FieldRelate(field.HasMany, "WatchRecords", movie_watch_record, &field.RelateConfig{
-			RelateSlicePointer: true,
-			GORMTag: field.GormTag{
-				"foreignKey": []string{"MovieImpressionID"},
-				"references": []string{"ID"},
-			},
-		}),
-	)
-
-	genre := g.GenerateModel("genre",
-		gen.FieldRelate(field.Many2Many, "Movies", g.GenerateModel("movie"), &field.RelateConfig{
+	genres := g.GenerateModel("genres",
+		gen.FieldRelate(field.Many2Many, "Movies", g.GenerateModel("movies"), &field.RelateConfig{
 			RelateSlicePointer: true,
 			GORMTag:            field.GormTag{"many2many": []string{"movie_genres"}},
 		}))
-	movie := g.GenerateModel("movie",
-		gen.FieldRelate(field.Many2Many, "Genres", genre, &field.RelateConfig{
+	movies := g.GenerateModel("movies",
+		gen.FieldRelate(field.Many2Many, "Genres", genres, &field.RelateConfig{
 			RelateSlicePointer: true,
-			GORMTag:            field.GormTag{"many2many": []string{"movie_genres"}},
+			GORMTag: field.GormTag{
+				"many2many":      []string{"movie_genres"},
+				"foreignKey":     []string{"ID"},
+				"joinForeignKey": []string{"movie_id"},
+				"references":     []string{"ID"},
+				"joinReferences": []string{"genre_id"},
+			},
 		}),
-		gen.FieldRelate(field.HasOne, "Series", movie_series, &field.RelateConfig{
+		gen.FieldRelate(field.HasOne, "Series", g.GenerateModel("series"), &field.RelateConfig{
 			RelatePointer: true,
 			GORMTag: field.GormTag{
 				"foreignKey": []string{"SeriesID"},
 				"references": []string{"ID"},
 				"default":    []string{"null"},
-				"constraint": []string{"OnUpdate:SET NULL", "OnDelete:SET NULL"},
-			},
-		}),
-		gen.FieldRelate(field.BelongsTo, "MovieImpression", movie_impression, &field.RelateConfig{
-			RelatePointer: true,
-			GORMTag: field.GormTag{
-				"foreignKey": []string{"MovieID"},
-				"references": []string{"ID"},
-				// "default":    []string{"null"},
-				// "constraint": []string{"OnUpdate:SET NULL", "OnDelete:SET NULL"},
+				"constraint": []string{"OnDelete:SET NULL"},
 			},
 		}),
 	)
+	users := g.GenerateModel("users")
+	series := g.GenerateModel("series")
+	movieGenres := g.GenerateModel("movie_genres")
+	platforms := g.GenerateModel("platforms")
+	watchlist := g.GenerateModel("watchlist")
+	reviews := g.GenerateModel("reviews")
+	watchHistory := g.GenerateModel("watch_history")
 
-	g.ApplyBasic(movie_series, genre, movie, movie_impression, watch_media, movie_watch_record)
-	g.ApplyBasic(all...)
+	g.ApplyBasic(
+		genres,
+		movies,
+		users,
+		series,
+		movieGenres,
+		platforms,
+		watchlist,
+		reviews,
+		watchHistory,
+	)
 
 	g.Execute()
 }
