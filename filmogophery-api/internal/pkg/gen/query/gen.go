@@ -17,41 +17,47 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:               db,
-		Genre:            newGenre(db, opts...),
-		Movie:            newMovie(db, opts...),
-		MovieGenres:      newMovieGenres(db, opts...),
-		MovieImpression:  newMovieImpression(db, opts...),
-		MovieSeries:      newMovieSeries(db, opts...),
-		MovieWatchRecord: newMovieWatchRecord(db, opts...),
-		WatchMedia:       newWatchMedia(db, opts...),
+		db:           db,
+		Genres:       newGenres(db, opts...),
+		MovieGenres:  newMovieGenres(db, opts...),
+		Movies:       newMovies(db, opts...),
+		Platforms:    newPlatforms(db, opts...),
+		Reviews:      newReviews(db, opts...),
+		Series:       newSeries(db, opts...),
+		Users:        newUsers(db, opts...),
+		WatchHistory: newWatchHistory(db, opts...),
+		Watchlist:    newWatchlist(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Genre            genre
-	Movie            movie
-	MovieGenres      movieGenres
-	MovieImpression  movieImpression
-	MovieSeries      movieSeries
-	MovieWatchRecord movieWatchRecord
-	WatchMedia       watchMedia
+	Genres       genres
+	MovieGenres  movieGenres
+	Movies       movies
+	Platforms    platforms
+	Reviews      reviews
+	Series       series
+	Users        users
+	WatchHistory watchHistory
+	Watchlist    watchlist
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:               db,
-		Genre:            q.Genre.clone(db),
-		Movie:            q.Movie.clone(db),
-		MovieGenres:      q.MovieGenres.clone(db),
-		MovieImpression:  q.MovieImpression.clone(db),
-		MovieSeries:      q.MovieSeries.clone(db),
-		MovieWatchRecord: q.MovieWatchRecord.clone(db),
-		WatchMedia:       q.WatchMedia.clone(db),
+		db:           db,
+		Genres:       q.Genres.clone(db),
+		MovieGenres:  q.MovieGenres.clone(db),
+		Movies:       q.Movies.clone(db),
+		Platforms:    q.Platforms.clone(db),
+		Reviews:      q.Reviews.clone(db),
+		Series:       q.Series.clone(db),
+		Users:        q.Users.clone(db),
+		WatchHistory: q.WatchHistory.clone(db),
+		Watchlist:    q.Watchlist.clone(db),
 	}
 }
 
@@ -65,36 +71,42 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:               db,
-		Genre:            q.Genre.replaceDB(db),
-		Movie:            q.Movie.replaceDB(db),
-		MovieGenres:      q.MovieGenres.replaceDB(db),
-		MovieImpression:  q.MovieImpression.replaceDB(db),
-		MovieSeries:      q.MovieSeries.replaceDB(db),
-		MovieWatchRecord: q.MovieWatchRecord.replaceDB(db),
-		WatchMedia:       q.WatchMedia.replaceDB(db),
+		db:           db,
+		Genres:       q.Genres.replaceDB(db),
+		MovieGenres:  q.MovieGenres.replaceDB(db),
+		Movies:       q.Movies.replaceDB(db),
+		Platforms:    q.Platforms.replaceDB(db),
+		Reviews:      q.Reviews.replaceDB(db),
+		Series:       q.Series.replaceDB(db),
+		Users:        q.Users.replaceDB(db),
+		WatchHistory: q.WatchHistory.replaceDB(db),
+		Watchlist:    q.Watchlist.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Genre            *genreDo
-	Movie            *movieDo
-	MovieGenres      *movieGenresDo
-	MovieImpression  *movieImpressionDo
-	MovieSeries      *movieSeriesDo
-	MovieWatchRecord *movieWatchRecordDo
-	WatchMedia       *watchMediaDo
+	Genres       *genresDo
+	MovieGenres  *movieGenresDo
+	Movies       *moviesDo
+	Platforms    *platformsDo
+	Reviews      *reviewsDo
+	Series       *seriesDo
+	Users        *usersDo
+	WatchHistory *watchHistoryDo
+	Watchlist    *watchlistDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Genre:            q.Genre.WithContext(ctx),
-		Movie:            q.Movie.WithContext(ctx),
-		MovieGenres:      q.MovieGenres.WithContext(ctx),
-		MovieImpression:  q.MovieImpression.WithContext(ctx),
-		MovieSeries:      q.MovieSeries.WithContext(ctx),
-		MovieWatchRecord: q.MovieWatchRecord.WithContext(ctx),
-		WatchMedia:       q.WatchMedia.WithContext(ctx),
+		Genres:       q.Genres.WithContext(ctx),
+		MovieGenres:  q.MovieGenres.WithContext(ctx),
+		Movies:       q.Movies.WithContext(ctx),
+		Platforms:    q.Platforms.WithContext(ctx),
+		Reviews:      q.Reviews.WithContext(ctx),
+		Series:       q.Series.WithContext(ctx),
+		Users:        q.Users.WithContext(ctx),
+		WatchHistory: q.WatchHistory.WithContext(ctx),
+		Watchlist:    q.Watchlist.WithContext(ctx),
 	}
 }
 
