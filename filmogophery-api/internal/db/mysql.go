@@ -41,6 +41,9 @@ func ConnectDB(conf *config.Config) *gorm.DB {
 		AllowNativePasswords: true,
 		Collation:            "utf8mb4_unicode_ci",
 		Loc:                  jst,
+		Params: map[string]string{
+			"charset": "utf8mb4",
+		},
 	}
 	writerDB := defaultMySQL.Config{
 		DBName:               conf.WriterDatabase.Name,
@@ -52,6 +55,9 @@ func ConnectDB(conf *config.Config) *gorm.DB {
 		AllowNativePasswords: true,
 		Collation:            "utf8mb4_unicode_ci",
 		Loc:                  jst,
+		Params: map[string]string{
+			"charset": "utf8mb4",
+		},
 	}
 
 	db, err := sql.Open("mysql", writerDB.FormatDSN())
