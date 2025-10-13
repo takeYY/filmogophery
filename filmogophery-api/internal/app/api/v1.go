@@ -15,6 +15,7 @@ func RegisterV1Routes() fx.Option {
 		fx.Provide(
 			fx.Private,
 			asV1Route(health.NewHealthHandler),
+			asV1Route(movieHandler.NewGetMovieDetailHandler),
 			asV1Route(movieHandler.NewGetMoviesHandler),
 
 			fx.Annotate(
