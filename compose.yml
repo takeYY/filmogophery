@@ -25,7 +25,6 @@ services:
     volumes:
       - mysql-volumes:/var/lib/mysql
       - ./docker/mysql/entrypoint/:/docker-entrypoint-initdb.d
-      - ./filmogophery-api/my.cnf:/etc/mysql/conf.d/my.cnf
     environment:
       MYSQL_USER: "user"
       MYSQL_PASSWORD: "password"
