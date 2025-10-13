@@ -9,12 +9,12 @@ type (
 	}
 )
 
-func NewGenresByModel(genres []*model.Genre) []Genre {
+func NewGenresByModel(genres []*model.Genres) []Genre {
 	result := make([]Genre, 0, len(genres))
 	for _, g := range genres {
 		result = append(result, Genre{
 			Code: g.Code,
-			Name: *g.Name,
+			Name: g.Name,
 		})
 	}
 
