@@ -10,7 +10,7 @@ import (
 
 type (
 	GetMoviesUseCase interface {
-		Run(ctx context.Context) ([]types.Movie, error)
+		Run(ctx context.Context, genre string, limit int32) ([]types.Movie, error)
 	}
 
 	getMoviesInteractor struct {
@@ -24,11 +24,11 @@ func NewGetMoviesInteractor(movieService services.IMovieService) GetMoviesUseCas
 	}
 }
 
-func (i *getMoviesInteractor) Run(ctx context.Context) ([]types.Movie, error) {
+func (i *getMoviesInteractor) Run(ctx context.Context, genre string, limit int32) ([]types.Movie, error) {
 	logger := logger.GetLogger()
 
 	// 全ての映画を取得
-	movies, err := i.movieService.GetMovies(ctx)
+	movies, err := i.movieService.GetMovies(ctx, genre, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -37,17 +37,17 @@ func (i *getMoviesInteractor) Run(ctx context.Context) ([]types.Movie, error) {
 	response := make([]types.Movie, 0, len(movies))
 	for _, m := range movies {
 		response = append(response, types.Movie{
-			ID:          m.ID,
-			Title:       m.Title,
-			Overview:    m.Overview,
-			ReleaseDate: m.ReleaseDate.String(),
-			RunTime:     m.RunTime,
-			PosterURL:   m.PosterURL,
-			TmdbID:      m.TmdbID,
-			Genres:      types.NewGenresByModel(m.Genres),
+			ID:             m.ID,
+			Title:          m.Title,
+			Overview:       m.Overview,
+			ReleaseDate:    m.ReleaseDate.String(),
+			RuntimeMinutes: m.RuntimeMinutes,
+			PosterURL:      m.PosterURL,
+			TmdbID:         m.TmdbID,
+			Genres:         types.NewGenresByModel(m.Genres),
 		})
 	}
-	logger.Debug().Msg("successfully set response")
+	logger.Debug().Msg("successfully set movies response")
 
 	return response, nil
 }
