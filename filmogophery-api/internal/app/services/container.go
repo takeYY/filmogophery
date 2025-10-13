@@ -9,9 +9,11 @@ import (
 
 type (
 	IServiceContainer interface {
+		GenreService() IGenreService
 		MovieService() IMovieService
-		TmdbService() ITmdbService
+		PlatformService() IPlatformService
 		ReviewService() IReviewService
+		TmdbService() ITmdbService
 	}
 
 	serviceContainer struct {
@@ -26,20 +28,32 @@ func NewServiceContainer(db *gorm.DB, conf *config.Config) IServiceContainer {
 	}
 }
 
+func (c *serviceContainer) GenreService() IGenreService {
+	return NewGenreService(
+		repositories.NewGenreRepository(c.db),
+	)
+}
+
 func (c *serviceContainer) MovieService() IMovieService {
 	return NewMovieService(
 		repositories.NewMovieRepository(c.db),
 	)
 }
 
-func (c *serviceContainer) TmdbService() ITmdbService {
-	return NewTmdbService(
-		repositories.NewTmdbRepository(&c.conf.Tmdb),
+func (c *serviceContainer) PlatformService() IPlatformService {
+	return NewPlatformService(
+		repositories.NewPlatformRepository(c.db),
 	)
 }
 
 func (c *serviceContainer) ReviewService() IReviewService {
 	return NewReviewService(
 		repositories.NewReviewRepository(c.db),
+	)
+}
+
+func (c *serviceContainer) TmdbService() ITmdbService {
+	return NewTmdbService(
+		repositories.NewTmdbRepository(&c.conf.Tmdb),
 	)
 }

@@ -4,8 +4,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 
+	genreHandler "filmogophery/internal/app/features/genre/handlers"
 	"filmogophery/internal/app/features/health"
 	movieHandler "filmogophery/internal/app/features/movie/handlers"
+	platformHandler "filmogophery/internal/app/features/platform/handlers"
 	"filmogophery/internal/app/routers"
 )
 
@@ -17,6 +19,8 @@ func RegisterV1Routes() fx.Option {
 			asV1Route(health.NewHealthHandler),
 			asV1Route(movieHandler.NewGetMovieDetailHandler),
 			asV1Route(movieHandler.NewGetMoviesHandler),
+			asV1Route(genreHandler.NewGetGenresHandler),
+			asV1Route(platformHandler.NewGetPlatformsHandler),
 
 			fx.Annotate(
 				getRouters,

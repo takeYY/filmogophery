@@ -25,11 +25,14 @@ func main() {
 		fx.Provide( // Repositories
 			repositories.NewGenreRepository,
 			repositories.NewMovieRepository,
+			repositories.NewPlatformRepository,
 			repositories.NewReviewRepository,
 			repositories.NewTmdbRepository,
 		),
 		fx.Provide( // Services
+			services.NewGenreService,
 			services.NewMovieService,
+			services.NewPlatformService,
 			services.NewReviewService,
 			services.NewTmdbService,
 		),
