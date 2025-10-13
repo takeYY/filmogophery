@@ -31,6 +31,11 @@ func newWatchHistory(db *gorm.DB, opts ...gen.DOOption) watchHistory {
 	_watchHistory.ReviewID = field.NewInt32(tableName, "review_id")
 	_watchHistory.PlatformID = field.NewInt32(tableName, "platform_id")
 	_watchHistory.WatchedDate = field.NewTime(tableName, "watched_date")
+	_watchHistory.Platform = watchHistoryHasOnePlatform{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Platform", "model.Platforms"),
+	}
 
 	_watchHistory.fillFieldMap()
 
@@ -45,6 +50,7 @@ type watchHistory struct {
 	ReviewID    field.Int32
 	PlatformID  field.Int32
 	WatchedDate field.Time
+	Platform    watchHistoryHasOnePlatform
 
 	fieldMap map[string]field.Expr
 }
@@ -81,11 +87,12 @@ func (w *watchHistory) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (w *watchHistory) fillFieldMap() {
-	w.fieldMap = make(map[string]field.Expr, 4)
+	w.fieldMap = make(map[string]field.Expr, 5)
 	w.fieldMap["id"] = w.ID
 	w.fieldMap["review_id"] = w.ReviewID
 	w.fieldMap["platform_id"] = w.PlatformID
 	w.fieldMap["watched_date"] = w.WatchedDate
+
 }
 
 func (w watchHistory) clone(db *gorm.DB) watchHistory {
@@ -96,6 +103,77 @@ func (w watchHistory) clone(db *gorm.DB) watchHistory {
 func (w watchHistory) replaceDB(db *gorm.DB) watchHistory {
 	w.watchHistoryDo.ReplaceDB(db)
 	return w
+}
+
+type watchHistoryHasOnePlatform struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a watchHistoryHasOnePlatform) Where(conds ...field.Expr) *watchHistoryHasOnePlatform {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a watchHistoryHasOnePlatform) WithContext(ctx context.Context) *watchHistoryHasOnePlatform {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a watchHistoryHasOnePlatform) Session(session *gorm.Session) *watchHistoryHasOnePlatform {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a watchHistoryHasOnePlatform) Model(m *model.WatchHistory) *watchHistoryHasOnePlatformTx {
+	return &watchHistoryHasOnePlatformTx{a.db.Model(m).Association(a.Name())}
+}
+
+type watchHistoryHasOnePlatformTx struct{ tx *gorm.Association }
+
+func (a watchHistoryHasOnePlatformTx) Find() (result *model.Platforms, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a watchHistoryHasOnePlatformTx) Append(values ...*model.Platforms) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a watchHistoryHasOnePlatformTx) Replace(values ...*model.Platforms) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a watchHistoryHasOnePlatformTx) Delete(values ...*model.Platforms) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a watchHistoryHasOnePlatformTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a watchHistoryHasOnePlatformTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type watchHistoryDo struct{ gen.DO }

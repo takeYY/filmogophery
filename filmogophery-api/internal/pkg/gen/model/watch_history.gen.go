@@ -16,6 +16,7 @@ type WatchHistory struct {
 	ReviewID    int32      `gorm:"column:review_id;not null" json:"review_id"`
 	PlatformID  int32      `gorm:"column:platform_id;not null" json:"platform_id"`
 	WatchedDate *time.Time `gorm:"column:watched_date;not null;default:1895-12-28" json:"watched_date"`
+	Platform    Platforms  `gorm:"foreignKey:PlatformID;references:ID" json:"platform"`
 }
 
 // TableName WatchHistory's table name
