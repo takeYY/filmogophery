@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
 
@@ -16,18 +15,15 @@ type (
 	IMovieRepository interface {
 		// --- Create --- //
 
-		// 映画を作成
-		Save(ctx context.Context, input SaveMovieInput) error
-
 		// --- Read --- //
 
-		// ID と一致する映画を取得
-		FindByID(ctx context.Context, id *int32) (*model.Movie, error)
-		// 全ての映画を取得
-		FindAll(ctx context.Context) ([]*model.Movie, error)
+		// ID に一致する映画を取得
+		FindByID(ctx context.Context, id int32) (*model.Movies, error)
+		// ジャンルを指定して取得
+		FindByGenre(ctx context.Context, genre string, limit int32) ([]*model.Movies, error)
 	}
 	SaveMovieInput struct {
-		Target *model.Movie
+		Target *model.Movies
 		Tx     *gorm.DB
 	}
 
@@ -44,42 +40,37 @@ func NewMovieRepository(db *gorm.DB) IMovieRepository {
 	}
 }
 
-func (r *movieRepository) FindByID(ctx context.Context, id *int32) (*model.Movie, error) {
-	if id == nil {
+// ID に一致する映画を取得
+func (r *movieRepository) FindByID(ctx context.Context, id int32) (*model.Movies, error) {
+	m := query.Use(r.ReaderDB).Movies
+
+	result, err := m.WithContext(ctx).
+		Preload(m.Genres).
+		Preload(m.Series).
+		Where(m.ID.Eq(id)).
+		Take()
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
-
-	m := query.Use(r.ReaderDB).Movie
-
-	movie, err := m.WithContext(ctx).
-		Preload(field.Associations.Scopes(field.RelationFieldUnscoped)).
-		Where(m.ID.Eq(*id)).
-		First()
-	if errors.Is(err, gorm.ErrRecordNotFound) { // 0 件の場合
-		return nil, nil
-	}
-
-	return movie, err
+	return result, err
 }
 
-func (r *movieRepository) FindAll(ctx context.Context) ([]*model.Movie, error) {
-	m := query.Use(r.ReaderDB).Movie
+// ジャンルを指定して取得
+func (r *movieRepository) FindByGenre(
+	ctx context.Context, genre string, limit int32,
+) ([]*model.Movies, error) {
+	m := query.Use(r.ReaderDB).Movies
+	g := query.Use(r.ReaderDB).Genres
+	mg := query.Use(r.ReaderDB).MovieGenres
 
-	movies, err := m.WithContext(ctx).
-		Preload(field.Associations.Scopes(field.RelationFieldUnscoped)).
+	q := m.WithContext(ctx).Preload(m.Genres)
+	if genre != "" {
+		q = q.LeftJoin(mg, mg.MovieID.EqCol(m.ID)).
+			LeftJoin(g, g.ID.EqCol(mg.GenreID)).
+			Where(g.Code.Eq(genre))
+	}
+
+	return q.
+		Limit(int(limit)).
 		Find()
-	if errors.Is(err, gorm.ErrRecordNotFound) { // 0 件の場合
-		return make([]*model.Movie, 0), nil
-	}
-
-	return movies, err
-}
-
-func (r *movieRepository) Save(ctx context.Context, input SaveMovieInput) error {
-	m := query.Use(r.WriterDB).Movie
-	if input.Tx != nil {
-		m = query.Use(input.Tx).Movie
-	}
-
-	return m.WithContext(ctx).Create(input.Target)
 }

@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"errors"
 
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
@@ -16,7 +15,7 @@ type (
 		// --- Read --- //
 
 		// 名前と一致するジャンルを取得
-		FindByNames(ctx context.Context, names []string) ([]*model.Genre, error)
+		FindByNames(ctx context.Context, names []string) ([]*model.Genres, error)
 	}
 
 	genreRepository struct {
@@ -28,19 +27,14 @@ type (
 func NewGenreRepository(db *gorm.DB) IGenreRepository {
 	return &genreRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
-		// WriterDB: db.Clauses(dbresolver.Write),
+		// NOTE: 書き込みは不要
 	}
 }
 
-func (r *genreRepository) FindByNames(ctx context.Context, names []string) ([]*model.Genre, error) {
-	g := query.Use(r.ReaderDB).Genre
+func (r *genreRepository) FindByNames(ctx context.Context, names []string) ([]*model.Genres, error) {
+	g := query.Use(r.ReaderDB).Genres
 
-	genres, err := g.WithContext(ctx).
+	return g.WithContext(ctx).
 		Where(g.Name.In(names...)).
 		Find()
-	if errors.Is(err, gorm.ErrRecordNotFound) { // 0 件の場合
-		return make([]*model.Genre, 0), nil
-	}
-
-	return genres, err
 }
