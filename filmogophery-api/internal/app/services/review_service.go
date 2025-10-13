@@ -2,10 +2,12 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/pkg/gen/model"
@@ -14,6 +16,11 @@ import (
 
 type (
 	IReviewService interface {
+		// --- Create --- //
+
+		// レビューを作成
+		CreateReview(ctx context.Context, tx *gorm.DB, userID int32, movie *model.Movies, rating *float64, comment *string) error
+
 		// IDに一致するレビューを取得
 		GetReviewByID(ctx context.Context, userID int32, id int32) (*model.Reviews, error)
 		// 映画IDに一致するレビューを取得
@@ -36,6 +43,35 @@ func NewReviewService(
 		reviewRepo,
 		watchHistoryRepo,
 	}
+}
+
+// レビューを作成
+func (s *reviewService) CreateReview(
+	ctx context.Context, tx *gorm.DB, userID int32, movie *model.Movies, rating *float64, comment *string,
+) error {
+	logger := logger.GetLogger()
+
+	err := s.reviewRepo.Save(
+		ctx,
+		tx,
+		&model.Reviews{
+			UserID:  userID,
+			MovieID: movie.ID,
+			Rating:  rating,
+			Comment: comment,
+		},
+	)
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		em := fmt.Sprintf("review already exists for this movie(id=%d): %s", movie.ID, err.Error())
+		logger.Error().Msg(em)
+		return echo.NewHTTPError(http.StatusBadRequest, em)
+	}
+	if err != nil {
+		logger.Error().Msgf("failed to create review: %s", err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+	}
+
+	return nil
 }
 
 // IDに一致するレビューを取得
