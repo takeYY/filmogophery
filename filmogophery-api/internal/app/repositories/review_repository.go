@@ -18,10 +18,17 @@ type (
 		// レビューを作成
 		Save(ctx context.Context, tx *gorm.DB, review *model.Reviews) error
 
+		// --- Read --- //
+
 		// IDに一致するレビューを取得
 		FindByID(ctx context.Context, userID int32, id int32) (*model.Reviews, error)
 		// 映画IDに一致するレビューを取得
 		FindByMovieID(ctx context.Context, userID int32, movieID int32) (*model.Reviews, error)
+
+		// --- Update --- //
+
+		// レビューを更新
+		Update(ctx context.Context, tx *gorm.DB, review *model.Reviews) error
 	}
 	reviewRepository struct {
 		ReaderDB *gorm.DB
@@ -76,4 +83,19 @@ func (r *reviewRepository) FindByMovieID(ctx context.Context, userID int32, movi
 		return nil, nil
 	}
 	return result, err
+}
+
+// レビューを更新
+func (r *reviewRepository) Update(ctx context.Context, tx *gorm.DB, review *model.Reviews) error {
+	rv := query.Use(r.WriterDB).Reviews
+	if tx != nil {
+		rv = query.Use(tx).Reviews
+	}
+
+	_, err := rv.WithContext(ctx).
+		Where(
+			rv.ID.Eq(review.ID),
+		).Updates(review)
+
+	return err
 }

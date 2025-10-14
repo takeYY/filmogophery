@@ -21,6 +21,8 @@ type (
 		// レビューを作成
 		CreateReview(ctx context.Context, tx *gorm.DB, userID int32, movie *model.Movies, rating *float64, comment *string) error
 
+		// --- Read --- //
+
 		// IDに一致するレビューを取得
 		GetReviewByID(ctx context.Context, userID int32, id int32) (*model.Reviews, error)
 		// 映画IDに一致するレビューを取得
@@ -28,6 +30,11 @@ type (
 
 		// レビューIDに一致する視聴履歴を取得
 		GetWatchHistoryByReviewID(ctx context.Context, review *model.Reviews) ([]*model.WatchHistory, error)
+
+		// --- Update -- //
+
+		// レビューを更新
+		UpdateReview(ctx context.Context, tx *gorm.DB, review *model.Reviews, rating *float64, comment *string) error
 	}
 	reviewService struct {
 		reviewRepo       repositories.IReviewRepository
@@ -122,4 +129,19 @@ func (s *reviewService) GetWatchHistoryByReviewID(ctx context.Context, review *m
 	logger.Debug().Msg("successfully fetched watch histories")
 
 	return watchHistories, err
+}
+
+// レビューを更新
+func (s *reviewService) UpdateReview(ctx context.Context, tx *gorm.DB, review *model.Reviews, rating *float64, comment *string) error {
+	logger := logger.GetLogger()
+
+	review.Rating = rating
+	review.Comment = comment
+	err := s.reviewRepo.Update(ctx, tx, review)
+	if err != nil {
+		logger.Error().Msgf("failed to update review(id=%d): %s", review.ID, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+	}
+
+	return nil
 }
