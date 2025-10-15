@@ -1,0 +1,20 @@
+@endpoint = http://localhost:8000/v1/movies
+
+
+GET {{endpoint}}
+
+###
+
+GET {{endpoint}}
+?limit=1
+
+###
+
+GET {{endpoint}}
+?genre=war
+
+###
+
+GET {{endpoint}}
+?genre=drama
+&limit=1

@@ -31,7 +31,7 @@ down_v:
 
 test:
 	make up_d
-	docker compose exec api gotest -v ./tests/... -cover
+	docker compose exec api gotest -v ./... -cover
 	docker compose stop
 
 gen_models:
@@ -41,8 +41,8 @@ gen_models:
 
 mock:
 	make up_d
-	docker compose exec api mockgen -package=mocks -destination=tests/mocks/mock_repositories.go filmogophery/internal/app/repositories IGenreRepository,IImpressionRepository,IMediaRepository,IMovieRepository,IRecordRepository
-	docker compose exec api mockgen -package=mocks -destination=tests/mocks/mock_services.go filmogophery/internal/app/services IMovieService
+	docker compose exec api mockgen -package=mocks -destination=tests/mocks/mock_repositories.go filmogophery/internal/app/repositories ITmdbRepository
+	docker compose exec api mockgen -package=mocks -destination=tests/mocks/mock_services.go filmogophery/internal/app/services ITmdbService
 	docker compose stop
 
 start:

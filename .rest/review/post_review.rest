@@ -1,0 +1,58 @@
+@endpoint = http://localhost:8000/v1
+
+@movieTerminator = 218
+@movieTerminator2 = 280
+@movieNotFound = 404
+
+// --- 異常系 --- //
+
+POST {{endpoint}}/movies/{{movieNotFound}}/reviews
+Content-Type: application/json
+
+{
+    "rating": null,
+    "comment": null
+}
+
+###
+
+POST {{endpoint}}/movies/{{movieNotFound}}/reviews
+Content-Type: application/json
+
+{
+    "rating": 0.0,
+    "comment": null
+}
+
+###
+
+POST {{endpoint}}/movies/{{movieNotFound}}/reviews
+Content-Type: application/json
+
+{
+    "rating": 5.1,
+    "comment": null
+}
+
+###
+
+POST {{endpoint}}/movies/{{movieTerminator}}/reviews
+Content-Type: application/json
+
+{
+    "rating": 3.1,
+    "comment": null
+}
+
+###
+
+
+// --- 正常系 --- //
+
+POST {{endpoint}}/movies/{{movieTerminator2}}/reviews
+Content-Type: application/json
+
+{
+    "rating": 3.1,
+    "comment": null
+}

@@ -4,56 +4,83 @@ title: テーブル定義
 ---
 
 erDiagram
-    g[genre] {
-        id   int          PK ""
-        code varchar(255) UK "NOT NULL;"
-        name varchar(255)    "NOT NULL; DEFAULT=``"
+    users {
+        id          int PK
+        username    varchar_255 UK  "NOT NULL"
+        email       varchar_255 UK  "NOT NULL"
+        created_at  timestamp       "DEFAULT CURRENT_TIMESTAMP"
+        updated_at  timestamp       "DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
     }
-    ms[movie_series] {
-        id         int          PK ""
-        name       varchar(255)    "NOT NULL;"
-        poster_url varchar(255)    "NOT NULL; DEFAULT=``"
-    }
-    m[movie] {
-        id           int          PK ""
-        title        varchar(255)    "NOT NULL;"
-        overview     TEXT            "NOT NULL;"
-        release_date date            "NOT NULL;"
-        run_time     int             "NOT NULL;"
-        poster_url   varchar(255)    "NOT NULL; DEFAULT=``"
-        series_id    int          FK ""
-        tmdb_id      int             "NOT NULL"
-    }
-    m o|--|o ms: series_id
 
-    mg[movie_genres] {
-        id       int PK ""
-        movie_id int    "NOT NULL;"
-        genre_id int    "NOT NULL;"
+    genres {
+        id      int PK
+        code    varchar_255 UK  "NOT NULL"
+        name    varchar_255     "NOT NULL"
     }
-    m o|--|{ mg: movie_id
-    g o|--|{ mg: genre_id
 
-    wm[watch_media] {
-        id   int          PK ""
-        code varchar(255) UK "NOT NULL;"
-        name varchar(255)    "NOT NULL; DEFAULT=``"
+    series {
+        id          int PK
+        name        varchar_255 "NOT NULL"
+        poster_url  varchar_255
+        created_at  timestamp   "DEFAULT CURRENT_TIMESTAMP"
     }
-    mi[movie_impression] {
-        id       int         PK ""
-        movie_id int         FK "NOT NULL;"
-        status   tinyint(1)     "NOT NULL; DEFAULT=0"
-        rating   float(2-1)     ""
-        note     TEXT           "NOT NULL;"
-    }
-    mi o|--|| m: movie_id
 
-    mwr[movie_watch_record] {
-        id                  int   PK ""
-        movie_impression_id int   FK "NOT NULL;"
-        watch_media_id      int   FK "NOT NULL;"
-        watch_date          date     "NOT NULL; DEFAULT=`2016-12-25`"
+    movies {
+        id              int         PK
+        title           varchar_255     "NOT NULL"
+        overview        TEXT            "NOT NULL"
+        release_date    date            "NOT NULL"
+        runtime_minutes int             "NOT NULL"
+        poster_url      varchar_255
+        series_id       int         FK
+        tmdb_id         int         UK  "NOT NULL"
+        created_at      timestamp       "DEFAULT CURRENT_TIMESTAMP"
     }
-    mwr }o--|| mi: movie_impression_id
-    mwr }o--|| wm: watch_media_id
+
+    movie_genres {
+        movie_id int FK "NOT NULL"
+        genre_id int FK "NOT NULL"
+    }
+
+    platforms {
+        id      int         PK
+        code    varchar_255 UK  "NOT NULL"
+        name    varchar_255     "NOT NULL"
+    }
+
+    watchlist {
+        id          int         PK
+        user_id     int         FK  "NOT NULL"
+        movie_id    int         FK  "NOT NULL"
+        priority    tinyint         "DEFAULT 1"
+        added_at    timestamp       "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    reviews {
+        id          int         PK
+        user_id     int         FK  "NOT NULL"
+        movie_id    int         FK  "NOT NULL"
+        rating      decimal_2_1
+        comment     TEXT
+        created_at  timestamp       "DEFAULT CURRENT_TIMESTAMP"
+        updated_at  timestamp       "DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    }
+
+    watch_history {
+        id              int         PK
+        review_id       int         FK  "NOT NULL"
+        platform_id     int         FK  "NOT NULL"
+        watched_date    date            "DEFAULT '1895-12-28'"
+    }
+
+    users ||--o{ watchlist : user_id
+    users ||--o{ reviews : user_id
+    movies ||--o{ watchlist : movie_id
+    movies ||--o{ reviews : movie_id
+    movies ||--o{ movie_genres : movie_id
+    genres ||--o{ movie_genres : genre_id
+    series ||--o{ movies : series_id
+    reviews ||--o{ watch_history : review_id
+    platforms ||--o{ watch_history : platform_id
+
 ```

@@ -10,8 +10,8 @@ import (
 	"filmogophery/internal/app/api"
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/services"
-	"filmogophery/internal/config"
-	"filmogophery/internal/db"
+	"filmogophery/internal/pkg/config"
+	"filmogophery/internal/pkg/db"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -24,13 +24,18 @@ func main() {
 		),
 		fx.Provide( // Repositories
 			repositories.NewGenreRepository,
-			repositories.NewImpressionRepository,
-			repositories.NewMediaRepository,
 			repositories.NewMovieRepository,
-			repositories.NewRecordRepository,
+			repositories.NewPlatformRepository,
+			repositories.NewReviewRepository,
+			repositories.NewTmdbRepository,
+			repositories.NewWatchHistoryRepository,
 		),
 		fx.Provide( // Services
+			services.NewGenreService,
 			services.NewMovieService,
+			services.NewPlatformService,
+			services.NewReviewService,
+			services.NewTmdbService,
 		),
 		fx.Provide(
 			services.NewServiceContainer,
@@ -38,7 +43,6 @@ func main() {
 		fx.Provide(
 			newEchoServer,
 		),
-		api.RegisterV0Routes(),
 		api.RegisterV1Routes(),
 		fx.Invoke(startServer),
 	)

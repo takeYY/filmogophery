@@ -1,0 +1,11 @@
+@endpoint = http://localhost:8000/v1
+
+GET {{endpoint}}/reviews/1/history
+
+###
+
+GET {{endpoint}}/reviews/2/history
+
+###
+
+GET {{endpoint}}/reviews/404/history

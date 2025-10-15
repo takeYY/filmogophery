@@ -5,11 +5,11 @@ import { WatchMedia, MovieDetail } from "@/interface/movie";
 import StarRating from "@/app/components/Rating";
 import Image from "next/image";
 import { posterUrlPrefix } from "@/constants/poster";
-import { watchMediaData } from "@/app/lib/watch_media";
-import { movieDetailData } from "@/app/lib/movies_detail_data";
+import { useRouter } from "next/navigation";
 
 // 感傷履歴を作るページ
 export default function Page({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [watchMedia, setMedia] = useState<WatchMedia[]>();
   const [movieDetail, setMovie] = useState<MovieDetail>();
@@ -24,11 +24,9 @@ export default function Page({ params }: { params: { id: string } }) {
     const fetchMedia = async () => {
       console.log("mediaのデータ取得中...");
       try {
-        // const response = await fetch(`/api/media`, { method: "GET" });
-        // const media: WatchMedia[] = await response.json();
+        const response = await fetch(`/api/media`, { method: "GET" });
+        const media: WatchMedia[] = await response.json();
 
-        // FIXME: APIから取得するように修正すること
-        const media: WatchMedia[] = watchMediaData;
         console.log("mediaのデータ取得: 完了");
 
         return setMedia(media);
@@ -40,15 +38,11 @@ export default function Page({ params }: { params: { id: string } }) {
     const fetchMovie = async () => {
       console.log("movieDetailのデータ取得中...");
       try {
-        // const response = await fetch(`/api/movie?id=${params.id}`, {
-        //   method: "GET",
-        // });
-        // const movie: MovieDetail = await response.json();
+        const response = await fetch(`/api/movie?id=${params.id}`, {
+          method: "GET",
+        });
+        const movieDetail: MovieDetail = await response.json();
 
-        // FIXME: APIから取得するように修正すること
-        const movieDetail: MovieDetail | undefined = movieDetailData.get(
-          params.id
-        );
         console.log("movieDetailのデータ取得: 完了");
         console.log("%o", movieDetail);
 
@@ -63,35 +57,26 @@ export default function Page({ params }: { params: { id: string } }) {
     fetchMovie();
   }, [params.id]);
 
-  // /*
-  useEffect(() => {
-    const tooltip = document.getElementById("rangeValue");
-    console.log(tooltip);
-  });
-  // */
-
   async function onSubmit(formData: FormData) {
     setIsLoading(true);
     try {
-      /*  API との通信
-      const response = await fetch("http://localhost:8000/XXX", {
+      const jsonData = {
+        mediaCode: formData.get("mediaCode"),
+        date: formData.get("date"),
+      };
+      console.log("page payload:", jsonData);
+      const response = await fetch(`/api/movies/${params.id}/records`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData),
       });
 
       if (!response.ok) {
         throw new Error("Failed to submit the data. Please try again.");
       }
 
-      const data = await response.json();
-       */
-
-      console.log(`movieID: ` + params.id);
-      console.log(`impressionID: ` + movieDetail?.impression?.id);
-      console.log(`media: ` + formData.get("media"));
-      console.log(`watchDate: ` + formData.get("watchDate"));
-      console.log(`rating: ` + formData.get("rating"));
-      console.log(`note: ` + formData.get("note"));
+      router.push(`/movie/${params.id}?updated=true`);
+      router.refresh();
     } catch (error) {
       // Capture the error message to display to the user
       console.error(error);

@@ -1,6 +1,16 @@
--- Create `genre`
+USE db4dev;
+
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
+-- Create `users`
 INSERT INTO
-    `genre` (`id`, `code`, `name`)
+    `users` (`id`, `username`, `email`)
+VALUES (1, 'システム管理者', 'system@filmogophery.jp');
+
+-- Create `genres`
+INSERT INTO
+    `genres` (`id`, `code`, `name`)
 VALUES
     (1, 'action', 'アクション'),
     (2, 'adventure', 'アドベンチャー'),
@@ -22,25 +32,25 @@ VALUES
     (18, 'war', '戦争'),
     (19, 'western', '西部劇');
 
--- Create `watch_media`
+-- Create `platforms`
 INSERT INTO
-    `watch_media` (`id`, `code`, `name`)
+    `platforms` (`id`, `code`, `name`)
 VALUES
-    (1, 'prime_video', 'Prime Video'),
+    (1, 'primeVideo', 'Prime Video'),
     (2, 'netflix', 'Netflix'),
-    (3, 'u_next', 'U-NEXT'),
-    (4, 'disney_plus', 'Disney+'),
+    (3, 'uNext', 'U-NEXT'),
+    (4, 'disneyPlus', 'Disney+'),
     (5, 'youtube', 'YouTube'),
-    (6, 'apple_tv', 'Apple TV+'),
+    (6, 'appleTv', 'Apple TV+'),
     (7, 'hulu', 'Hulu'),
-    (8, 'd_anime', 'dアニメ'),
+    (8, 'dAnime', 'dアニメ'),
     (9, 'telasa', 'TELASA'),
     (10, 'cinema', '映画館'),
     (99, 'unknown', '不明');
 
--- Create `movie_series`
+-- Create `series`
 INSERT INTO
-    `movie_series` (`id`, `name`, `poster_url`)
+    `series` (`id`, `name`, `poster_url`)
 VALUES
     (
         1,
@@ -49,14 +59,14 @@ VALUES
     ),
     (2, 'バック・トゥ・ザ・フューチャー シリーズ', NULL);
 
--- Create `movie`
+-- Create `movies`
 INSERT INTO
-    `movie` (
+    `movies` (
         `id`,
         `title`,
         `overview`,
         `release_date`,
-        `run_time`,
+        `runtime_minutes`,
         `poster_url`,
         `series_id`,
         `tmdb_id`
@@ -67,7 +77,7 @@ VALUES
         'ターミネーター', -- title
         'アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が現れる。同じく...', -- overview
         '1985-05-04', -- release_date
-        108, -- run_time
+        108, -- runtime_minutes
         '/iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg', -- poster_url
         1, -- series_id
         218 -- tmdb_id
@@ -77,7 +87,7 @@ VALUES
         'ターミネーター2', -- title
         '未来からの抹殺兵器ターミネーターを破壊し、近未来で恐ろしい戦争が起こる事を知って...', -- overview
         '1991-08-24', -- release_date
-        137, -- run_time
+        137, -- runtime_minutes
         '/oCwo7ALD3LftLqy0Oj6U669u4fU.jpg', -- poster_url
         1, -- series_id
         280 -- tmdb_id
@@ -87,7 +97,7 @@ VALUES
         'ターミネーター3', -- title
         'スカイネットを破壊、予見されていた最終戦争の日も過ぎたが、ジョンの心には母親から...', -- overview
         '2003-07-12', -- release_date
-        110, -- run_time
+        110, -- runtime_minutes
         NULL, -- poster_url
         1, -- series_id
         296 -- tmdb_id
@@ -97,7 +107,7 @@ VALUES
         'ターミネーター4', -- title
         '“審判の日”から10年後の2018年。人類軍の指導者となり、機械軍と戦うことを幼...', -- overview
         '2009-06-05', -- release_date
-        114, -- run_time
+        114, -- runtime_minutes
         '/7fmBDyHsLTyhfRSZk19wrY23zDg.jpg', -- poster_url
         1, -- series_id
         534 -- tmdb_id
@@ -107,7 +117,7 @@ VALUES
         'バック・トゥ・ザ・フューチャー', -- title
         'スティーブン・スピルバーグとロバート・ゼメキスが贈るSFアドベンチャーシリーズ第...', -- overview
         '1985-12-07', -- release_date
-        116, -- run_time
+        116, -- runtime_minutes
         NULL, -- poster_url
         2, -- series_id
         105 -- tmdb_id
@@ -117,7 +127,7 @@ VALUES
         'アバター', -- title
         '西暦2154年。人類は惑星ポリフェマスの最大衛星パンドラに鉱物採掘基地を開いてい...', -- overview
         '2010-08-26', -- release_date
-        162, -- run_time
+        162, -- runtime_minutes
         NULL, -- poster_url
         NULL, -- series_id
         19995 -- tmdb_id
@@ -143,28 +153,43 @@ VALUES
     (105, 14),
     (105, 15);
 
--- Create `movie_impression`
+-- Create `reviews`
 INSERT INTO
-    `movie_impression` (`id`, `movie_id`, `status`, `rating`, `note`)
+    `reviews` (`id`, `user_id`, `movie_id`, `rating`, `comment`)
 VALUES
     (
         1,
-        218,
         1,
+        218,
         4.3,
-        'ターミネーターの元祖という感じで、恐ろしさと希望が織り成す圧巻の作品。今観るとCGのぎこちなさが目立つが、それが逆に怖さを演出している。'
+        'ターミネーターの元祖という感じで、恐ろしさと希望が織り成す圧巻の作品。今観るとVFXのぎこちなさが目立つが、それが逆に怖さを演出している。'
     ),
-    (2, 296, 0, NULL, NULL);
+    (2, 1, 296, NULL, NULL);
 
--- Create `movie_watch_record`
+-- Create `watch_history`
 INSERT INTO
-    `movie_watch_record` (
+    `watch_history` (
         `id`,
-        `movie_impression_id`,
-        `watch_media_id`,
-        `watch_date`
+        `review_id`,
+        `platform_id`,
+        `watched_date`
     )
 VALUES
-    (1, 1, 99, '2016-12-25'),
+    (1, 1, 99, '1895-12-28'),
     (2, 1, 1, '2022-10-24'),
     (3, 1, 3, '2024-08-01');
+
+
+USE db4test;
+
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
+-- Create `users`
+INSERT INTO
+    `users` (`id`, `username`, `email`)
+VALUES (1, 'システム管理者', 'system@filmogophery.jp');
+
+-- マスタデータをdb4devからコピー
+INSERT INTO db4test.genres SELECT * FROM db4dev.genres;
+INSERT INTO db4test.platforms SELECT * FROM db4dev.platforms;

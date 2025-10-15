@@ -2,39 +2,68 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.0.6v2025.06.02
+  version: 0.1.0v2025.10.10
 
 servers:
-  - url: http://127.0.0.1:8000
+  - url: http://127.0.0.1:8000/v0
+    description: ローカル環境（モックデータ）
+  - url: http://127.0.0.1:8000/v1
     description: ローカル環境
 
 tags:
   - name: Health
     description: ヘルスチェック
+  - name: User
+    description: ユーザー
   - name: Movie
     description: 映画
+  - name: Review
+    description: レビュー
+  - name: Watchlist
+    description: ウォッチリスト
   - name: Master
     description: マスタデータ
 
 paths:
   /health:
     get:
-      tags:
-        - Health
+      tags: [Health]
       summary: ヘルスチェック
-      description: APIの稼働状況を確認する
       operationId: health
       responses:
         200:
           description: 成功
 
+  /users:
+    post:
+      tags: [User]
+      summary: ユーザー登録
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUser"
+      responses:
+        201:
+          description: 成功
+
   /movies:
     get:
-      tags:
-        - Movie
+      tags: [Movie]
       summary: 映画一覧
-      description: 映画情報を一覧で取得する
       operationId: getMovies
+      parameters:
+        - name: genre
+          in: query
+          schema:
+            type: string
+          description: ジャンルコードで絞り込み
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
       responses:
         200:
           description: 成功
@@ -47,17 +76,14 @@ paths:
 
   /movies/{id}:
     get:
-      tags:
-        - Movie
+      tags: [Movie]
       summary: 映画詳細
-      description: 映画の詳細情報を取得する
       operationId: getMovieDetail
       parameters:
         - required: true
           in: path
           name: id
           schema:
-            description: 映画ID
             type: integer
       responses:
         200:
@@ -67,123 +93,158 @@ paths:
               schema:
                 $ref: "#/components/schemas/MovieDetail"
         404:
-          description: movie is not found
+          description: 映画が見つからない
 
-  /movies/{id}/impression:
+  /movies/{id}/reviews:
     post:
-      tags:
-        - Movie
-      summary: 映画感想登録
-      description: 映画の感想を登録する
-      operationId: postMovieImpression
+      tags: [Review]
+      summary: レビュー登録
+      operationId: createReview
       parameters:
         - required: true
           in: path
           name: id
           schema:
-            description: 映画ID
             type: integer
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateMovieImpression"
+              $ref: "#/components/schemas/CreateReview"
       responses:
-        204:
+        201:
           description: 成功
         404:
-          description: movie is not found
+          description: 映画が見つからない
 
+  /reviews/{id}:
     put:
-      tags:
-        - Movie
-      summary: 映画感想更新
-      description: 映画の感想を更新する
-      operationId: putMovieImpression
+      tags: [Review]
+      summary: レビュー更新
+      operationId: updateReview
       parameters:
         - required: true
           in: path
           name: id
           schema:
-            description: 映画ID
             type: integer
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MovieImpression"
+              $ref: "#/components/schemas/UpdateReview"
       responses:
         204:
           description: 成功
         404:
-          description: movie is not found
+          description: レビューが見つからない
 
-  /movies/{id}/records:
-    post:
-      tags:
-        - Movie
-      summary: 映画鑑賞記録登録
-      description: 映画の鑑賞記録を新規登録する
-      operationId: postMovieRecord
+  /reviews/{id}/history:
+    get:
+      tags: [Review]
+      summary: 視聴履歴一覧
+      operationId: getWatchHistory
       parameters:
         - required: true
           in: path
           name: id
           schema:
-            description: 映画ID
             type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MovieRecord"
       responses:
         200:
           description: 成功
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MovieDetail"
-        409:
-          description: movie impression is already exists
+                type: array
+                items:
+                  $ref: "#/components/schemas/WatchHistory"
 
-  /movies/{id}/records/{recordId}:
-    put:
-      tags:
-        - Movie
-      summary: 映画鑑賞記録更新
-      description: 映画の鑑賞記録を更新する
-      operationId: putMovieRecord
+    post:
+      tags: [Review]
+      summary: 視聴履歴追加
+      operationId: addWatchHistory
       parameters:
         - required: true
           in: path
           name: id
           schema:
-            description: 映画ID
-            type: integer
-        - required: true
-          in: path
-          name: recordId
-          schema:
-            description: 鑑賞記録ID
             type: integer
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MovieRecord"
+              $ref: "#/components/schemas/CreateWatchHistory"
+      responses:
+        201:
+          description: 成功
+
+  /watchlist:
+    get:
+      tags: [Watchlist]
+      summary: ウォッチリスト一覧
+      operationId: getWatchlist
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WatchlistItem"
+
+    post:
+      tags: [Watchlist]
+      summary: ウォッチリスト追加
+      operationId: addToWatchlist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWatchlistItem"
+      responses:
+        201:
+          description: 成功
+
+  /watchlist/{id}:
+    put:
+      tags: [Watchlist]
+      summary: ウォッチリスト更新
+      operationId: updateWatchlistItem
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateWatchlistItem"
       responses:
         204:
           description: 成功
-        409:
-          description: movie impression is already exists
+
+    delete:
+      tags: [Watchlist]
+      summary: ウォッチリストから削除
+      operationId: removeFromWatchlist
+      parameters:
+        - required: true
+          in: path
+          name: id
+          schema:
+            type: integer
+      responses:
+        204:
+          description: 成功
 
   /genres:
     get:
-      tags:
-        - Master
+      tags: [Master]
       summary: ジャンル一覧
-      description: ジャンル一覧を取得する
       operationId: getGenres
       responses:
         200:
@@ -195,13 +256,11 @@ paths:
                 items:
                   $ref: "#/components/schemas/Genre"
 
-  /media:
+  /platforms:
     get:
-      tags:
-        - Master
-      summary: 鑑賞媒体一覧
-      description: 鑑賞媒体を一覧取得する
-      operationId: getMedia
+      tags: [Master]
+      summary: プラットフォーム一覧
+      operationId: getPlatforms
       responses:
         200:
           description: 成功
@@ -210,22 +269,34 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Media"
+                  $ref: "#/components/schemas/Platform"
+
+  /series:
+    get:
+      tags: [Master]
+      summary: シリーズ一覧
+      operationId: getSeries
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Series"
 
 components:
   schemas:
-    Media:
-      title: Media
+    CreateUser:
       type: object
+      required: [username, email]
       properties:
-        code:
-          description: 鑑賞媒体コード
+        username:
           type: string
-          example: unknown
-        name:
-          description: 鑑賞媒体名
+        email:
           type: string
-          example: 不明
+          format: email
 
     Movie:
       title: Movie
@@ -238,29 +309,22 @@ components:
         title:
           description: 映画タイトル
           type: string
-          example: ターミネーター
         overview:
           description: 映画概要
           type: string
-          example: アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が...
         releaseDate:
           description: 公開日
           type: string
           format: date
-          example: 1985-05-04
-        runTime:
-          description: 上映時間
+        runtimeMinutes:
+          description: 上映時間(分)
           type: integer
-          minimum: 1
-          example: 108
         posterURL:
           description: ポスターURL
           type: string
-          example: /iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg
         tmdbID:
           description: tmdbのID
           type: integer
-          example: 218
         genres:
           description: ジャンル一覧
           type: array
@@ -268,177 +332,143 @@ components:
             $ref: "#/components/schemas/Genre"
 
     MovieDetail:
-      title: MovieDetail
-      type: object
-      properties:
-        id:
-          description: ID
-          type: integer
-          example: 1
-        title:
-          description: 映画タイトル
-          type: string
-          example: ターミネーター
-        overview:
-          description: 映画概要
-          type: string
-          example: アメリカのとある街、深夜突如奇怪な放電と共に屈強な肉体をもった男が...
-        releaseDate:
-          description: 公開日
-          type: string
-          format: date
-          example: 1985-05-04
-        runTime:
-          description: 上映時間
-          type: integer
-          minimum: 1
-          example: 108
-        posterURL:
-          description: ポスターURL
-          type: string
-          example: /iK2YBfD7DdaNXZALQhhT9uTN9Rc.jpg
-        tmdbID:
-          description: tmdbのID
-          type: integer
-          example: 218
-        voteAverage:
-          description: 平均評価値
-          type: number
-          maximum: 5.0
-          minimum: 0.0
-          example: 3.85
-        voteCount:
-          description: 平均評価数
-          type: integer
-          minimum: 0
-          example: 12951
-        genres:
-          description: ジャンル一覧
-          type: array
-          items:
-            $ref: "#/components/schemas/Genre"
-        series:
-          description: シリーズ
-          type: object
+      allOf:
+        - $ref: "#/components/schemas/Movie"
+        - type: object
           properties:
-            name:
-              description: シリーズ名
-              type: string
-              example: ターミネーターシリーズ
-            posterURL:
-              description: シリーズポスターURL
-              type: string
-        impression:
-          description: 感想
-          $ref: "#/components/schemas/Impression"
+            series:
+              $ref: "#/components/schemas/Series"
+            review:
+              $ref: "#/components/schemas/Review"
+            voteAverage:
+              description: 平均評価値
+              type: number
+              maximum: 5.0
+              minimum: 0.0
+              example: 3.85
+            voteCount:
+              description: 平均評価数
+              type: integer
+              minimum: 0
+              example: 12951
 
     Genre:
-      title: Genre
       type: object
       properties:
         code:
           description: ジャンルコード
           type: string
-          example: action
         name:
           description: ジャンル名称
           type: string
-          example: アクション
 
-    Impression:
-      title: Impression
+    Platform:
+      type: object
+      properties:
+        code:
+          description: 鑑賞媒体コード
+          type: string
+        name:
+          description: 鑑賞媒体名
+          type: string
+
+    Series:
+      type: object
+      properties:
+        name:
+          description: シリーズ名
+          type: string
+        posterURL:
+          description: ポスターURL
+          type: string
+
+    Review:
       type: object
       properties:
         id:
-          description: ID
           type: integer
-          example: 2
-        status:
-          description: 鑑賞状況. Recordsがあるから要らないかも
-          type: string
-          example: 未鑑賞
         rating:
           description: 評価
           type: number
-          example: 4.3
-        note:
+          format: float
+        comment:
           description: 感想
           type: string
-          example: 恐ろしさと希望が織り成す圧巻の作品
-        records:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateReview:
+      type: object
+      properties:
+        rating:
+          description: 評価
+          type: number
+          format: float
+        comment:
           description: 鑑賞記録
-          type: array
-          items:
-            $ref: "#/components/schemas/Record"
+          type: string
 
-    Record:
-      title: Record
-      type: object
-      properties:
-        watchDate:
-          description: 鑑賞日
-          type: string
-          format: date
-          example: 2016-12-25
-        watchMedia:
-          description: 鑑賞媒体名
-          type: string
-          example: Prime Video
-
-    CreateMovieImpression:
-      title: MovieImpression
-      required:
-        - watchDate
-        - watchMedia
-      type: object
-      properties:
-        watchDate:
-          description: 鑑賞日
-          type: string
-          format: date
-          example: 2016-12-25
-        mediaCode:
-          description: 鑑賞媒体コード
-          type: string
-          example: prime_video
-        rating:
-          description: 評価値
-          type: number
-          example: 3.14
-        note:
-          description: 感想
-          type: string
-          example: Awesome
-
-    MovieImpression:
-      title: MovieImpression
-      required:
-        - rating
-        - note
+    UpdateReview:
       type: object
       properties:
         rating:
-          description: 評価値
+          description: 評価
           type: number
-          example: 3.14
-        note:
-          description: 感想
+          format: float
+        comment:
+          description: 鑑賞記録
           type: string
-          example: Awesome
 
-    MovieRecord:
-      title: MovieRecord
-      required:
-        - mediaCode
-        - date
+    WatchHistory:
       type: object
       properties:
-        mediaCode:
-          description: 鑑賞媒体コード
+        id:
+          type: integer
+        platform:
+          $ref: "#/components/schemas/Platform"
+        watchedAt:
           type: string
-          example: netflix
-        date:
-          description: 鑑賞日
+          format: date-time
+
+    CreateWatchHistory:
+      type: object
+      required: [platformId]
+      properties:
+        platformId:
+          type: integer
+        watchedAt:
           type: string
-          format: date
-          example: 2016-12-25
+          format: date-time
+
+    WatchlistItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        movie:
+          $ref: "#/components/schemas/Movie"
+        priority:
+          type: integer
+        addedAt:
+          type: string
+          format: date-time
+
+    CreateWatchlistItem:
+      type: object
+      required: [movieId]
+      properties:
+        movieId:
+          type: integer
+        priority:
+          type: integer
+          default: 1
+
+    UpdateWatchlistItem:
+      type: object
+      properties:
+        priority:
+          type: integer

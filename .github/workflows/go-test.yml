@@ -32,4 +32,4 @@ jobs:
 
       - name: Run Tests in Container
         run: |
-          docker compose exec api gotest -v ./tests/... -cover
+          docker compose exec api gotest -v ./... -cover

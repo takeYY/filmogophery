@@ -1,4 +1,4 @@
-# モックの作成方法
+# How to use it
 
 ## Reference
 

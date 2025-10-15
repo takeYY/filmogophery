@@ -15,6 +15,10 @@ type (
 	getMoviesHandler struct {
 		interactor movie.GetMoviesUseCase
 	}
+	getMoviesInput struct {
+		Genre string `query:"genre"`
+		Limit int32  `query:"limit"`
+	}
 )
 
 func NewGetMoviesHandler(svc services.IServiceContainer) routers.IRoute {
@@ -31,7 +35,21 @@ func (h *getMoviesHandler) handle(c echo.Context) error {
 	logger := logger.GetLogger()
 	logger.Info().Msg("accessed GET movies")
 
-	result, err := h.interactor.Run(c.Request().Context())
+	var req getMoviesInput
+	if err := c.Bind(&req); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	logger.Info().Msg("successfully validated params")
+
+	if req.Limit == 0 { // デフォルトを設定
+		req.Limit = 50
+	}
+
+	result, err := h.interactor.Run(
+		c.Request().Context(),
+		req.Genre,
+		req.Limit,
+	)
 	if err != nil {
 		return err
 	}

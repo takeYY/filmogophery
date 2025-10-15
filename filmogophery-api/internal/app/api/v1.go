@@ -4,8 +4,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 
-	"filmogophery/internal/app/features/health"
+	genreHandler "filmogophery/internal/app/features/genre/handlers"
+	healthHandler "filmogophery/internal/app/features/health/handlers"
 	movieHandler "filmogophery/internal/app/features/movie/handlers"
+	platformHandler "filmogophery/internal/app/features/platform/handlers"
+	reviewHandler "filmogophery/internal/app/features/review/handlers"
 	"filmogophery/internal/app/routers"
 )
 
@@ -14,8 +17,14 @@ func RegisterV1Routes() fx.Option {
 		"v1-route",
 		fx.Provide(
 			fx.Private,
-			asV1Route(health.NewHealthHandler),
+			asV1Route(healthHandler.NewCheckHealthHandler),
+			asV1Route(movieHandler.NewGetMovieDetailHandler),
 			asV1Route(movieHandler.NewGetMoviesHandler),
+			asV1Route(reviewHandler.NewPostReviewHandler),
+			asV1Route(reviewHandler.NewPutReviewHandler),
+			asV1Route(reviewHandler.NewGetReviewHistoryHandler),
+			asV1Route(genreHandler.NewGetGenresHandler),
+			asV1Route(platformHandler.NewGetPlatformsHandler),
 
 			fx.Annotate(
 				getRouters,
@@ -23,7 +32,7 @@ func RegisterV1Routes() fx.Option {
 			),
 		),
 		fx.Invoke(func(e *echo.Echo, hs []routers.IRoute, m ...echo.MiddlewareFunc) {
-			g := e.Group("v1", m...)
+			g := e.Group("/v1", m...)
 			for _, h := range hs {
 				h.Register(g)
 			}

@@ -1,0 +1,54 @@
+@endpoint = http://localhost:8000/v1
+
+// --- 異常系 --- //
+
+PUT {{endpoint}}/reviews/1
+Content-Type: application/json
+
+{
+    "rating": null,
+    "comment": null
+}
+
+###
+
+PUT {{endpoint}}/reviews/1
+Content-Type: application/json
+
+{
+    "rating": 0.0,
+    "comment": null
+}
+
+###
+
+PUT {{endpoint}}/reviews/1
+Content-Type: application/json
+
+{
+    "rating": 5.1,
+    "comment": null
+}
+
+###
+
+PUT {{endpoint}}/reviews/404
+Content-Type: application/json
+
+{
+    "rating": 3.1,
+    "comment": null
+}
+
+###
+
+
+// --- 正常系 --- //
+
+PUT {{endpoint}}/reviews/1/reviews
+Content-Type: application/json
+
+{
+    "rating": 3.1,
+    "comment": null
+}
