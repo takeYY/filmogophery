@@ -44,8 +44,14 @@ type Series = {
 export type Impression = {
   id: number;
   status: string;
-  rating: number | null;
-  note: string | null;
+  rating: number | null; // Min:0.0, Max:5.0
+  note: string;
+  records: WatchRecord[];
+};
+
+export type ImpressionResult = {
+  rating: number | null; // Min:0.0, Max:5.0
+  note: string;
 };
 
 export type WatchRecord = {
@@ -59,13 +65,13 @@ export type MovieDetail = {
   overview: string | null;
   releaseDate: string;
   runTime: number;
-  genres: string[];
   posterURL: string;
+  tmdbID: number;
   voteAverage: number; // Min:0.0, Max:5.0
   voteCount: number;
+  genres: Genre[];
   series: Series | null;
   impression: Impression | null;
-  watchRecords: WatchRecord[];
 };
 
 export type WatchMedia = {

@@ -2,31 +2,55 @@
 
 import React, { useEffect, useState } from "react";
 import StarRating from "@/app/components/Rating";
-import { MovieDetail, WatchRecord } from "@/interface/movie";
+import { MovieDetail, WatchRecord, Genre } from "@/interface/movie";
 import Image from "next/image";
 import Link from "next/link";
 import { posterUrlPrefix } from "@/constants/poster";
-import { movieDetailData } from "@/app/lib/movies_detail_data";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export default function Page({ params }: { params: { id: string } }) {
+  const searchParams = useSearchParams();
+  const isUpdated = searchParams.get("updated") === "true";
+  const router = useRouter();
+  const [showAlert, setShowAlert] = useState(isUpdated);
   const [movie, setMovie] = useState<MovieDetail | null>();
+
+  // アラートの自動非表示とURL更新
+  useEffect(() => {
+    if (isUpdated) {
+      setShowAlert(true);
+
+      // 3秒後に自動で非表示
+      const timer = setTimeout(() => {
+        setShowAlert(false);
+        // URLからupdatedパラメータを削除
+        router.replace(`/movie/${params.id}`, { scroll: false });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isUpdated, params.id, router]);
+
+  // 手動でアラートを閉じる
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+    router.replace(`/movie/${params.id}`, { scroll: false });
+  };
 
   useEffect(() => {
     const fetchMovies = async () => {
       console.log("movieのデータ取得中...");
       try {
-        // const response = await fetch(`/api/movie?id=${params.id}`, {
-        //   method: "GET",
-        // });
-        // const movie: MovieDetail = await response.json();
-        const movie: MovieDetail | null =
-          movieDetailData.get(params.id) ?? null;
-        console.log("moviesのデータ取得: 完了");
+        const response = await fetch(`/api/movie?id=${params.id}`, {
+          method: "GET",
+        });
+        const movie: MovieDetail = await response.json();
+        console.log("movieのデータ取得: 完了");
         console.log("%o", movie);
 
         return setMovie(movie);
       } catch {
-        console.log("moviesのデータ取得: エラー。空配列で定義します");
+        console.log("movieのデータ取得: エラー。空配列で定義します");
         return setMovie(undefined);
       }
     };
@@ -41,6 +65,19 @@ export default function Page({ params }: { params: { id: string } }) {
   // const movie = fetchMovie(params.id);
   return (
     <div className="container-fluid pb-4">
+      {showAlert && (
+        <div
+          className="alert alert-success alert-dismissible fade show"
+          role="alert"
+        >
+          感想の更新が完了しました！
+          <button
+            type="button"
+            className="btn-close"
+            onClick={handleCloseAlert}
+          ></button>
+        </div>
+      )}
       <h3 className="text-center mb-4">Movie Detail</h3>
 
       <div
@@ -88,14 +125,14 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* ジャンル */}
               {movie.genres.length !== 0 && (
                 <div className="card-text d-grid gap-2 d-md-block">
-                  {movie.genres.map((g: string, i: number) => {
+                  {movie.genres.map((g: Genre, i: number) => {
                     return (
                       <button
                         key={i}
                         type="button"
                         className="btn btn-outline-info btn-sm"
                       >
-                        {g}
+                        {g.name}
                       </button>
                     );
                   })}
@@ -118,25 +155,27 @@ export default function Page({ params }: { params: { id: string } }) {
             {/* 視聴履歴 */}
             <div className="card-footer border-success text-light">
               <div>視聴履歴</div>
-              {!movie.watchRecords.length && <div>なし</div>}
+              {!movie.impression?.records.length && <div>なし</div>}
 
-              {movie.watchRecords.length !== 0 && (
+              {movie.impression?.records.length !== 0 && (
                 <dl className="row">
-                  {movie.watchRecords.map((r: WatchRecord, i: number) => {
-                    return (
-                      <div key={i}>
-                        <dt className="col-md-1 bg-transparent badge border border-primary rounded-pill">
-                          {`${calcDiffDate(new Date(r.watchDate))}日前`}
-                        </dt>
-                        <dd className="col-md-10">
-                          <dl className="row">
-                            <dt className="col-md-4">{r.watchDate}</dt>
-                            <dd className="col-md-8">{r.watchMedia}</dd>
-                          </dl>
-                        </dd>
-                      </div>
-                    );
-                  })}
+                  {movie.impression?.records.map(
+                    (r: WatchRecord, i: number) => {
+                      return (
+                        <div key={i}>
+                          <dt className="col-md-1 bg-transparent badge border border-primary rounded-pill">
+                            {`${calcDiffDate(new Date(r.watchDate))}日前`}
+                          </dt>
+                          <dd className="col-md-10">
+                            <dl className="row">
+                              <dt className="col-md-4">{r.watchDate}</dt>
+                              <dd className="col-md-8">{r.watchMedia}</dd>
+                            </dl>
+                          </dd>
+                        </div>
+                      );
+                    }
+                  )}
                 </dl>
               )}
             </div>

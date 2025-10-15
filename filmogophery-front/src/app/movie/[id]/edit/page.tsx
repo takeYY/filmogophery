@@ -1,18 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Impression } from "@/interface/movie";
-import { impressionData } from "@/app/lib/movies_detail_data";
 import Image from "next/image";
 import StarRating from "@/app/components/Rating";
 import { MovieDetail } from "@/interface/movie";
-import { movieDetailData } from "@/app/lib/movies_detail_data";
 import { posterUrlPrefix } from "@/constants/poster";
+import { useRouter } from "next/navigation";
 
 // 感想を編集するページ
 export default function Page({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [impression, setImpression] = useState<Impression>();
   const [movieDetail, setMovie] = useState<MovieDetail>();
   const [rangeValue, onChange] = useState<string>(
     movieDetail?.impression?.rating?.toString()
@@ -21,34 +19,14 @@ export default function Page({ params }: { params: { id: string } }) {
   );
 
   useEffect(() => {
-    const fetchImpression = async () => {
-      console.log("impressionのデータ取得中...");
-      try {
-        // FIXME: APIから取得するように修正すること
-        const impression: Impression | undefined = impressionData.get(
-          parseInt(params.id, 10)
-        );
-        console.log("impressionのデータ: 完了");
-        console.log("%o", impression);
-
-        return setImpression(impression);
-      } catch {
-        console.log("impression取得エラー");
-        return setImpression(undefined);
-      }
-    };
     const fetchMovieDetail = async () => {
       console.log("movieDetailのデータ取得中...");
       try {
-        // const response = await fetch(`/api/movie?id=${params.id}`, {
-        //   method: "GET",
-        // });
-        // const movie: MovieDetail = await response.json();
+        const response = await fetch(`/api/movie?id=${params.id}`, {
+          method: "GET",
+        });
+        const movieDetail: MovieDetail = await response.json();
 
-        // FIXME: APIから取得するように修正すること
-        const movieDetail: MovieDetail | undefined = movieDetailData.get(
-          params.id
-        );
         console.log("movieDetailのデータ取得: 完了");
         console.log("%o", movieDetail);
 
@@ -59,14 +37,28 @@ export default function Page({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchImpression();
     fetchMovieDetail();
   }, [params.id]);
 
   async function onSubmit(formData: FormData) {
     setIsLoading(true);
     try {
-      // TODO: API との通信
+      const jsonData = {
+        rating: formData.get("rating"),
+        note: formData.get("note"),
+      };
+      const response = await fetch(`/api/movies/${params.id}/impression`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData),
+      });
+      const resultCode: number = response.status;
+      console.log("感想の更新完了: %o", resultCode);
+
+      if (resultCode === 204) {
+        router.push(`/movie/${params.id}?updated=true`);
+        router.refresh();
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -85,7 +77,9 @@ export default function Page({ params }: { params: { id: string } }) {
       <form action={onSubmit}>
         <div
           className={`card mb-3 bg-dark ${
-            impression?.status === "鑑賞済み" ? "border-success" : ""
+            movieDetail.impression?.status === "鑑賞済み"
+              ? "border-success"
+              : ""
           }`}
         >
           <div className="row g-0">
@@ -171,7 +165,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     disabled={isLoading}
                     className="btn btn-outline-success"
                   >
-                    {isLoading ? "Loading..." : "Edit"}
+                    {isLoading ? "Loading..." : "Update"}
                   </button>
                 </div>
               </div>
