@@ -8,7 +8,7 @@
 | createUser          | User      |  🚧  |  🚧  |
 | getMovies           | Movie     |  ✅  |  ✅  |
 | getMovieDetail      | Movie     |  ✅  |  🚧  |
-| createReview        | Review    |  ✅  |  🚧  |
+| createReview        | Review    |  ✅  |  ✅  |
 | updateReview        | Review    |  ✅  |  🚧  |
 | getWatchHistory     | Review    |  ✅  |  🚧  |
 | addWatchHistory     | Review    |  🚧  |  🚧  |
