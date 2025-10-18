@@ -25,6 +25,7 @@ export type MovieImpression = {
   watch_records: null;
 };
 
+// deprecated
 export type Movie = {
   id: number;
   title: string;
@@ -36,6 +37,46 @@ export type Movie = {
   genres: Genre[];
 };
 
+export type MovieNeo = {
+  id: number;
+  title: string;
+  overview: string;
+  releaseDate: string;
+  runtimeMinutes: number;
+  posterURL: string | null;
+  tmdbID: number;
+  genres: Genre[];
+};
+
+export type MovieDetailNeo = {
+  id: number;
+  title: string;
+  overview: string;
+  releaseDate: string;
+  runtimeMinutes: number;
+  posterURL: string | null;
+  tmdbID: number;
+  voteAverage: number; // Min:0.0, Max:5.0
+  voteCount: number;
+  genres: Genre[];
+  series: SeriesNeo2 | null;
+  review: Review | null;
+};
+
+type SeriesNeo2 = {
+  name: string;
+  posterURL: string | null;
+};
+
+export type Review = {
+  id: number;
+  rating: number | null;
+  comment: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// deprecated
 type Series = {
   name: string;
   posterURL: string;
@@ -59,6 +100,7 @@ export type WatchRecord = {
   watchMedia: string;
 };
 
+// deprecated
 export type MovieDetail = {
   id: number;
   title: string;
