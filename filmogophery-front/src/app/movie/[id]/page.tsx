@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import StarRating from "@/app/components/Rating";
-import { MovieDetail, WatchRecord, Genre } from "@/interface/movie";
+import { MovieDetailNeo, WatchHistory, Genre } from "@/interface/movie";
 import Image from "next/image";
 import Link from "next/link";
 import { posterUrlPrefix } from "@/constants/poster";
@@ -13,7 +13,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const isUpdated = searchParams.get("updated") === "true";
   const router = useRouter();
   const [showAlert, setShowAlert] = useState(isUpdated);
-  const [movie, setMovie] = useState<MovieDetail | null>();
+  const [movie, setMovie] = useState<MovieDetailNeo | null>();
+  const [watchHistory, setWatchHistory] = useState<WatchHistory[] | []>();
 
   // アラートの自動非表示とURL更新
   useEffect(() => {
@@ -38,24 +39,45 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   useEffect(() => {
-    const fetchMovies = async () => {
+    const fetchMoviesAndWatchHistory = async () => {
       console.log("movieのデータ取得中...");
       try {
         const response = await fetch(`/api/movie?id=${params.id}`, {
           method: "GET",
         });
-        const movie: MovieDetail = await response.json();
+        const movie: MovieDetailNeo = await response.json();
         console.log("movieのデータ取得: 完了");
         console.log("%o", movie);
 
-        return setMovie(movie);
+        setMovie(movie);
+
+        // 視聴履歴取得
+        if (movie.review === null) {
+          setWatchHistory([]);
+          return;
+        }
+
+        console.log("視聴履歴を取得中...");
+        try {
+          const watchHistoryResponse = await fetch(
+            `/api/watchHistory/${movie.review.id}`
+          );
+          const watchHistoryData: WatchHistory[] =
+            await watchHistoryResponse.json();
+          console.log("視聴履歴の取得: 完了");
+          setWatchHistory(watchHistoryData);
+        } catch {
+          console.log("視聴履歴の取得: エラー。空配列で定義します");
+          return setWatchHistory([]);
+        }
       } catch {
         console.log("movieのデータ取得: エラー。空配列で定義します");
-        return setMovie(undefined);
+        setMovie(undefined);
+        setWatchHistory([]);
       }
     };
 
-    fetchMovies();
+    fetchMoviesAndWatchHistory();
   }, [params.id]);
 
   if (!movie) {
@@ -82,7 +104,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
       <div
         className={`card mb-3 bg-dark ${
-          movie.impression?.status === "鑑賞済み" ? "border-success" : ""
+          movie.review !== null ? "border-success" : ""
         }`}
       >
         <div className="row g-0">
@@ -117,9 +139,9 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* タイトル */}
               <h5 className="card-title">{movie.title}</h5>
               {/* 自身の評価 */}
-              {movie.impression?.rating && (
+              {movie.review?.rating && (
                 <div className="card-text">
-                  <StarRating rating={movie.impression.rating} size={20} />
+                  <StarRating rating={movie.review.rating} size={20} />
                 </div>
               )}
               {/* ジャンル */}
@@ -141,13 +163,13 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* 公開日 */}
               <p className="card-text">公開日：{movie.releaseDate}</p>
               {/* 上映時間 */}
-              <p className="card-text">上映時間：{movie.runTime}分</p>
+              <p className="card-text">上映時間：{movie.runtimeMinutes}分</p>
               {/* 概要 */}
               <p className="card-text">{movie.overview}</p>
               {/* 感想 */}
-              {movie.impression?.note && (
+              {movie.review?.comment && (
                 <div className="p-3 bg-success bg-opacity-10 border border-success border-start-0 border-end-0">
-                  {movie.impression?.note}
+                  {movie.review?.comment}
                 </div>
               )}
               {/* */}
@@ -155,27 +177,25 @@ export default function Page({ params }: { params: { id: string } }) {
             {/* 視聴履歴 */}
             <div className="card-footer border-success text-light">
               <div>視聴履歴</div>
-              {!movie.impression?.records.length && <div>なし</div>}
+              {!watchHistory?.length && <div>なし</div>}
 
-              {movie.impression?.records.length !== 0 && (
+              {watchHistory?.length !== 0 && (
                 <dl className="row">
-                  {movie.impression?.records.map(
-                    (r: WatchRecord, i: number) => {
-                      return (
-                        <div key={i}>
-                          <dt className="col-md-1 bg-transparent badge border border-primary rounded-pill">
-                            {`${calcDiffDate(new Date(r.watchDate))}日前`}
-                          </dt>
-                          <dd className="col-md-10">
-                            <dl className="row">
-                              <dt className="col-md-4">{r.watchDate}</dt>
-                              <dd className="col-md-8">{r.watchMedia}</dd>
-                            </dl>
-                          </dd>
-                        </div>
-                      );
-                    }
-                  )}
+                  {watchHistory?.map((wh: WatchHistory, i: number) => {
+                    return (
+                      <div key={i}>
+                        <dt className="col-md-1 bg-transparent badge border border-primary rounded-pill">
+                          {`${calcDiffDate(new Date(wh.watchedAt))}日前`}
+                        </dt>
+                        <dd className="col-md-10">
+                          <dl className="row">
+                            <dt className="col-md-4">{wh.watchedAt}</dt>
+                            <dd className="col-md-8">{wh.platform.name}</dd>
+                          </dl>
+                        </dd>
+                      </div>
+                    );
+                  })}
                 </dl>
               )}
             </div>
