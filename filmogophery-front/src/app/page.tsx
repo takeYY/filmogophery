@@ -3,16 +3,16 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Movie, Genre } from "@/interface/movie";
+import { MovieNeo, Genre } from "@/interface/movie";
 import { posterUrlPrefix } from "@/constants/poster";
 import { Carousel } from "react-bootstrap";
 
 export default function Home() {
   const router = useRouter();
-  const [movies, setMovies] = useState<Movie[]>();
+  const [movies, setMovies] = useState<MovieNeo[]>();
   const [isLoading, setIsLoading] = useState(true);
 
-  function separatedMovie(movies: Movie[] | undefined, size: number) {
+  function separatedMovie(movies: MovieNeo[] | undefined, size: number) {
     if (!movies || movies.length === 0) {
       return [[]];
     }
@@ -23,14 +23,14 @@ export default function Home() {
     return result;
   }
 
-  const [separated, setSeparated] = useState<Movie[][]>([[]]);
+  const [separated, setSeparated] = useState<MovieNeo[][]>([[]]);
 
   useEffect(() => {
     const fetchMovies = async () => {
       setIsLoading(true);
       try {
         const response = await fetch(`/api/movies`, { method: "GET" });
-        const movies: Movie[] = await response.json();
+        const movies: MovieNeo[] = await response.json();
         console.log("moviesのデータ取得: 完了");
 
         setMovies(movies);
@@ -70,11 +70,11 @@ export default function Home() {
 
         <h5>最近の映画</h5>
         <Carousel pause={"hover"} className="mb-4">
-          {separated.map((movies: Movie[], index: number) => {
+          {separated.map((movies: MovieNeo[], index: number) => {
             return (
               <Carousel.Item key={`carousel-item-${index}`}>
                 <div className="row justify-content-md-center">
-                  {movies.map((movie: Movie, i: number) => {
+                  {movies.map((movie: MovieNeo, i: number) => {
                     return (
                       <div
                         className="col-md-2"
@@ -102,7 +102,7 @@ export default function Home() {
         </Carousel>
 
         <div className="row row-cols-md-3 g-4">
-          {movies.map((movie: Movie, index: number) => {
+          {movies.map((movie: MovieNeo, index: number) => {
             return (
               <div className="col" key={`movie-card-${movie.id || index}`}>
                 <button
