@@ -76,6 +76,17 @@ export type Review = {
   updatedAt: string;
 };
 
+export type WatchHistory = {
+  id: number;
+  platform: Platform;
+  watchedAt: string;
+};
+
+type Platform = {
+  code: string;
+  name: string;
+};
+
 // deprecated
 type Series = {
   name: string;
@@ -95,6 +106,7 @@ export type ImpressionResult = {
   note: string;
 };
 
+// deprecated
 export type WatchRecord = {
   watchDate: string;
   watchMedia: string;
