@@ -10,7 +10,7 @@
 | getMovieDetail      | Movie     |  ✅  |  🚧  |
 | createReview        | Review    |  ✅  |  ✅  |
 | updateReview        | Review    |  ✅  |  🚧  |
-| getWatchHistory     | Review    |  ✅  |  🚧  |
+| getWatchHistory     | Review    |  ✅  |  ✅  |
 | addWatchHistory     | Review    |  🚧  |  🚧  |
 | getWatchlist        | Watchlist |  🚧  |  🚧  |
 | addToWatchlist      | Watchlist |  🚧  |  🚧  |

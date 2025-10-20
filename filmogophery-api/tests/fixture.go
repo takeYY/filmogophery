@@ -39,3 +39,11 @@ func CreateReviews(t *testing.T, tx *gorm.DB, fixture *model.Reviews) *model.Rev
 
 	return fixture
 }
+
+func CreateWatchHistory(t *testing.T, tx *gorm.DB, fixture *model.WatchHistory) *model.WatchHistory {
+	if result := tx.Create(fixture); result.Error != nil {
+		t.Errorf("failed to create watch_history: %s", result.Error.Error())
+	}
+
+	return fixture
+}
