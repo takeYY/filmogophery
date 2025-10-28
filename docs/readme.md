@@ -11,7 +11,7 @@
 | createReview        | Review    |  ✅  |  ✅  |
 | updateReview        | Review    |  ✅  |  🚧  |
 | getWatchHistory     | Review    |  ✅  |  ✅  |
-| addWatchHistory     | Review    |  🚧  |  🚧  |
+| addWatchHistory     | Review    |  ✅  |  ✅  |
 | getWatchlist        | Watchlist |  🚧  |  🚧  |
 | addToWatchlist      | Watchlist |  🚧  |  🚧  |
 | updateWatchlistItem | Watchlist |  🚧  |  🚧  |
