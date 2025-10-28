@@ -23,6 +23,7 @@ func RegisterV1Routes() fx.Option {
 			asV1Route(reviewHandler.NewPostReviewHandler),
 			asV1Route(reviewHandler.NewPutReviewHandler),
 			asV1Route(reviewHandler.NewGetReviewHistoryHandler),
+			asV1Route(reviewHandler.NewPostReviewHistoryHandler),
 			asV1Route(genreHandler.NewGetGenresHandler),
 			asV1Route(platformHandler.NewGetPlatformsHandler),
 
