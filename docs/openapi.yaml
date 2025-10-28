@@ -440,9 +440,9 @@ components:
       properties:
         platformId:
           type: integer
-        watchedAt:
+        watchedDate:
           type: string
-          format: date-time
+          format: date
 
     WatchlistItem:
       type: object
