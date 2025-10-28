@@ -17,14 +17,19 @@ func RegisterV1Routes() fx.Option {
 		"v1-route",
 		fx.Provide(
 			fx.Private,
-			asV1Route(healthHandler.NewCheckHealthHandler),
-			asV1Route(movieHandler.NewGetMovieDetailHandler),
-			asV1Route(movieHandler.NewGetMoviesHandler),
-			asV1Route(reviewHandler.NewPostReviewHandler),
-			asV1Route(reviewHandler.NewPutReviewHandler),
-			asV1Route(reviewHandler.NewGetReviewHistoryHandler),
-			asV1Route(genreHandler.NewGetGenresHandler),
-			asV1Route(platformHandler.NewGetPlatformsHandler),
+			// --- Health --- //
+			asV1Route(healthHandler.NewCheckHealthHandler), // check health
+			// --- Movie --- //
+			asV1Route(movieHandler.NewGetMovieDetailHandler), // get movie detail
+			asV1Route(movieHandler.NewGetMoviesHandler),      // get movies
+			// --- Review --- //
+			asV1Route(reviewHandler.NewPostReviewHandler),        // create review
+			asV1Route(reviewHandler.NewPutReviewHandler),         // update review
+			asV1Route(reviewHandler.NewGetReviewHistoryHandler),  // get review history
+			asV1Route(reviewHandler.NewPostReviewHistoryHandler), // create review history
+			// --- Master --- //
+			asV1Route(genreHandler.NewGetGenresHandler),       // get genres
+			asV1Route(platformHandler.NewGetPlatformsHandler), // get platforms
 
 			fx.Annotate(
 				getRouters,

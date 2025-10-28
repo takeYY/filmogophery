@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
@@ -20,6 +22,8 @@ type (
 
 		// レビューを作成
 		CreateReview(ctx context.Context, tx *gorm.DB, userID int32, movie *model.Movies, rating *float64, comment *string) error
+		// 視聴履歴を作成
+		CreateWatchHistory(ctx context.Context, tx *gorm.DB, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date) error
 
 		// --- Read --- //
 
@@ -77,6 +81,38 @@ func (s *reviewService) CreateReview(
 		logger.Error().Msgf("failed to create review: %s", err.Error())
 		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
 	}
+
+	return nil
+}
+
+// 視聴履歴を作成
+func (s *reviewService) CreateWatchHistory(
+	ctx context.Context, tx *gorm.DB, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date,
+) error {
+	logger := logger.GetLogger()
+
+	var parsedWatchedDate *time.Time
+	if watchedDate != nil {
+		parsedDate, err := time.ParseInLocation(constant.DateFormat, string(*watchedDate), time.Local)
+		if err != nil {
+			em := fmt.Sprintf("failed to parse watchedDate: %s", err.Error())
+			logger.Error().Msg(em)
+			return echo.NewHTTPError(http.StatusBadRequest, em)
+		}
+		parsedWatchedDate = &parsedDate
+	}
+
+	watchHistory := &model.WatchHistory{
+		ReviewID:    review.ID,
+		PlatformID:  platform.ID,
+		WatchedDate: parsedWatchedDate,
+	}
+	err := s.watchHistoryRepo.Save(ctx, tx, watchHistory)
+	if err != nil {
+		logger.Error().Msgf("failed to create watch_history: %s", err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+	}
+	logger.Debug().Msg("successfully created watch history")
 
 	return nil
 }
