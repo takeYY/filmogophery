@@ -111,6 +111,36 @@ export default function Page({ params }: { params: { id: string } }) {
 
             <div className="col-md-9">
               <div className="card-body text-light">
+                {/* タイトル */}
+                <h5 className="card-title">{movieDetail.title}</h5>
+                {/* 自身の評価 */}
+                {movieDetail.review?.rating && (
+                  <div className="card-text">
+                    <StarRating rating={movieDetail.review.rating} size={20} />
+                  </div>
+                )}
+                {/* ジャンル */}
+                {movieDetail.genres.length !== 0 && (
+                  <div className="card-text d-grid gap-2 d-md-block">
+                    {movieDetail.genres.map((g: Genre, i: number) => {
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          className="btn btn-outline-info btn-sm"
+                        >
+                          {g.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* 公開日 */}
+                <p className="card-text">公開日：{movieDetail.releaseDate}</p>
+                {/* 上映時間 */}
+                <p className="card-text">
+                  上映時間：{movieDetail.runtimeMinutes}分
+                </p>
                 {/* 評価 */}
                 <div className="form-group row mt-4">
                   <label className="col-sm-4 col-form-label d-flex align-items-center">
