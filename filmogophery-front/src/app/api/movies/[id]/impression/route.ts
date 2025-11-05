@@ -1,6 +1,7 @@
 import { APIBaseURL } from "@/constants/api";
 import { NextResponse } from "next/server";
 
+// Deprecated
 export async function PUT(
   req: Request,
   { params }: { params: { id: string } }
