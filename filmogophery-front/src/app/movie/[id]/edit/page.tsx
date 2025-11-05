@@ -3,20 +3,23 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import StarRating from "@/app/components/Rating";
-import { MovieDetail } from "@/interface/movie";
+import { MovieDetailNeo, Genre } from "@/interface/movie";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useRouter } from "next/navigation";
 
-// 感想を編集するページ
+// レビューを編集するページ
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [movieDetail, setMovie] = useState<MovieDetail>();
-  const [rangeValue, onChange] = useState<string>(
-    movieDetail?.impression?.rating?.toString()
-      ? movieDetail?.impression.rating?.toString()
-      : ""
-  );
+  const [movieDetail, setMovie] = useState<MovieDetailNeo>();
+  const [rangeValue, onChange] = useState<string>("");
+
+  // movieDetailが更新されたときにrangeValueを設定
+  useEffect(() => {
+    if (movieDetail?.review?.rating) {
+      onChange(movieDetail.review.rating.toString());
+    }
+  }, [movieDetail]);
 
   useEffect(() => {
     const fetchMovieDetail = async () => {
@@ -25,7 +28,7 @@ export default function Page({ params }: { params: { id: string } }) {
         const response = await fetch(`/api/movie?id=${params.id}`, {
           method: "GET",
         });
-        const movieDetail: MovieDetail = await response.json();
+        const movieDetail: MovieDetailNeo = await response.json();
 
         console.log("movieDetailのデータ取得: 完了");
         console.log("%o", movieDetail);
@@ -47,11 +50,14 @@ export default function Page({ params }: { params: { id: string } }) {
         rating: formData.get("rating"),
         note: formData.get("note"),
       };
-      const response = await fetch(`/api/movies/${params.id}/impression`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(jsonData),
-      });
+      const response = await fetch(
+        `/api/movies/${params.id}/reviews/${movieDetail?.review?.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData),
+        }
+      );
       const resultCode: number = response.status;
       console.log("感想の更新完了: %o", resultCode);
 
@@ -72,14 +78,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="container-fluid pb-4">
-      <h3 className="text-center mb-4">Edit Movie Impression</h3>
+      <h3 className="text-center mb-4">Edit Movie Review</h3>
 
       <form action={onSubmit}>
         <div
           className={`card mb-3 bg-dark ${
-            movieDetail.impression?.status === "鑑賞済み"
-              ? "border-success"
-              : ""
+            movieDetail.review !== null ? "border-success" : ""
           }`}
         >
           <div className="row g-0">
@@ -179,10 +183,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   <div className="col-sm-8">
                     <textarea
                       className="form-control bg-dark text-light"
-                      name="note"
+                      name="comment"
                       defaultValue={`${
-                        movieDetail?.impression?.note
-                          ? movieDetail.impression.note
+                        movieDetail?.review?.comment
+                          ? movieDetail.review.comment
                           : ""
                       }`}
                     />
