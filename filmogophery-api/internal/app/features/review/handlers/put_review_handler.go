@@ -16,7 +16,7 @@ type (
 		interactor review.UpdateReviewUseCase
 	}
 	putReviewInput struct {
-		reviewID int32    `param:"id"`
+		ReviewID int32    `param:"id"`
 		Rating   *float64 `json:"rating"`
 		Comment  *string  `json:"comment"`
 	}
@@ -49,7 +49,7 @@ func (h *putReviewHandler) handle(c echo.Context) error {
 
 	err := h.interactor.Run(
 		c.Request().Context(),
-		req.reviewID,
+		req.ReviewID,
 		req.Rating,
 		req.Comment,
 	)
