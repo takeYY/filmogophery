@@ -91,7 +91,7 @@ func (i *getMovieDetailInteractor) Run(ctx context.Context, movieID int32) (*typ
 			TmdbID:         movie.TmdbID,
 			Genres:         types.NewGenresByModel(movie.Genres),
 		},
-		VoteAverage: tmdbRes.data.VoteAverage,
+		VoteAverage: tmdbRes.data.GetVoteAverage(),
 		VoteCount:   tmdbRes.data.VoteCount,
 		Series:      types.NewSeriesByModel(movie.Series),
 		Review:      types.NewReviewByModel(reviewRes.data),
