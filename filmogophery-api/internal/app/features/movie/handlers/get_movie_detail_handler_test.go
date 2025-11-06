@@ -64,10 +64,10 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 
 	tmdbSvc := mocks.NewMockITmdbService(ctrl)
 	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Eq(m1.TmdbID)).Return(&types.TmdbMovieDetail{
-		VoteAverage: 3.1, VoteCount: 4,
+		VoteAverage: 6.282, VoteCount: 4,
 	}, nil)
 	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Eq(m2.TmdbID)).Return(&types.TmdbMovieDetail{
-		VoteAverage: 1.5, VoteCount: 92,
+		VoteAverage: 3.184, VoteCount: 92,
 	}, nil)
 
 	for _, tt := range []struct {
@@ -119,7 +119,7 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 					"createdAt": "2025-10-13T10:20:30+09:00",
 					"updatedAt": "2025-10-13T10:20:30+09:00"
 				},
-				"voteAverage": 1.5,
+				"voteAverage": 1.6,
 				"voteCount": 92
 			}`,
 		},
