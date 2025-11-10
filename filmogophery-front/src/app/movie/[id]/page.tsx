@@ -180,6 +180,8 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* */}
             </div>
             {/* 視聴履歴 */}
+            {/* FIXME: 視聴履歴作成から戻ってきたときにデータが更新されない。。。 */}
+            {/* TODO: 視聴履歴が多いと、ボタンの位置が下にずれていくのでここだけでスクロールできるようにしたい */}
             <div className="card-footer border-success text-light">
               <div>視聴履歴</div>
               {!watchHistory?.length && <div>なし</div>}
