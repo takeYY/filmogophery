@@ -1,37 +1,43 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { WatchMedia, MovieDetail } from "@/interface/movie";
+import { Platform, MovieDetailNeo, Genre } from "@/interface/movie";
 import StarRating from "@/app/components/Rating";
 import Image from "next/image";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useRouter } from "next/navigation";
 
-// 感傷履歴を作るページ
-export default function Page({ params }: { params: { id: string } }) {
+// 視聴履歴を作るページ
+export default function Page({
+  params,
+}: {
+  params: { id: string; reviewId: string };
+}) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [watchMedia, setMedia] = useState<WatchMedia[]>();
-  const [movieDetail, setMovie] = useState<MovieDetail>();
-  // TODO: rangeValue に値が入ると、"" になってしまうので直したい...
-  const [rangeValue, onChange] = useState<string>(
-    movieDetail?.impression?.rating?.toString()
-      ? movieDetail?.impression.rating?.toString()
-      : ""
-  );
+  const [platforms, setPlatforms] = useState<Platform[]>();
+  const [movieDetail, setMovie] = useState<MovieDetailNeo>();
+  const [rangeValue, onChange] = useState<string>("");
+
+  // movieDetailが更新されたときにrangeValueを設定
+  useEffect(() => {
+    if (movieDetail?.review?.rating) {
+      onChange(movieDetail.review.rating.toString());
+    }
+  }, [movieDetail]);
 
   useEffect(() => {
-    const fetchMedia = async () => {
-      console.log("mediaのデータ取得中...");
+    const fetchPlatforms = async () => {
+      console.log("platformsのデータ取得中...");
       try {
-        const response = await fetch(`/api/media`, { method: "GET" });
-        const media: WatchMedia[] = await response.json();
+        const response = await fetch(`/api/platforms`, { method: "GET" });
+        const platforms: Platform[] = await response.json();
 
-        console.log("mediaのデータ取得: 完了");
+        console.log("platformsのデータ取得: 完了");
 
-        return setMedia(media);
+        return setPlatforms(platforms);
       } catch {
-        console.log("mediaデータ取得エラー");
+        console.log("platformsデータ取得エラー");
       }
     };
 
@@ -41,7 +47,7 @@ export default function Page({ params }: { params: { id: string } }) {
         const response = await fetch(`/api/movie?id=${params.id}`, {
           method: "GET",
         });
-        const movieDetail: MovieDetail = await response.json();
+        const movieDetail: MovieDetailNeo = await response.json();
 
         console.log("movieDetailのデータ取得: 完了");
         console.log("%o", movieDetail);
@@ -53,7 +59,7 @@ export default function Page({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchMedia();
+    fetchPlatforms();
     fetchMovie();
   }, [params.id]);
 
@@ -61,21 +67,24 @@ export default function Page({ params }: { params: { id: string } }) {
     setIsLoading(true);
     try {
       const jsonData = {
-        mediaCode: formData.get("mediaCode"),
-        date: formData.get("date"),
+        platformId: formData.get("platformId"),
+        watchedDate: formData.get("watchedDate"),
       };
       console.log("page payload:", jsonData);
-      const response = await fetch(`/api/movies/${params.id}/records`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(jsonData),
-      });
+      const response = await fetch(
+        `/api/movies/${params.id}/reviews/${movieDetail?.review?.id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to submit the data. Please try again.");
       }
 
-      router.push(`/movie/${params.id}?updated=true`);
+      router.push(`/movie/${params.id}?updated=true&t=${Date.now()}`);
       router.refresh();
     } catch (error) {
       // Capture the error message to display to the user
@@ -96,9 +105,7 @@ export default function Page({ params }: { params: { id: string } }) {
       <form action={onSubmit}>
         <div
           className={`card mb-3 bg-dark ${
-            movieDetail.impression?.status === "鑑賞済み"
-              ? "border-success"
-              : ""
+            movieDetail.review !== null ? "border-success" : ""
           }`}
         >
           <div className="row g-0">
@@ -131,19 +138,43 @@ export default function Page({ params }: { params: { id: string } }) {
 
             <div className="col-md-9">
               <div className="card-body text-light">
-                {/* 鑑賞媒体 */}
+                {/* タイトル */}
+                <h5 className="card-title">{movieDetail.title}</h5>
+                {/* ジャンル */}
+                {movieDetail.genres.length !== 0 && (
+                  <div className="card-text d-grid gap-2 d-md-block">
+                    {movieDetail.genres.map((g: Genre, i: number) => {
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          className="btn btn-outline-info btn-sm"
+                        >
+                          {g.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* 公開日 */}
+                <p className="card-text">公開日：{movieDetail.releaseDate}</p>
+                {/* 上映時間 */}
+                <p className="card-text">
+                  上映時間：{movieDetail.runtimeMinutes}分
+                </p>
+                {/* プラットフォーム */}
                 <div className="form-group row">
                   <label className="col-sm-4 col-form-label d-flex align-items-center">
                     <div className="bg-transparent badge border border-danger rounded-pill">
                       必須
                     </div>
                     {"　"}
-                    鑑賞媒体
+                    プラットフォーム
                   </label>
                   <div className="col-sm-8 d-flex align-items-center">
                     <div className="px-2 row">
-                      {watchMedia !== undefined &&
-                        watchMedia.map((wm: WatchMedia, i: number) => {
+                      {platforms !== undefined &&
+                        platforms.map((p: Platform, i: number) => {
                           return (
                             <div
                               key={i}
@@ -152,15 +183,15 @@ export default function Page({ params }: { params: { id: string } }) {
                               <input
                                 className="form-check-input"
                                 type="radio"
-                                name="media"
-                                id={wm.code}
-                                value={wm.code}
+                                name="platformId"
+                                id={p.code}
+                                value={i + 1}
                               />
                               <label
                                 className="form-check-label"
-                                htmlFor={wm.code}
+                                htmlFor={p.code}
                               >
-                                {wm.name}
+                                {p.name}
                               </label>
                             </div>
                           );
@@ -181,16 +212,17 @@ export default function Page({ params }: { params: { id: string } }) {
                     <input
                       type="date"
                       className="form-control w-50 bg-dark text-light"
-                      name="watchDate"
+                      name="watchedDate"
                       defaultValue={new Date().toLocaleDateString("sv-SE")}
                     />
                   </div>
                 </div>
 
                 <div className="h4 pb-2 mb-4 text-success border-bottom border-success mt-4">
-                  My Impression
+                  Review
                 </div>
 
+                {/* TODO: レビュー内容が前回と違えば更新するようにAPIリクエストすること!! */}
                 <div className="form-group row mt-4">
                   <label className="col-sm-4 col-form-label d-flex align-items-center">
                     <div className="bg-transparent badge border border-info rounded-pill">
@@ -230,8 +262,8 @@ export default function Page({ params }: { params: { id: string } }) {
                       className="form-control bg-dark text-light"
                       name="note"
                       defaultValue={`${
-                        movieDetail?.impression?.note
-                          ? movieDetail.impression.note
+                        movieDetail?.review?.comment
+                          ? movieDetail.review.comment
                           : ""
                       }`}
                     />
@@ -239,6 +271,14 @@ export default function Page({ params }: { params: { id: string } }) {
                 </div>
 
                 <div className="text-center mt-4">
+                  <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="btn btn-outline-light me-3"
+                  >
+                    Cancel
+                  </button>
+
                   <button
                     type="submit"
                     disabled={isLoading}

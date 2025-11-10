@@ -82,7 +82,7 @@ export type WatchHistory = {
   watchedAt: string;
 };
 
-type Platform = {
+export type Platform = {
   code: string;
   name: string;
 };

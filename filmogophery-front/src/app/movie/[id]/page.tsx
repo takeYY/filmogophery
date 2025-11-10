@@ -44,6 +44,7 @@ export default function Page({ params }: { params: { id: string } }) {
       try {
         const response = await fetch(`/api/movie?id=${params.id}`, {
           method: "GET",
+          cache: "no-store",
         });
         const movie: MovieDetailNeo = await response.json();
         console.log("movieのデータ取得: 完了");
@@ -60,7 +61,11 @@ export default function Page({ params }: { params: { id: string } }) {
         console.log("視聴履歴を取得中...");
         try {
           const watchHistoryResponse = await fetch(
-            `/api/watchHistory/${movie.review.id}`
+            `/api/watchHistory/${movie.review.id}`,
+            {
+              method: "GET",
+              cache: "no-store",
+            }
           );
           const watchHistoryData: WatchHistory[] =
             await watchHistoryResponse.json();
@@ -78,7 +83,7 @@ export default function Page({ params }: { params: { id: string } }) {
     };
 
     fetchMoviesAndWatchHistory();
-  }, [params.id]);
+  }, [params.id, searchParams]);
 
   if (!movie) {
     return <div>Movie({params.id}) is not found</div>;
@@ -175,6 +180,8 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* */}
             </div>
             {/* 視聴履歴 */}
+            {/* FIXME: 視聴履歴作成から戻ってきたときにデータが更新されない。。。 */}
+            {/* TODO: 視聴履歴が多いと、ボタンの位置が下にずれていくのでここだけでスクロールできるようにしたい */}
             <div className="card-footer border-success text-light">
               <div>視聴履歴</div>
               {!watchHistory?.length && <div>なし</div>}
@@ -218,7 +225,7 @@ export default function Page({ params }: { params: { id: string } }) {
         <div className="col-md-3">
           <Link
             className="btn btn-outline-primary"
-            href={`/movie/${params.id}/record/create`}
+            href={`/movie/${params.id}/review/${movie.review?.id}`}
           >
             視聴履歴を作成
           </Link>
