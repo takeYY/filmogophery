@@ -44,6 +44,7 @@ export default function Page({ params }: { params: { id: string } }) {
       try {
         const response = await fetch(`/api/movie?id=${params.id}`, {
           method: "GET",
+          cache: "no-store",
         });
         const movie: MovieDetailNeo = await response.json();
         console.log("movieのデータ取得: 完了");
@@ -60,7 +61,11 @@ export default function Page({ params }: { params: { id: string } }) {
         console.log("視聴履歴を取得中...");
         try {
           const watchHistoryResponse = await fetch(
-            `/api/watchHistory/${movie.review.id}`
+            `/api/watchHistory/${movie.review.id}`,
+            {
+              method: "GET",
+              cache: "no-store",
+            }
           );
           const watchHistoryData: WatchHistory[] =
             await watchHistoryResponse.json();
