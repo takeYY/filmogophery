@@ -83,7 +83,7 @@ export default function Page({ params }: { params: { id: string } }) {
     };
 
     fetchMoviesAndWatchHistory();
-  }, [params.id]);
+  }, [params.id, searchParams]);
 
   if (!movie) {
     return <div>Movie({params.id}) is not found</div>;
