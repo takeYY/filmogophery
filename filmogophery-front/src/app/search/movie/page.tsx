@@ -42,6 +42,7 @@ export default function Page() {
   async function addWatchList(movie: SearchMovie) {
     console.log(`movie is %o`, movie);
     try {
+      // FIXME: Deprecated
       const response = await fetch(`/api/movie`, {
         method: "POST",
         body: JSON.stringify({

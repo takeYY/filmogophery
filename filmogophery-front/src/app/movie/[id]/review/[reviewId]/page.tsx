@@ -1,13 +1,18 @@
+// app/movie/[id]/review/[reviewId]/page.tsx
+/**
+ * 映画視聴履歴登録ページ
+ * パス: /movie/[id]/review/[reviewId]
+ */
+
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Platform, MovieDetailNeo, Genre } from "@/interface/movie";
+import { Platform, MovieDetail, Genre } from "@/interface/index";
 import StarRating from "@/app/components/Rating";
 import Image from "next/image";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useRouter } from "next/navigation";
 
-// 視聴履歴を作るページ
 export default function Page({
   params,
 }: {
@@ -16,7 +21,7 @@ export default function Page({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [platforms, setPlatforms] = useState<Platform[]>();
-  const [movieDetail, setMovie] = useState<MovieDetailNeo>();
+  const [movieDetail, setMovie] = useState<MovieDetail>();
   const [rangeValue, onChange] = useState<string>("");
 
   // movieDetailが更新されたときにrangeValueを設定
@@ -44,10 +49,10 @@ export default function Page({
     const fetchMovie = async () => {
       console.log("movieDetailのデータ取得中...");
       try {
-        const response = await fetch(`/api/movie?id=${params.id}`, {
+        const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
         });
-        const movieDetail: MovieDetailNeo = await response.json();
+        const movieDetail: MovieDetail = await response.json();
 
         console.log("movieDetailのデータ取得: 完了");
         console.log("%o", movieDetail);

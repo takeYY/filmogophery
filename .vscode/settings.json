@@ -3,6 +3,7 @@
   "files.trimTrailingWhitespace": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 4,
+  "workbench.editor.labelFormat": "medium",
   "[json]": {
     "editor.formatOnSave": true,
     "editor.tabSize": 2,

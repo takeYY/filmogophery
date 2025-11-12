@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
+import { APIBaseURL } from "@/constants/api";
+import { NextRequest } from "next/server";
 
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // 映画詳細取得のロジック
-  return NextResponse.json({ message: "Movie details" });
+  const url = `${APIBaseURL}/movies/${params.id}`;
+  const res = await fetch(url);
+  return res;
 }

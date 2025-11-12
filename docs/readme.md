@@ -1,5 +1,11 @@
 # Docs
 
+## Build Redoc
+
+```bash
+npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
+```
+
 ## Feature
 
 | OperationID         | Tag       | Echo | Test |

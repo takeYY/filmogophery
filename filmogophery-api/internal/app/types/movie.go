@@ -20,10 +20,6 @@ type (
 		Review      *Review `json:"review"`
 		Movie
 	}
-	Record struct {
-		WatchDate  string `json:"watchDate"`
-		WatchMedia string `json:"watchMedia"`
-	}
 
 	SearchMovie struct {
 		TmdbID      int32    `json:"tmdbID"`
