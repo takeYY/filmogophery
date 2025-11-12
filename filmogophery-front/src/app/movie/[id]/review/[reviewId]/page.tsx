@@ -1,3 +1,9 @@
+// app/movie/[id]/review/[reviewId]/page.tsx
+/**
+ * 映画視聴履歴登録ページ
+ * パス: /movie/[id]/review/[reviewId]
+ */
+
 "use client";
 
 import React, { useEffect, useState } from "react";

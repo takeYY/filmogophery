@@ -1,3 +1,9 @@
+// app/page.tsx
+/**
+ * ホームページ
+ * パス: /
+ */
+
 "use client";
 
 import React, { useEffect, useState } from "react";

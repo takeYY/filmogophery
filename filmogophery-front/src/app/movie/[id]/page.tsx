@@ -1,3 +1,9 @@
+// app/movie/[id]/page.tsx
+/**
+ * 映画一覧ページ
+ * パス: /movie/[id]
+ */
+
 "use client";
 
 import React, { useEffect, useState } from "react";
