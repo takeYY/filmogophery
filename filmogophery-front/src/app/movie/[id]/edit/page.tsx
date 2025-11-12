@@ -3,15 +3,14 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import StarRating from "@/app/components/Rating";
-import { MovieDetailNeo, Genre } from "@/interface/movie";
+import { MovieDetail, Genre } from "@/interface/index";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useRouter } from "next/navigation";
 
-// レビューを編集するページ
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [movieDetail, setMovie] = useState<MovieDetailNeo>();
+  const [movieDetail, setMovie] = useState<MovieDetail>();
   const [rangeValue, onChange] = useState<string>("");
 
   // movieDetailが更新されたときにrangeValueを設定
@@ -25,10 +24,10 @@ export default function Page({ params }: { params: { id: string } }) {
     const fetchMovieDetail = async () => {
       console.log("movieDetailのデータ取得中...");
       try {
-        const response = await fetch(`/api/movie?id=${params.id}`, {
+        const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
         });
-        const movieDetail: MovieDetailNeo = await response.json();
+        const movieDetail: MovieDetail = await response.json();
 
         console.log("movieDetailのデータ取得: 完了");
         console.log("%o", movieDetail);

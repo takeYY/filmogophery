@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import StarRating from "@/app/components/Rating";
-import { MovieDetailNeo, WatchHistory, Genre } from "@/interface/movie";
+import { MovieDetail, WatchHistory, Genre } from "@/interface/index";
 import Image from "next/image";
 import Link from "next/link";
 import { posterUrlPrefix } from "@/constants/poster";
@@ -13,7 +13,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const isUpdated = searchParams.get("updated") === "true";
   const router = useRouter();
   const [showAlert, setShowAlert] = useState(isUpdated);
-  const [movie, setMovie] = useState<MovieDetailNeo | null>();
+  const [movie, setMovie] = useState<MovieDetail | null>();
   const [watchHistory, setWatchHistory] = useState<WatchHistory[] | []>();
 
   // アラートの自動非表示とURL更新
@@ -42,11 +42,11 @@ export default function Page({ params }: { params: { id: string } }) {
     const fetchMoviesAndWatchHistory = async () => {
       console.log("movieのデータ取得中...");
       try {
-        const response = await fetch(`/api/movie?id=${params.id}`, {
+        const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
           cache: "no-store",
         });
-        const movie: MovieDetailNeo = await response.json();
+        const movie: MovieDetail = await response.json();
         console.log("movieのデータ取得: 完了");
         console.log("%o", movie);
 
