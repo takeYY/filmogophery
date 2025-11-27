@@ -15,3 +15,11 @@ func GetDefaultDate() time.Time {
 	result, _ := time.ParseInLocation(DateFormat, DefaultDate, time.Local)
 	return result
 }
+
+func ToDate(t time.Time) Date {
+	return Date(t.Format(DateFormat))
+}
+
+func ToTime(date string) (time.Time, error) {
+	return time.Parse(DateFormat, date)
+}
