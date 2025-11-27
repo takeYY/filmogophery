@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
@@ -9,23 +10,30 @@ import (
 
 type (
 	IServiceContainer interface {
+		DB() *gorm.DB
 		GenreService() IGenreService
 		MovieService() IMovieService
 		PlatformService() IPlatformService
 		ReviewService() IReviewService
 		TmdbService() ITmdbService
+		RedisService() IRedisService
 	}
 
 	serviceContainer struct {
-		db   *gorm.DB
-		conf *config.Config
+		db    *gorm.DB
+		conf  *config.Config
+		redis *redis.Client
 	}
 )
 
-func NewServiceContainer(db *gorm.DB, conf *config.Config) IServiceContainer {
+func NewServiceContainer(db *gorm.DB, conf *config.Config, redisClient *redis.Client) IServiceContainer {
 	return &serviceContainer{
-		db, conf,
+		db, conf, redisClient,
 	}
+}
+
+func (c *serviceContainer) DB() *gorm.DB {
+	return c.db
 }
 
 func (c *serviceContainer) GenreService() IGenreService {
@@ -36,6 +44,7 @@ func (c *serviceContainer) GenreService() IGenreService {
 
 func (c *serviceContainer) MovieService() IMovieService {
 	return NewMovieService(
+		repositories.NewGenreRepository(c.db),
 		repositories.NewMovieRepository(c.db),
 	)
 }
@@ -57,4 +66,8 @@ func (c *serviceContainer) TmdbService() ITmdbService {
 	return NewTmdbService(
 		repositories.NewTmdbRepository(&c.conf.Tmdb),
 	)
+}
+
+func (c *serviceContainer) RedisService() IRedisService {
+	return NewRedisService(c.redis)
 }

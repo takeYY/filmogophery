@@ -13,6 +13,7 @@ import (
 	"filmogophery/internal/pkg/config"
 	"filmogophery/internal/pkg/db"
 	"filmogophery/internal/pkg/logger"
+	"filmogophery/internal/pkg/redis"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 			config.LoadConfig, // 設定ファイル
 			newLogger,         // ロガー
 			db.ConnectDB,      // DB
+			redis.NewClient,   // redis
 		),
 		fx.Provide( // Repositories
 			repositories.NewGenreRepository,
@@ -36,6 +38,7 @@ func main() {
 			services.NewPlatformService,
 			services.NewReviewService,
 			services.NewTmdbService,
+			services.NewRedisService,
 		),
 		fx.Provide(
 			services.NewServiceContainer,
