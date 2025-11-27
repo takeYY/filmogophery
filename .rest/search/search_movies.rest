@@ -1,0 +1,12 @@
+@endpoint = http://localhost:8000/v1/search/movies
+
+
+GET {{endpoint}}
+?title=ターミネーター
+
+###
+
+GET {{endpoint}}
+?title=君
+&limit=10
+&offset=7
