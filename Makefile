@@ -1,15 +1,20 @@
 .PHONY:
-	build 		\
-	up 			\
-	up_d		\
-	exec_api	\
-	stop		\
-	down_v		\
-	test		\
-	gen_models  \
-	mock        \
+	generate_docs \
+	build 		  \
+	up 			  \
+	up_d		  \
+	exec_api	  \
+	stop		  \
+	down_v		  \
+	test		  \
+	gen_models    \
+	mock          \
 	start
 
+generate_docs:
+	cd docs
+	npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
+	cd ..
 
 build:
 	docker compose build --no-cache
