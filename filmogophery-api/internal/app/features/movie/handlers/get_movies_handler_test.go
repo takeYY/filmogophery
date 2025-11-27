@@ -26,7 +26,7 @@ func TestGetMoviesHandler_handle_WithoutDate(t *testing.T) {
 	defer tx.Rollback()
 
 	// サービス作成（トランザクション使用）
-	svc := services.NewServiceContainer(tx, conf)
+	svc := services.NewServiceContainer(tx, conf, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/movies", nil)
@@ -73,11 +73,11 @@ func TestGetMoviesHandler_handle(t *testing.T) {
 		RuntimeMinutes: 6535,
 		TmdbID:         8979,
 	})
-	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 1})  // アクション
-	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 15}) // SF
+	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 28})  // アクション
+	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 878}) // SF
 
 	// サービス作成（トランザクション使用）
-	svc := services.NewServiceContainer(tx, conf)
+	svc := services.NewServiceContainer(tx, conf, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/movies", nil)

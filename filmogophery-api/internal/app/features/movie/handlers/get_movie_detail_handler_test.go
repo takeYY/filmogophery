@@ -32,7 +32,7 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 
 	// サービス作成（トランザクション使用）
 	now := time.Date(2025, 10, 13, 10, 20, 30, 456789, time.Local)
-	svc := services.NewServiceContainer(tx, conf)
+	svc := services.NewServiceContainer(tx, conf, nil)
 
 	m1 := tests.CreateMovies(t, tx, &model.Movies{ // ポスターとジャンルなし
 		ID:             1,
@@ -55,8 +55,8 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 		RuntimeMinutes: 6535,
 		TmdbID:         8979,
 	})
-	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 1})  // アクション
-	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 15}) // SF
+	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 28})  // アクション
+	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 878}) // SF
 	tests.CreateReviews(t, tx, &model.Reviews{
 		ID: 1, UserID: 1, MovieID: m2.ID, Rating: &[]float64{3.23}[0], Comment: &[]string{"テストコメント"}[0],
 		CreatedAt: &now, UpdatedAt: &now,
@@ -64,10 +64,10 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 
 	tmdbSvc := mocks.NewMockITmdbService(ctrl)
 	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Eq(m1.TmdbID)).Return(&types.TmdbMovieDetail{
-		VoteAverage: 6.282, VoteCount: 4,
+		TmdbMovieCommon: types.TmdbMovieCommon{VoteAverage: 6.282, VoteCount: 4},
 	}, nil)
 	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Eq(m2.TmdbID)).Return(&types.TmdbMovieDetail{
-		VoteAverage: 3.184, VoteCount: 92,
+		TmdbMovieCommon: types.TmdbMovieCommon{VoteAverage: 3.184, VoteCount: 92},
 	}, nil)
 
 	for _, tt := range []struct {

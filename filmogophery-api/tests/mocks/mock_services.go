@@ -53,3 +53,18 @@ func (mr *MockITmdbServiceMockRecorder) GetMovieDetailByID(arg0 any) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovieDetailByID", reflect.TypeOf((*MockITmdbService)(nil).GetMovieDetailByID), arg0)
 }
+
+// GetMoviesByTitle mocks base method.
+func (m *MockITmdbService) GetMoviesByTitle(arg0 string, arg1, arg2 int32) (*types.TmdbSearchMovieResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMoviesByTitle", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*types.TmdbSearchMovieResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMoviesByTitle indicates an expected call of GetMoviesByTitle.
+func (mr *MockITmdbServiceMockRecorder) GetMoviesByTitle(arg0, arg1, arg2 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMoviesByTitle", reflect.TypeOf((*MockITmdbService)(nil).GetMoviesByTitle), arg0, arg1, arg2)
+}

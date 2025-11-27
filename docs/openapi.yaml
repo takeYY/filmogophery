@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.2.0v2025.10.28
+  version: 0.3.0v2025.11.27
 
 servers:
   - url: http://127.0.0.1:8000/v0
@@ -21,6 +21,8 @@ tags:
     description: レビュー
   - name: Watchlist
     description: ウォッチリスト
+  - name: Search
+    description: 検索
   - name: Master
     description: マスタデータ
 
@@ -240,6 +242,42 @@ paths:
       responses:
         204:
           description: 成功
+
+  /search/movies:
+    get:
+      tags: [Movie, Search]
+      summary: 映画検索
+      operationId: searchMovies
+      parameters:
+        - name: title
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 映画タイトル
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            nullable: true
+            default: 20
+          description: 件数
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            nullable: true
+            default: 0
+          description: 取得位置
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Movie"
 
   /genres:
     get:

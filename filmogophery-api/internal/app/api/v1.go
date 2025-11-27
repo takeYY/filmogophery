@@ -9,6 +9,7 @@ import (
 	movieHandler "filmogophery/internal/app/features/movie/handlers"
 	platformHandler "filmogophery/internal/app/features/platform/handlers"
 	reviewHandler "filmogophery/internal/app/features/review/handlers"
+	searchHandler "filmogophery/internal/app/features/search/handlers"
 	"filmogophery/internal/app/routers"
 )
 
@@ -27,6 +28,8 @@ func RegisterV1Routes() fx.Option {
 			asV1Route(reviewHandler.NewPutReviewHandler),         // update review
 			asV1Route(reviewHandler.NewGetReviewHistoryHandler),  // get review history
 			asV1Route(reviewHandler.NewPostReviewHistoryHandler), // create review history
+			// --- Search --- //
+			asV1Route(searchHandler.NewSearchMoviesHandler), // search movies
 			// --- Master --- //
 			asV1Route(genreHandler.NewGetGenresHandler),       // get genres
 			asV1Route(platformHandler.NewGetPlatformsHandler), // get platforms

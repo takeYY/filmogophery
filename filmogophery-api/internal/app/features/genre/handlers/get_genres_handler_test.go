@@ -18,7 +18,7 @@ func TestGetGenresHandler_handle(t *testing.T) {
 	// Arrange
 	testDB := tests.SetupTestDB()
 	conf := config.LoadConfig()
-	svc := services.NewServiceContainer(testDB, conf)
+	svc := services.NewServiceContainer(testDB, conf, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/genres", nil)
@@ -34,25 +34,25 @@ func TestGetGenresHandler_handle(t *testing.T) {
 
 	// expected
 	expected := `[
-		{"code": "action", "name": "アクション"},
 		{"code": "adventure", "name": "アドベンチャー"},
+		{"code": "fantasy", "name": "ファンタジー"},
 		{"code": "animation", "name": "アニメーション"},
+		{"code": "drama", "name": "ドラマ"},
+		{"code": "horror", "name": "ホラー"},
+		{"code": "action", "name": "アクション"},
 		{"code": "comedy", "name": "コメディ"},
+		{"code": "history", "name": "ヒストリー"},
+		{"code": "western", "name": "西部劇"},
+		{"code": "thriller", "name": "スリラー"},
 		{"code": "crime", "name": "クライム"},
 		{"code": "documentary", "name": "ドキュメンタリー"},
-		{"code": "drama", "name": "ドラマ"},
-		{"code": "family", "name": "ファミリー"},
-		{"code": "fantasy", "name": "ファンタジー"},
-		{"code": "history", "name": "ヒストリー"},
-		{"code": "horror", "name": "ホラー"},
-		{"code": "musical", "name": "ミュージカル"},
-		{"code": "mystery", "name": "ミステリー"},
-		{"code": "romance", "name": "ロマンス"},
 		{"code": "sf", "name": "SF"},
-		{"code": "tv", "name": "TV"},
-		{"code": "thriller", "name": "スリラー"},
+		{"code": "mystery", "name": "ミステリー"},
+		{"code": "musical", "name": "ミュージカル"},
+		{"code": "romance", "name": "ロマンス"},
+		{"code": "family", "name": "ファミリー"},
 		{"code": "war", "name": "戦争"},
-		{"code": "western", "name": "西部劇"}
+		{"code": "tv", "name": "TV"}
 	]`
 
 	// Assert

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
 
@@ -15,12 +16,17 @@ type (
 	IMovieRepository interface {
 		// --- Create --- //
 
+		// 映画を一括作成
+		BatchCreate(ctx context.Context, tx *gorm.DB, movies []*model.Movies) error
+
 		// --- Read --- //
 
 		// ID に一致する映画を取得
 		FindByID(ctx context.Context, id int32) (*model.Movies, error)
 		// ジャンルを指定して取得
 		FindByGenre(ctx context.Context, genre string, limit int32) ([]*model.Movies, error)
+		// tmdbIDs に一致する映画を取得
+		FindByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([]*model.Movies, error)
 	}
 	SaveMovieInput struct {
 		Target *model.Movies
@@ -33,11 +39,25 @@ type (
 	}
 )
 
+const (
+	BATCH_SIZE = 100
+)
+
 func NewMovieRepository(db *gorm.DB) IMovieRepository {
 	return &movieRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
 		WriterDB: db.Clauses(dbresolver.Write),
 	}
+}
+
+// 映画を一括作成
+func (r *movieRepository) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*model.Movies) error {
+	m := query.Use(r.WriterDB).Movies
+	if tx != nil {
+		m = query.Use(tx).Movies
+	}
+
+	return m.WithContext(ctx).Omit(field.AssociationFields).CreateInBatches(movies, BATCH_SIZE)
 }
 
 // ID に一致する映画を取得
@@ -72,5 +92,16 @@ func (r *movieRepository) FindByGenre(
 
 	return q.
 		Limit(int(limit)).
+		Find()
+}
+
+// tmdbIDs に一致する映画を取得
+func (r *movieRepository) FindByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([]*model.Movies, error) {
+	m := query.Use(r.ReaderDB).Movies
+
+	return m.WithContext(ctx).
+		Preload(m.Genres).
+		Preload(m.Series).
+		Where(m.TmdbID.In(tmdbIDs...)).
 		Find()
 }

@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
 
@@ -12,6 +13,11 @@ import (
 
 type (
 	IGenreRepository interface {
+		// --- Create --- //
+
+		// 映画ジャンルを紐づける
+		BatchCreate(ctx context.Context, tx *gorm.DB, movieGenre []*model.MovieGenres) error
+
 		// --- Read --- //
 
 		// 全てのジャンルを取得
@@ -22,15 +28,25 @@ type (
 
 	genreRepository struct {
 		ReaderDB *gorm.DB
-		// WriterDB *gorm.DB
+		WriterDB *gorm.DB
 	}
 )
 
 func NewGenreRepository(db *gorm.DB) IGenreRepository {
 	return &genreRepository{
 		ReaderDB: db.Clauses(dbresolver.Read),
-		// NOTE: 書き込みは不要
+		WriterDB: db.Clauses(dbresolver.Write),
 	}
+}
+
+// 映画ジャンルを紐づける
+func (r *genreRepository) BatchCreate(ctx context.Context, tx *gorm.DB, movieGenre []*model.MovieGenres) error {
+	mg := query.Use(r.WriterDB).MovieGenres
+	if tx != nil {
+		mg = query.Use(tx).MovieGenres
+	}
+
+	return mg.WithContext(ctx).Omit(field.AssociationFields).CreateInBatches(movieGenre, BATCH_SIZE)
 }
 
 // 全てのジャンルを取得

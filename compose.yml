@@ -16,6 +16,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   db:
     image: mysql:8.0.32
@@ -41,5 +43,14 @@ services:
       interval: 10s
       retries: 10
 
+  redis:
+    image: redis:8-alpine
+    container_name: filmogophery_redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-volumes:/data
+
 volumes:
   mysql-volumes:
+  redis-volumes:

@@ -18,7 +18,7 @@ func TestGetPlatformsHandler_handle(t *testing.T) {
 	// Arrange
 	testDB := tests.SetupTestDB()
 	conf := config.LoadConfig()
-	svc := services.NewServiceContainer(testDB, conf)
+	svc := services.NewServiceContainer(testDB, conf, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/genres", nil)
