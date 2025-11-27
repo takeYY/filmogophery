@@ -14,6 +14,7 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | createUser          | User      |  🚧  |  🚧  |
 | getMovies           | Movie     |  ✅  |  ✅  |
 | getMovieDetail      | Movie     |  ✅  |  🚧  |
+| searchMovies        | Movie     |  ✅  |  🚧  |
 | createReview        | Review    |  ✅  |  ✅  |
 | updateReview        | Review    |  ✅  |  🚧  |
 | getWatchHistory     | Review    |  ✅  |  ✅  |
