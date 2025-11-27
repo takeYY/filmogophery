@@ -18,6 +18,12 @@ type (
 		Password string
 		Name     string
 	}
+	Redis struct {
+		Host     string
+		Port     string
+		Password string
+		DB       string
+	}
 	Tmdb struct {
 		ACCESS_TOKEN string
 	}
@@ -27,6 +33,7 @@ type (
 		Logger         Logger
 		ReaderDatabase Database
 		WriterDatabase Database
+		Redis          Redis
 		Tmdb           Tmdb
 	}
 )
@@ -62,6 +69,12 @@ func LoadConfig() *Config {
 			User:     os.Getenv("WRITER_DB_USER"),
 			Password: os.Getenv("WRITER_DB_PWD"),
 			Name:     os.Getenv("WRITER_DB_NAME"),
+		},
+		Redis: Redis{
+			Host:     os.Getenv("REDIS_HOST"),
+			Port:     os.Getenv("REDIS_PORT"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       os.Getenv("REDIS_DB"),
 		},
 		Tmdb: Tmdb{
 			ACCESS_TOKEN: os.Getenv("TMDB_ACCESS_TOKEN"),
