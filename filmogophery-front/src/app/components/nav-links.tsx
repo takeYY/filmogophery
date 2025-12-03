@@ -75,8 +75,15 @@ export function NavLinks() {
             onChange={(e) => setQuery(e.target.value)}
           />
           <Link
-            className="btn btn-outline-primary"
-            href={`/search/movie?query=${query}`}
+            className={`btn btn-outline-primary ${
+              !query.trim() ? "disabled" : ""
+            }`}
+            href={query.trim() ? `/search/movie?query=${query}` : "#"}
+            onClick={(e) => {
+              if (!query.trim()) {
+                e.preventDefault();
+              }
+            }}
           >
             Search
           </Link>
