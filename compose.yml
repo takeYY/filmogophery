@@ -1,6 +1,6 @@
 services:
   api:
-    container_name: filmogophery_api
+    container_name: api_echo
     build:
       context: .
       dockerfile: ./docker/server/Dockerfile
@@ -8,11 +8,11 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./filmogophery-api/:/usr/src/app
+      - ./api-echo/:/usr/src/app
     command: >
       bash -c 'go mod tidy && air'
     env_file:
-      - ./filmogophery-api/.env
+      - ./api-echo/.env
     depends_on:
       db:
         condition: service_healthy
@@ -21,7 +21,7 @@ services:
 
   db:
     image: mysql:8.0.32
-    container_name: filmogophery_mysql
+    container_name: mysql_filmogophery
     ports:
       - 3306:3306
     volumes:
@@ -45,7 +45,7 @@ services:
 
   redis:
     image: redis:8-alpine
-    container_name: filmogophery_redis
+    container_name: redis_filmogophery
     ports:
       - 6379:6379
     volumes:
