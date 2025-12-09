@@ -4,7 +4,7 @@ FROM golang:1.22.4-bullseye as dev
 ENV TZ=Asia/Tokyo
 ENV APP_DIR=/usr/src/app
 
-COPY ./filmogophery-api/ ${APP_DIR}
+COPY ./api-echo/ ${APP_DIR}
 WORKDIR ${APP_DIR}
 
 # ローカルでテストする時は、gotest を使う
@@ -25,7 +25,7 @@ ENV TZ=Asia/Tokyo
 ENV CGO_ENABLED=0
 ENV APP_DIR=/usr/src/app
 
-COPY ./filmogophery-api/ ${APP_DIR}
+COPY ./api-echo/ ${APP_DIR}
 WORKDIR ${APP_DIR}
 
 RUN go mod download
