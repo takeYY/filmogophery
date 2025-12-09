@@ -16,6 +16,8 @@ type (
 		GetMovieDetailByID(id int32) (*types.TmdbMovieDetail, error)
 		// タイトルに一致する映画を取得
 		GetMoviesByTitle(title string, limit int32, offset int32) (*types.TmdbSearchMovieResult, error)
+		// トレンド映画を取得
+		GetTrendingMovies() (*types.TmdbTrendingMovieResult, error)
 	}
 
 	tmdbService struct {
@@ -68,6 +70,19 @@ func (s *tmdbService) GetMoviesByTitle(title string, limit int32, offset int32) 
 		movies.Results = movies.Results[pageOffset:end]
 	} else {
 		movies.Results = []*types.TmdbMovieResult{}
+	}
+
+	return movies, nil
+}
+
+// トレンド映画を取得
+func (s *tmdbService) GetTrendingMovies() (*types.TmdbTrendingMovieResult, error) {
+	logger := logger.GetLogger()
+
+	movies, err := s.tmdbRepo.GetTrendingMovies()
+	if err != nil {
+		logger.Error().Msgf("failed to fetch movies from tmdb: %s", err.Error())
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
 	}
 
 	return movies, nil
