@@ -17,6 +17,8 @@ tags:
     description: ユーザー
   - name: Movie
     description: 映画
+  - name: Trending
+    description: トレンド
   - name: Review
     description: レビュー
   - name: Watchlist
@@ -94,6 +96,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MovieDetail"
+        404:
+          description: 映画が見つからない
+
+  /trending/movies:
+    get:
+      tags: [Trending]
+      summary: トレンド映画一覧
+      operationId: getTrendingMovies
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendingMovies"
         404:
           description: 映画が見つからない
 
@@ -389,6 +406,24 @@ components:
               type: integer
               minimum: 0
               example: 12951
+
+    TrendingMovies:
+      title: TrendingMovies
+      type: object
+      properties:
+        id:
+          description: ID
+          type: integer
+          example: 1
+        title:
+          description: 映画タイトル
+          type: string
+        posterURL:
+          description: ポスターURL
+          type: string
+        tmdbID:
+          description: tmdbのID
+          type: integer
 
     Genre:
       type: object
