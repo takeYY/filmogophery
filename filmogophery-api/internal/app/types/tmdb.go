@@ -32,6 +32,20 @@ type (
 		PosterPath *string `json:"poster_path"`
 	}
 
+	TmdbTrendingMovieResult struct {
+		Page         int                 `json:"page"`
+		TotalPages   int                 `json:"total_pages"`
+		TotalResults int                 `json:"total_results"`
+		Results      []TmdbTrendingMovie `json:"results"`
+	}
+
+	TmdbTrendingMovie struct {
+		TmdbMovieCommon
+		PosterPath string `json:"poster_path"`
+		MediaType  string `json:"media_type"`
+		GenreIds   []int  `json:"genre_ids"`
+	}
+
 	tmdbBelongsToCollection struct {
 		ID           int    `json:"id"`
 		Name         string `json:"name"`
