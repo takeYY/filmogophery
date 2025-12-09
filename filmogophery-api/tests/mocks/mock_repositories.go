@@ -68,3 +68,18 @@ func (mr *MockITmdbRepositoryMockRecorder) GetMoviesByTitle(arg0, arg1 any) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMoviesByTitle", reflect.TypeOf((*MockITmdbRepository)(nil).GetMoviesByTitle), arg0, arg1)
 }
+
+// GetTrendingMovies mocks base method.
+func (m *MockITmdbRepository) GetTrendingMovies() (*types.TmdbTrendingMovieResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTrendingMovies")
+	ret0, _ := ret[0].(*types.TmdbTrendingMovieResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTrendingMovies indicates an expected call of GetTrendingMovies.
+func (mr *MockITmdbRepositoryMockRecorder) GetTrendingMovies() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrendingMovies", reflect.TypeOf((*MockITmdbRepository)(nil).GetTrendingMovies))
+}
