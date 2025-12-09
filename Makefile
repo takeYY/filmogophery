@@ -52,5 +52,5 @@ mock:
 
 start:
 	make up_d
-	cd filmogophery-front
+	cd web-next-js
 	npm run dev
