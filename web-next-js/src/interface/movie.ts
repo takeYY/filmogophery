@@ -36,3 +36,10 @@ export type SearchMovie = {
   voteCount: number;
   genres: string[];
 };
+
+export type TrendingMovie = {
+  id: number;
+  title: string;
+  posterURL: string;
+  tmdbID: number;
+};
