@@ -9,27 +9,31 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Movie, Genre } from "@/interface/index";
+import { Movie, Genre, TrendingMovie } from "@/interface/index";
 import { posterUrlPrefix } from "@/constants/poster";
 import { Carousel } from "react-bootstrap";
 
 export default function Home() {
   const router = useRouter();
   const [movies, setMovies] = useState<Movie[]>();
+  const [trending, setTrending] = useState<TrendingMovie[]>();
   const [isLoading, setIsLoading] = useState(true);
 
-  function separatedMovie(movies: Movie[] | undefined, size: number) {
-    if (!movies || movies.length === 0) {
+  function separateTrending(
+    trending: TrendingMovie[] | undefined,
+    size: number
+  ) {
+    if (!trending || trending.length === 0) {
       return [[]];
     }
     const result = [];
-    for (let i = 0; i < movies.length; i += size) {
-      result.push(movies.slice(i, i + size));
+    for (let i = 0; i < trending.length; i += size) {
+      result.push(trending.slice(i, i + size));
     }
     return result;
   }
 
-  const [separated, setSeparated] = useState<Movie[][]>([[]]);
+  const [separated, setSeparated] = useState<TrendingMovie[][]>([[]]);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -37,10 +41,14 @@ export default function Home() {
       try {
         const response = await fetch(`/api/movies`, { method: "GET" });
         const movies: Movie[] = await response.json();
+
+        const res = await fetch(`/api/trending/movies`, { method: "GET" });
+        const trending: TrendingMovie[] = await res.json();
         console.log("moviesのデータ取得: 完了");
 
         setMovies(movies);
-        setSeparated(separatedMovie(movies, 5));
+        setTrending(trending);
+        setSeparated(separateTrending(trending, 5));
       } catch (error) {
         console.log("moviesのデータ取得: エラー。空配列で定義します");
         setMovies([]);
@@ -76,21 +84,21 @@ export default function Home() {
 
         <h5>最近の映画</h5>
         <Carousel pause={"hover"} className="mb-4">
-          {separated.map((movies: Movie[], index: number) => {
+          {separated.map((trending: TrendingMovie[], index: number) => {
             return (
               <Carousel.Item key={`carousel-item-${index}`}>
                 <div className="row justify-content-md-center">
-                  {movies.map((movie: Movie, i: number) => {
+                  {trending.map((t: TrendingMovie, i: number) => {
                     return (
                       <div
                         className="col-md-2"
-                        key={`carousel-movie-${movie.id || i}`}
+                        key={`carousel-movie-${t.id || i}`}
                       >
                         <Image
                           src={
                             posterUrlPrefix +
-                            (movie.posterURL
-                              ? movie.posterURL
+                            (t.posterURL
+                              ? t.posterURL
                               : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
                           }
                           alt="ポスター画像"
