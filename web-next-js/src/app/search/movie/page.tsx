@@ -129,7 +129,10 @@ export default function SearchMovies() {
                             </div>
                             {/* TODO: レビューを登録するアクションを実装すること。ただし、既にレビュー済みであればこのリンクは消すこと */}
                             <div className="col-md-6 text-center">
-                              <Link className="btn btn-outline-success" href="">
+                              <Link
+                                className="btn btn-outline-success"
+                                href={`/movie/${movie.id}/review/create`}
+                              >
                                 Review
                               </Link>
                             </div>
