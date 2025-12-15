@@ -1,16 +1,23 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 export function NavLinks() {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const q = searchParams.get("query");
 
   const [query, setQuery] = useState<string>(q ? q : "");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/search/movie?query=${query}`);
+    }
+  };
 
   return (
     <nav className="navbar nav-underline navbar-expand-lg navbar-dark">
@@ -65,7 +72,7 @@ export function NavLinks() {
           </ul>
         </div>
 
-        <form className="d-flex" role="search">
+        <form className="d-flex" role="search" onSubmit={handleSubmit}>
           <input
             className="form-control me-2 text-light bg-dark"
             type="search"
@@ -74,19 +81,15 @@ export function NavLinks() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <Link
+          <button
             className={`btn btn-outline-primary ${
               !query.trim() ? "disabled" : ""
             }`}
-            href={query.trim() ? `/search/movie?query=${query}` : "#"}
-            onClick={(e) => {
-              if (!query.trim()) {
-                e.preventDefault();
-              }
-            }}
+            type="submit"
+            disabled={!query.trim()}
           >
             Search
-          </Link>
+          </button>
         </form>
       </div>
     </nav>
