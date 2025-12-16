@@ -10,7 +10,7 @@ import (
 
 type (
 	GetMoviesUseCase interface {
-		Run(ctx context.Context, genre string, limit int32) ([]types.Movie, error)
+		Run(ctx context.Context, genre string, limit int32, offset int32) ([]types.Movie, error)
 	}
 
 	getMoviesInteractor struct {
@@ -24,11 +24,11 @@ func NewGetMoviesInteractor(movieService services.IMovieService) GetMoviesUseCas
 	}
 }
 
-func (i *getMoviesInteractor) Run(ctx context.Context, genre string, limit int32) ([]types.Movie, error) {
+func (i *getMoviesInteractor) Run(ctx context.Context, genre string, limit int32, offset int32) ([]types.Movie, error) {
 	logger := logger.GetLogger()
 
 	// 全ての映画を取得
-	movies, err := i.movieService.GetMovies(ctx, genre, limit)
+	movies, err := i.movieService.GetMovies(ctx, genre, limit, offset)
 	if err != nil {
 		return nil, err
 	}

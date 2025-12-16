@@ -24,7 +24,7 @@ type (
 		// ID に一致する映画を取得
 		FindByID(ctx context.Context, id int32) (*model.Movies, error)
 		// ジャンルを指定して取得
-		FindByGenre(ctx context.Context, genre string, limit int32) ([]*model.Movies, error)
+		FindByGenre(ctx context.Context, genre string, limit int32, offset int32) ([]*model.Movies, error)
 		// tmdbIDs に一致する映画を取得
 		FindByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([]*model.Movies, error)
 	}
@@ -77,7 +77,7 @@ func (r *movieRepository) FindByID(ctx context.Context, id int32) (*model.Movies
 
 // ジャンルを指定して取得
 func (r *movieRepository) FindByGenre(
-	ctx context.Context, genre string, limit int32,
+	ctx context.Context, genre string, limit int32, offset int32,
 ) ([]*model.Movies, error) {
 	m := query.Use(r.ReaderDB).Movies
 	g := query.Use(r.ReaderDB).Genres
@@ -91,7 +91,9 @@ func (r *movieRepository) FindByGenre(
 	}
 
 	return q.
+		Order(m.CreatedAt.Desc()).
 		Limit(int(limit)).
+		Offset(int(offset)).
 		Find()
 }
 

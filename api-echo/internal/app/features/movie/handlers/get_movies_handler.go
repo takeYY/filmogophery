@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -16,8 +17,9 @@ type (
 		interactor movie.GetMoviesUseCase
 	}
 	getMoviesInput struct {
-		Genre string `query:"genre"`
-		Limit int32  `query:"limit"`
+		Genre  string `query:"genre"`
+		Limit  int32  `query:"limit"`
+		Offset int32  `query:"offset"`
 	}
 )
 
@@ -39,20 +41,36 @@ func (h *getMoviesHandler) handle(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	logger.Info().Msg("successfully validated params")
-
-	if req.Limit == 0 { // デフォルトを設定
-		req.Limit = 50
+	if ng := req.validate(); ng != nil {
+		return c.String(http.StatusBadRequest, ng.Error())
 	}
+	logger.Info().Msg("successfully validated params")
 
 	result, err := h.interactor.Run(
 		c.Request().Context(),
 		req.Genre,
 		req.Limit,
+		req.Offset,
 	)
 	if err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, result)
+}
+
+func (req *getMoviesInput) validate() error {
+	const maxLimit int32 = 12
+
+	if req.Limit == 0 {
+		req.Limit = maxLimit
+	} else if req.Limit < 0 || req.Limit > maxLimit {
+		return fmt.Errorf("limit must be between 1 and %d", maxLimit)
+	}
+
+	if req.Offset < 0 {
+		return fmt.Errorf("offset must be non-negative")
+	}
+
+	return nil
 }
