@@ -6,7 +6,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Movie, Genre, TrendingMovie } from "@/interface/index";
@@ -18,6 +18,10 @@ export default function Home() {
   const [movies, setMovies] = useState<Movie[]>();
   const [trending, setTrending] = useState<TrendingMovie[]>();
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   function separateTrending(
     trending: TrendingMovie[] | undefined,
@@ -35,20 +39,33 @@ export default function Home() {
 
   const [separated, setSeparated] = useState<TrendingMovie[][]>([[]]);
 
+  const fetchMovies = async (currentOffset: number) => {
+    try {
+      const response = await fetch(`/api/movies?offset=${currentOffset}`, {
+        method: "GET",
+      });
+      const newMovies: Movie[] = await response.json();
+      return newMovies;
+    } catch (error) {
+      console.log("moviesのデータ取得: エラー");
+      return [];
+    }
+  };
+
   useEffect(() => {
-    const fetchMovies = async () => {
+    const loadInitialData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/movies`, { method: "GET" });
-        const movies: Movie[] = await response.json();
-
+        const initialMovies = await fetchMovies(0);
         const res = await fetch(`/api/trending/movies`, { method: "GET" });
         const trending: TrendingMovie[] = await res.json();
         console.log("moviesのデータ取得: 完了");
 
-        setMovies(movies);
+        setMovies(initialMovies);
         setTrending(trending);
         setSeparated(separateTrending(trending, 5));
+        setOffset(12);
+        setHasMore(initialMovies.length === 12);
       } catch (error) {
         console.log("moviesのデータ取得: エラー。空配列で定義します");
         setMovies([]);
@@ -57,8 +74,39 @@ export default function Home() {
       }
     };
 
-    fetchMovies();
+    loadInitialData();
   }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isLoadingMore &&
+          hasMore &&
+          movies &&
+          movies.length > 0
+        ) {
+          setIsLoadingMore(true);
+          const newMovies = await fetchMovies(offset);
+          if (newMovies.length > 0) {
+            setMovies((prev) => [...(prev || []), ...newMovies]);
+            setOffset((prev) => prev + 12);
+          } else {
+            setHasMore(false);
+          }
+          setIsLoadingMore(false);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [offset, isLoadingMore, hasMore, movies?.length]);
 
   if (isLoading) {
     return (
@@ -177,6 +225,18 @@ export default function Home() {
             );
           })}
         </div>
+
+        <div
+          ref={observerTarget}
+          style={{ height: "20px", marginTop: "20px" }}
+        />
+        {isLoadingMore && (
+          <div className="text-center py-3">
+            <div className="spinner-border text-info" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
