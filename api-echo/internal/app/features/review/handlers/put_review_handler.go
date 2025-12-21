@@ -6,8 +6,10 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/app/features/review"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
+	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -16,9 +18,9 @@ type (
 		interactor review.UpdateReviewUseCase
 	}
 	putReviewInput struct {
-		ReviewID int32    `param:"id"`
-		Rating   *float64 `json:"rating"`
-		Comment  *string  `json:"comment"`
+		ReviewID int32    `param:"id" validate:"gte=1"`
+		Rating   *float64 `json:"rating"`  // required_without=Comment が上手く機能しないので Validate() 内で対応
+		Comment  *string  `json:"comment"` // required_without=Rating が上手く機能しないので Validate() 内で対応
 	}
 )
 
@@ -40,10 +42,10 @@ func (h *putReviewHandler) handle(c echo.Context) error {
 
 	var req putReviewInput
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return responses.ParseBindError(err)
 	}
-	if err := req.validate(); err != nil {
-		return err
+	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
+		return responses.ValidationError(errs)
 	}
 	logger.Info().Msg("successfully validated params")
 
@@ -60,20 +62,19 @@ func (h *putReviewHandler) handle(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (req putReviewInput) validate() error {
-	if req.Rating == nil && req.Comment == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "both rating and comment cannot be null")
-	}
-
+func (req *putReviewInput) Validate() map[string][]string {
+	errors := make(map[string][]string)
 	if req.Rating != nil {
 		rating := *req.Rating
 		if rating < 0.1 {
-			return echo.NewHTTPError(http.StatusBadRequest, "rating must be at least 0.1")
+			errors["Rating"] = append(errors["Rating"], "Rating validation failed on gte")
+		} else if 5.0 < rating {
+			errors["Rating"] = append(errors["Rating"], "Rating validation failed on lte")
 		}
-		if 5.0 < rating {
-			return echo.NewHTTPError(http.StatusBadRequest, "rating must be at most 5.0")
-		}
+	} else if req.Comment == nil {
+		errors["Rating"] = append(errors["Rating"], "both rating and comment cannot be null")
+		errors["Comment"] = append(errors["Comment"], "both rating and comment cannot be null")
 	}
 
-	return nil
+	return errors
 }

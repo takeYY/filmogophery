@@ -5,11 +5,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/app/features/review"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
+	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/logger"
 )
@@ -19,8 +22,8 @@ type (
 		interactor review.CreateReviewHistoryUseCase
 	}
 	postReviewHistoryInput struct {
-		ReviewID    int32          `param:"id"`
-		PlatformID  int32          `json:"platformId"`
+		ReviewID    int32          `param:"id" validate:"gte=1"`
+		PlatformID  int32          `json:"platformId" validate:"required,gte=1"`
 		WatchedDate *constant.Date `json:"watchedDate"`
 	}
 )
@@ -45,10 +48,10 @@ func (h *postReviewHistoryHandler) handle(c echo.Context) error {
 	var req postReviewHistoryInput
 	if err := c.Bind(&req); err != nil {
 		logger.Error().Msgf("failed to bind: %s", err.Error())
-		return c.String(http.StatusBadRequest, err.Error())
+		return responses.ParseBindError(err)
 	}
-	if ng := req.validate(); ng != nil {
-		return ng
+	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
+		return responses.ValidationError(errs)
 	}
 	logger.Info().Msg("successfully validated params")
 
@@ -65,24 +68,23 @@ func (h *postReviewHistoryHandler) handle(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
-func (req *postReviewHistoryInput) validate() error {
-	logger := logger.GetLogger()
+func (req *postReviewHistoryInput) Validate() map[string][]string {
+	errors := make(map[string][]string)
 
 	if req.WatchedDate != nil {
 		parsedTime, err := time.ParseInLocation(constant.DateFormat, string(*req.WatchedDate), time.Local)
 		if err != nil {
-			em := fmt.Sprintf("failed to parse watchedDate(%s)", *req.WatchedDate)
-			logger.Error().Msg(em + ":" + err.Error())
-			return echo.NewHTTPError(http.StatusBadRequest, em)
+			errors["WatchedDate"] = append(errors["WatchedDate"], fmt.Sprintf("failed to parse date(%s)", *req.WatchedDate))
+			return errors
 		}
 
 		now := time.Now()
 		if parsedTime.After(now) {
-			em := "watchedDate must not be in the future"
-			logger.Warn().Msg(em)
-			return echo.NewHTTPError(http.StatusBadRequest, em)
+			errors["WatchedDate"] = append(errors["WatchedDate"], "date cannot be in the future")
+			return errors
 		}
 	}
 
-	return nil
+	v := validator.New()
+	return validators.StructToErrors(v.Struct(req))
 }

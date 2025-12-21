@@ -3,11 +3,14 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/app/features/movie"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
+	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -16,7 +19,7 @@ type (
 		interactor movie.GetMovieDetailsUseCase
 	}
 	getMovieDetailInput struct {
-		ID int32 `param:"id"`
+		ID int32 `param:"id" validate:"gte=1"`
 	}
 )
 
@@ -40,7 +43,10 @@ func (h *getMovieDetailHandler) handle(c echo.Context) error {
 
 	var req getMovieDetailInput
 	if err := c.Bind(&req); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return responses.ParseBindError(err)
+	}
+	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
+		return responses.ValidationError(errs)
 	}
 	logger.Info().Msg("successfully validated params")
 
@@ -53,4 +59,9 @@ func (h *getMovieDetailHandler) handle(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, result)
+}
+
+func (req *getMovieDetailInput) Validate() map[string][]string {
+	v := validator.New()
+	return validators.StructToErrors(v.Struct(req))
 }
