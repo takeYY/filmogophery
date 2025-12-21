@@ -1,12 +1,11 @@
 package tmdb
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 
-	"filmogophery/internal/pkg/response"
+	"filmogophery/internal/app/responses"
 )
 
 type (
@@ -35,16 +34,12 @@ func (h *handler) RegisterRoutes(e *echo.Echo) {
 func (th *TmdbHandler) SearchTmdbMovies(c echo.Context) error {
 	q := c.QueryParam("query")
 	if q == "" {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse{
-			Message: "invalid query params",
-		})
+		return responses.BadRequestError(map[string][]string{"q": {"must not be empty"}})
 	}
 
 	movies, err := th.TmdbService.SearchMovies(&q)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, response.ErrorResponse{
-			Message: fmt.Sprintf("movie is not found: %s", q),
-		})
+		return responses.NotFoundError("movie", map[string][]string{"q": {q}})
 	}
 
 	return c.JSON(http.StatusOK, movies)

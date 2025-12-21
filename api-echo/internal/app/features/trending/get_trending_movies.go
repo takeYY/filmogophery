@@ -3,13 +3,12 @@ package trending
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/constant"
@@ -183,7 +182,7 @@ func (i *getTrendingMoviesInteractor) batchCreateMovies(ctx context.Context, new
 	})
 	if err != nil {
 		logger.Error().Msgf("failed to batch create movies: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 
 	// 新規登録した映画のIDを取得
@@ -196,7 +195,7 @@ func (i *getTrendingMoviesInteractor) batchCreateMovies(ctx context.Context, new
 	newMoviesWithGenres, err := i.movieSvc.GetMoviesByTmdbIDs(ctx, newTmdbIDs)
 	if err != nil {
 		logger.Error().Msgf("failed to get newly created movies: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 
 	return newMoviesWithGenres, nil

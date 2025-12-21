@@ -2,11 +2,9 @@ package services
 
 import (
 	"context"
-	"net/http"
-
-	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
@@ -39,7 +37,7 @@ func (s *genreService) GetAllGenres(ctx context.Context) ([]*model.Genres, error
 	genres, err := s.genreRepo.FindAll(ctx)
 	if err != nil {
 		logger.Error().Msgf("failed to fetch genres: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 
 	return genres, nil

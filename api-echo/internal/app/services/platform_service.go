@@ -3,11 +3,9 @@ package services
 import (
 	"context"
 	"fmt"
-	"net/http"
-
-	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
@@ -42,7 +40,7 @@ func (s *platformService) GetAllPlatforms(ctx context.Context) ([]*model.Platfor
 	platforms, err := s.platformRepo.FindAll(ctx)
 	if err != nil {
 		logger.Error().Msgf("failed to fetch platforms: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 
 	return platforms, nil
@@ -55,12 +53,12 @@ func (s *platformService) GetByID(ctx context.Context, id int32) (*model.Platfor
 	platform, err := s.platformRepo.FindByID(ctx, id)
 	if err != nil {
 		logger.Error().Msgf("failed to fetch platforms: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 	if platform == nil {
 		em := fmt.Sprintf("platform(id=%d) is not found", id)
 		logger.Info().Msg(em)
-		return nil, echo.NewHTTPError(http.StatusNotFound, em)
+		return nil, responses.NotFoundError("platform", map[string][]string{"id": {fmt.Sprintf("%d", id)}})
 	}
 	logger.Debug().Msg("successfully fetched a platform")
 
