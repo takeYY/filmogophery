@@ -1,5 +1,5 @@
 # --- Dev Stage for Local --- #
-FROM golang:1.22.4-bullseye as dev
+FROM golang:1.25-bookworm as dev
 
 ENV TZ=Asia/Tokyo
 ENV APP_DIR=/usr/src/app
@@ -9,17 +9,17 @@ WORKDIR ${APP_DIR}
 
 # ローカルでテストする時は、gotest を使う
 RUN go install github.com/rakyll/gotest@latest
-# ハンドラのテスト用にmock生成パッケージをインストール（Go 1.22.4 互換バージョンを指定）
-RUN go install go.uber.org/mock/mockgen@v0.4.0
+# ハンドラのテスト用にmock生成パッケージをインストール
+RUN go install go.uber.org/mock/mockgen@latest
 # ホットリロードのために、air を使う
-RUN go install github.com/air-verse/air@v1.52.3
+RUN go install github.com/air-verse/air@latest
 
 RUN go mod tidy
 
 
 
 # --- Build Stage --- #
-FROM golang:1.22.4-bullseye as builder
+FROM golang:1.25-bookworm as builder
 
 ENV TZ=Asia/Tokyo
 ENV CGO_ENABLED=0
