@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"filmogophery/internal/app/features/review"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/pkg/config"
 	"filmogophery/internal/pkg/gen/model"
@@ -40,35 +41,44 @@ func TestPostReviewHandler_handle__Error(t *testing.T) {
 		movieID        int32
 		reqBody        string
 		expectedStatus int
-		expectedBody   string
+		expectedErrors map[string][]string
 	}{
 		{
 			testCase:       "ratingとcommentの両方がnull",
 			movieID:        m.ID,
 			reqBody:        `{"rating": null, "comment": null}`,
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   `{"message": "both rating and comment cannot be null"}`,
+			expectedErrors: map[string][]string{
+				"Rating":  {"both rating and comment cannot be null"},
+				"Comment": {"both rating and comment cannot be null"},
+			},
 		},
 		{
 			testCase:       "ratingが最小値未満",
 			movieID:        m.ID,
 			reqBody:        `{"rating": 0.0}`,
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   `{"message": "rating must be at least 0.1"}`,
+			expectedErrors: map[string][]string{
+				"Rating": {"Rating validation failed on gte"},
+			},
 		},
 		{
 			testCase:       "ratingが最大値超過",
 			movieID:        m.ID,
 			reqBody:        `{"rating": 5.1}`,
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   `{"message": "rating must be at most 5.0"}`,
+			expectedErrors: map[string][]string{
+				"Rating": {"Rating validation failed on lte"},
+			},
 		},
 		{
 			testCase:       "存在しない映画ID",
 			movieID:        404,
 			reqBody:        `{"rating": 3.1, "comment": "something stylish comments"}`,
 			expectedStatus: http.StatusNotFound,
-			expectedBody:   `{"message": "movie(id=404) is not found"}`,
+			expectedErrors: map[string][]string{
+				"id": {"404"},
+			},
 		},
 	} {
 		t.Run(tt.testCase, func(t *testing.T) {
@@ -98,7 +108,10 @@ func TestPostReviewHandler_handle__Error(t *testing.T) {
 			he, ok := err.(*echo.HTTPError)
 			assert.True(t, ok, "error should be *echo.HTTPError")
 			assert.Equal(t, tt.expectedStatus, he.Code)
-			assert.Equal(t, tt.expectedBody, `{"message": "`+he.Message.(string)+`"}`)
+
+			errResp := he.Message.(responses.ErrorResponse)
+			assert.NotEmpty(t, errResp.Message)
+			assert.Equal(t, tt.expectedErrors, errResp.Errors)
 		})
 	}
 }

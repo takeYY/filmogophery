@@ -3,12 +3,11 @@ package services
 import (
 	"context"
 	"fmt"
-	"net/http"
 
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
@@ -54,7 +53,7 @@ func (s *movieService) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*m
 	err := s.movieRepo.BatchCreate(ctx, tx, movies)
 	if err != nil {
 		logger.Error().Msgf("failed to batch create movies: %s", err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return responses.InternalServerError()
 	}
 
 	// 映画ジャンルを紐づける
@@ -72,7 +71,7 @@ func (s *movieService) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*m
 		err = s.genreRepo.BatchCreate(ctx, tx, movieGenres)
 		if err != nil {
 			logger.Error().Msgf("failed to batch create movie_genres: %s", err.Error())
-			return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+			return responses.InternalServerError()
 		}
 	}
 
@@ -86,7 +85,7 @@ func (s *movieService) GetMovies(ctx context.Context, genre string, limit int32,
 	movies, err := s.movieRepo.FindByGenre(ctx, genre, limit, offset)
 	if err != nil {
 		logger.Error().Msgf("failed to get movies: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 	logger.Debug().Msg("successfully fetched movies")
 
@@ -100,12 +99,12 @@ func (s *movieService) GetMovieByID(ctx context.Context, movieID int32) (*model.
 	movie, err := s.movieRepo.FindByID(ctx, movieID)
 	if err != nil {
 		logger.Error().Msgf("failed to get a movie(id=%d): %s", movieID, err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 	if movie == nil {
 		em := fmt.Sprintf("movie(id=%d) is not found", movieID)
 		logger.Error().Msg(em)
-		return nil, echo.NewHTTPError(http.StatusNotFound, em)
+		return nil, responses.NotFoundError("movie", map[string][]string{"id": {fmt.Sprintf("%d", movieID)}})
 	}
 	logger.Debug().Msg("successfully fetched a movie")
 
@@ -119,7 +118,7 @@ func (s *movieService) GetMoviesByTmdbIDs(ctx context.Context, tmdbIDs []int32) 
 	movies, err := s.movieRepo.FindByTmdbIDs(ctx, tmdbIDs)
 	if err != nil {
 		logger.Error().Msgf("failed to get movies: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 
 	return movies, nil

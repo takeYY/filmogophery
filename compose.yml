@@ -10,7 +10,7 @@ services:
     volumes:
       - ./api-echo/:/usr/src/app
     command: >
-      bash -c 'go mod tidy && air'
+      bash -c 'air'
     env_file:
       - ./api-echo/.env
     depends_on:

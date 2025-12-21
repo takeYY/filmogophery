@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
@@ -75,11 +74,11 @@ func (s *reviewService) CreateReview(
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		em := fmt.Sprintf("review already exists for this movie(id=%d): %s", movie.ID, err.Error())
 		logger.Error().Msg(em)
-		return echo.NewHTTPError(http.StatusBadRequest, em)
+		return responses.BadRequestError(map[string][]string{"review": {"already exists"}})
 	}
 	if err != nil {
 		logger.Error().Msgf("failed to create review: %s", err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return responses.InternalServerError()
 	}
 
 	return nil
@@ -97,7 +96,7 @@ func (s *reviewService) CreateWatchHistory(
 		if err != nil {
 			em := fmt.Sprintf("failed to parse watchedDate: %s", err.Error())
 			logger.Error().Msg(em)
-			return echo.NewHTTPError(http.StatusBadRequest, em)
+			return responses.BadRequestError(map[string][]string{"WatchedDate": {"failed to parse date"}})
 		}
 		parsedWatchedDate = &parsedDate
 	}
@@ -110,7 +109,7 @@ func (s *reviewService) CreateWatchHistory(
 	err := s.watchHistoryRepo.Save(ctx, tx, watchHistory)
 	if err != nil {
 		logger.Error().Msgf("failed to create watch_history: %s", err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return responses.InternalServerError()
 	}
 	logger.Debug().Msg("successfully created watch history")
 
@@ -124,12 +123,12 @@ func (s *reviewService) GetReviewByID(ctx context.Context, userID int32, id int3
 	review, err := s.reviewRepo.FindByID(ctx, userID, id)
 	if err != nil {
 		logger.Error().Msgf("failed to get a review(userID=%d, id=%d): %s", userID, id, err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 	if review == nil {
 		em := fmt.Sprintf("review(id=%d) is not found", id)
 		logger.Info().Msg(em)
-		return nil, echo.NewHTTPError(http.StatusNotFound, em)
+		return nil, responses.NotFoundError("review", map[string][]string{"id": {fmt.Sprintf("%d", id)}})
 	}
 	logger.Debug().Msg("successfully fetched a review")
 
@@ -143,7 +142,7 @@ func (s *reviewService) GetReviewByMovieID(ctx context.Context, userID int32, mo
 	review, err := s.reviewRepo.FindByMovieID(ctx, userID, movie.ID)
 	if err != nil {
 		logger.Error().Msgf("failed to get a review(userID=%d, movieID=%d): %s", userID, movie.ID, err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 	if review == nil {
 		logger.Info().Msg("review is not found")
@@ -160,7 +159,7 @@ func (s *reviewService) GetWatchHistoryByReviewID(ctx context.Context, review *m
 	watchHistories, err := s.watchHistoryRepo.FindByReviewID(ctx, review.ID)
 	if err != nil {
 		logger.Error().Msgf("failed to get a watch history(reviewID=%d): %s", review.ID, err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 	logger.Debug().Msg("successfully fetched watch histories")
 
@@ -176,7 +175,7 @@ func (s *reviewService) UpdateReview(ctx context.Context, tx *gorm.DB, review *m
 	err := s.reviewRepo.Update(ctx, tx, review)
 	if err != nil {
 		logger.Error().Msgf("failed to update review(id=%d): %s", review.ID, err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return responses.InternalServerError()
 	}
 
 	return nil

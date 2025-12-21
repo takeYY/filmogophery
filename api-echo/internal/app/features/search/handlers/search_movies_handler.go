@@ -3,11 +3,14 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/app/features/search"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
+	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -16,9 +19,9 @@ type (
 		interactor search.SearchMoviesUseCase
 	}
 	searchMoviesInput struct {
-		Title  string `query:"title"`
-		Limit  *int32 `query:"limit"`
-		Offset *int32 `query:"offset"`
+		Title  string `query:"title" validate:"required"`
+		Limit  int32  `query:"limit" validate:"gte=1,lte=12"`
+		Offset int32  `query:"offset" validate:"gte=0"`
 	}
 )
 
@@ -43,14 +46,19 @@ func (h *searchMoviesHandler) handle(c echo.Context) error {
 
 	var req searchMoviesInput
 	if err := c.Bind(&req); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return responses.ParseBindError(err)
 	}
-	if ng := req.validate(); ng != nil {
-		return ng
+	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
+		return responses.ValidationError(errs)
 	}
 	logger.Info().Msg("successfully validated params")
 
-	result, err := h.interactor.Run(c.Request().Context(), req.Title, *req.Limit, *req.Offset)
+	result, err := h.interactor.Run(
+		c.Request().Context(),
+		req.Title,
+		req.Limit,
+		req.Offset,
+	)
 	if err != nil {
 		return err
 	}
@@ -58,28 +66,12 @@ func (h *searchMoviesHandler) handle(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func (req *searchMoviesInput) validate() error {
-	if req.Limit == nil {
-		req.Limit = &[]int32{20}[0]
-	}
-	if req.Offset == nil {
-		req.Offset = &[]int32{0}[0]
+func (req *searchMoviesInput) Validate() map[string][]string {
+	// デフォルト値の設定
+	if req.Limit == 0 {
+		req.Limit = 12
 	}
 
-	if req.Title == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "title cannot be null")
-	}
-
-	if *req.Limit < 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "limit must be at least 0")
-	}
-	if 20 < *req.Limit {
-		return echo.NewHTTPError(http.StatusBadRequest, "limit must be at most 20")
-	}
-
-	if *req.Offset < 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "offset must be at least 0")
-	}
-
-	return nil
+	v := validator.New()
+	return validators.StructToErrors(v.Struct(req))
 }

@@ -1,11 +1,8 @@
 package services
 
 import (
-	"net/http"
-
-	"github.com/labstack/echo/v4"
-
 	"filmogophery/internal/app/repositories"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/logger"
 )
@@ -38,7 +35,7 @@ func (s *tmdbService) GetMovieDetailByID(id int32) (*types.TmdbMovieDetail, erro
 	movieDetail, err := s.tmdbRepo.GetMovieDetail(id)
 	if err != nil {
 		logger.Error().Msgf("failed to get a movie(id=%d) detail: %s", id, err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 	logger.Debug().Msg("successfully fetch tmdb movie detail")
 
@@ -55,7 +52,7 @@ func (s *tmdbService) GetMoviesByTitle(title string, limit int32, offset int32) 
 	movies, err := s.tmdbRepo.GetMoviesByTitle(title, page)
 	if err != nil {
 		logger.Error().Msgf("failed to fetch movies from tmdb: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 
 	// ページ内のオフセット位置を計算
@@ -82,7 +79,7 @@ func (s *tmdbService) GetTrendingMovies() (*types.TmdbTrendingMovieResult, error
 	movies, err := s.tmdbRepo.GetTrendingMovies()
 	if err != nil {
 		logger.Error().Msgf("failed to fetch movies from tmdb: %s", err.Error())
-		return nil, echo.NewHTTPError(http.StatusInternalServerError, "system error")
+		return nil, responses.InternalServerError()
 	}
 
 	return movies, nil

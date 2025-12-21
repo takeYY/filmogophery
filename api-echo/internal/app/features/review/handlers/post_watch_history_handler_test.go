@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"filmogophery/internal/app/features/review"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/pkg/config"
 	"filmogophery/internal/pkg/constant"
@@ -44,74 +45,74 @@ func TestPostReviewHistoryHandler_handle__Error(t *testing.T) {
 	tomorrowDate := time.Now().AddDate(0, 0, 1).Format(constant.DateFormat)
 
 	for _, tt := range []struct {
-		testCase        string
-		reviewID        int32
-		body            string
-		expectedCode    int
-		expectedMessage string
+		testCase       string
+		reviewID       int32
+		body           string
+		expectedCode   int
+		expectedErrors map[string][]string
 	}{
 		{
-			testCase:        "存在しないレビューIDを指定",
-			reviewID:        404,
-			body:            `{"platformId": 99, "watchedDate": "2025-10-28"}`,
-			expectedCode:    http.StatusNotFound,
-			expectedMessage: `review(id=404) is not found`,
+			testCase:       "存在しないレビューIDを指定",
+			reviewID:       404,
+			body:           `{"platformId": 99, "watchedDate": "2025-10-28"}`,
+			expectedCode:   http.StatusNotFound,
+			expectedErrors: map[string][]string{"id": {"404"}},
 		},
 		{
-			testCase:        "存在しないプラットフォームIDを指定",
-			reviewID:        rv.ID,
-			body:            `{"platformId": 404, "watchedDate": "2025-10-28"}`,
-			expectedCode:    http.StatusNotFound,
-			expectedMessage: `platform(id=404) is not found`,
+			testCase:       "存在しないプラットフォームIDを指定",
+			reviewID:       rv.ID,
+			body:           `{"platformId": 404, "watchedDate": "2025-10-28"}`,
+			expectedCode:   http.StatusNotFound,
+			expectedErrors: map[string][]string{"id": {"404"}},
 		},
 		{
-			testCase:        "不正な視聴日付を指定_スラッシュ区切り",
-			reviewID:        rv.ID,
-			body:            `{"platformId": 99, "watchedDate": "2025/10/28"}`,
-			expectedCode:    http.StatusBadRequest,
-			expectedMessage: `failed to parse watchedDate(2025/10/28)`,
+			testCase:       "不正な視聴日付を指定_スラッシュ区切り",
+			reviewID:       rv.ID,
+			body:           `{"platformId": 99, "watchedDate": "2025/10/28"}`,
+			expectedCode:   http.StatusBadRequest,
+			expectedErrors: map[string][]string{"WatchedDate": {"failed to parse date(2025/10/28)"}},
 		},
 		{
-			testCase:        "不正な視聴日付を指定_時刻付き",
-			reviewID:        rv.ID,
-			body:            `{"platformId": 99, "watchedDate": "2025-10-28T10:20:30"}`,
-			expectedCode:    http.StatusBadRequest,
-			expectedMessage: `failed to parse watchedDate(2025-10-28T10:20:30)`,
+			testCase:       "不正な視聴日付を指定_時刻付き",
+			reviewID:       rv.ID,
+			body:           `{"platformId": 99, "watchedDate": "2025-10-28T10:20:30"}`,
+			expectedCode:   http.StatusBadRequest,
+			expectedErrors: map[string][]string{"WatchedDate": {"failed to parse date(2025-10-28T10:20:30)"}},
 		},
 		{
-			testCase:        "不正な視聴日付を指定_存在しない月",
-			reviewID:        rv.ID,
-			body:            `{"platformId": 99, "watchedDate": "2025-13-28"}`,
-			expectedCode:    http.StatusBadRequest,
-			expectedMessage: `failed to parse watchedDate(2025-13-28)`,
+			testCase:       "不正な視聴日付を指定_存在しない月",
+			reviewID:       rv.ID,
+			body:           `{"platformId": 99, "watchedDate": "2025-13-28"}`,
+			expectedCode:   http.StatusBadRequest,
+			expectedErrors: map[string][]string{"WatchedDate": {"failed to parse date(2025-13-28)"}},
 		},
 		{
-			testCase:        "不正な視聴日付を指定_存在しない日",
-			reviewID:        rv.ID,
-			body:            `{"platformId": 99, "watchedDate": "2025-02-30"}`,
-			expectedCode:    http.StatusBadRequest,
-			expectedMessage: `failed to parse watchedDate(2025-02-30)`,
+			testCase:       "不正な視聴日付を指定_存在しない日",
+			reviewID:       rv.ID,
+			body:           `{"platformId": 99, "watchedDate": "2025-02-30"}`,
+			expectedCode:   http.StatusBadRequest,
+			expectedErrors: map[string][]string{"WatchedDate": {"failed to parse date(2025-02-30)"}},
 		},
 		{
-			testCase:        "不正な視聴日付を指定_0埋めなし",
-			reviewID:        rv.ID,
-			body:            `{"platformId": 99, "watchedDate": "2025-1-1"}`,
-			expectedCode:    http.StatusBadRequest,
-			expectedMessage: `failed to parse watchedDate(2025-1-1)`,
+			testCase:       "不正な視聴日付を指定_0埋めなし",
+			reviewID:       rv.ID,
+			body:           `{"platformId": 99, "watchedDate": "2025-1-1"}`,
+			expectedCode:   http.StatusBadRequest,
+			expectedErrors: map[string][]string{"WatchedDate": {"failed to parse date(2025-1-1)"}},
 		},
 		{
-			testCase:        "不正な視聴日付を指定_空文字",
-			reviewID:        rv.ID,
-			body:            `{"platformId": 99, "watchedDate": ""}`,
-			expectedCode:    http.StatusBadRequest,
-			expectedMessage: `failed to parse watchedDate()`,
+			testCase:       "不正な視聴日付を指定_空文字",
+			reviewID:       rv.ID,
+			body:           `{"platformId": 99, "watchedDate": ""}`,
+			expectedCode:   http.StatusBadRequest,
+			expectedErrors: map[string][]string{"WatchedDate": {"failed to parse date()"}},
 		},
 		{
-			testCase:        "未来の視聴日付を指定",
-			reviewID:        rv.ID,
-			body:            fmt.Sprintf(`{"platformId": 99, "watchedDate": "%s"}`, tomorrowDate),
-			expectedCode:    http.StatusBadRequest,
-			expectedMessage: `watchedDate must not be in the future`,
+			testCase:       "未来の視聴日付を指定",
+			reviewID:       rv.ID,
+			body:           fmt.Sprintf(`{"platformId": 99, "watchedDate": "%s"}`, tomorrowDate),
+			expectedCode:   http.StatusBadRequest,
+			expectedErrors: map[string][]string{"WatchedDate": {"date cannot be in the future"}},
 		},
 	} {
 		t.Run(tt.testCase, func(t *testing.T) {
@@ -141,7 +142,10 @@ func TestPostReviewHistoryHandler_handle__Error(t *testing.T) {
 			he, ok := err.(*echo.HTTPError)
 			assert.True(t, ok, "error should be *echo.HTTPError")
 			assert.Equal(t, tt.expectedCode, he.Code)
-			assert.Equal(t, tt.expectedMessage, he.Message)
+
+			errResp := he.Message.(responses.ErrorResponse)
+			assert.NotEmpty(t, errResp.Message)
+			assert.Equal(t, tt.expectedErrors, errResp.Errors)
 		})
 	}
 }

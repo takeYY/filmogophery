@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"filmogophery/internal/app/features/review"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/pkg/config"
 	"filmogophery/internal/pkg/gen/model"
@@ -49,7 +50,10 @@ func TestGetWatchHistoryHandler_handle__Error(t *testing.T) {
 	he, ok := err.(*echo.HTTPError)
 	assert.True(t, ok, "error should be *echo.HTTPError")
 	assert.Equal(t, http.StatusNotFound, he.Code)
-	assert.Equal(t, `review(id=404) is not found`, he.Message)
+
+	errResp := he.Message.(responses.ErrorResponse)
+	assert.Equal(t, "review not found", errResp.Message)
+	assert.Equal(t, map[string][]string{"id": {"404"}}, errResp.Errors)
 }
 
 // 正常系

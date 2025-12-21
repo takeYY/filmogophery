@@ -1,14 +1,16 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 
 	"filmogophery/internal/app/features/movie"
+	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
+	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -18,8 +20,8 @@ type (
 	}
 	getMoviesInput struct {
 		Genre  string `query:"genre"`
-		Limit  int32  `query:"limit"`
-		Offset int32  `query:"offset"`
+		Limit  int32  `query:"limit" validate:"gte=1,lte=12"`
+		Offset int32  `query:"offset" validate:"gte=0"`
 	}
 )
 
@@ -39,10 +41,10 @@ func (h *getMoviesHandler) handle(c echo.Context) error {
 
 	var req getMoviesInput
 	if err := c.Bind(&req); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return responses.ParseBindError(err)
 	}
-	if ng := req.validate(); ng != nil {
-		return c.String(http.StatusBadRequest, ng.Error())
+	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
+		return responses.ValidationError(errs)
 	}
 	logger.Info().Msg("successfully validated params")
 
@@ -59,18 +61,12 @@ func (h *getMoviesHandler) handle(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func (req *getMoviesInput) validate() error {
-	const maxLimit int32 = 12
-
+func (req *getMoviesInput) Validate() map[string][]string {
+	// デフォルト値の設定
 	if req.Limit == 0 {
-		req.Limit = maxLimit
-	} else if req.Limit < 0 || req.Limit > maxLimit {
-		return fmt.Errorf("limit must be between 1 and %d", maxLimit)
+		req.Limit = 12
 	}
 
-	if req.Offset < 0 {
-		return fmt.Errorf("offset must be non-negative")
-	}
-
-	return nil
+	v := validator.New()
+	return validators.StructToErrors(v.Struct(req))
 }
