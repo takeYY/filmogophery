@@ -20,7 +20,7 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | updateReview        | Review    |  ✅  |  🚧  |
 | getWatchHistory     | Review    |  ✅  |  ✅  |
 | addWatchHistory     | Review    |  ✅  |  ✅  |
-| getWatchlist        | Watchlist |  🚧  |  🚧  |
+| getWatchlist        | Watchlist |  ✅  |  🚧  |
 | addToWatchlist      | Watchlist |  🚧  |  🚧  |
 | updateWatchlistItem | Watchlist |  🚧  |  🚧  |
 | removeFromWatchlist | Watchlist |  🚧  |  🚧  |

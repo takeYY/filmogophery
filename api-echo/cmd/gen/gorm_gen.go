@@ -54,7 +54,20 @@ func main() {
 	)
 	users := g.GenerateModel("users")
 	movieGenres := g.GenerateModel("movie_genres")
-	watchlist := g.GenerateModel("watchlist")
+	watchlist := g.GenerateModel("watchlist",
+		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"UserID"},
+				"references": []string{"ID"},
+			},
+		}),
+		gen.FieldRelate(field.HasOne, "Movie", movies, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"MovieID"},
+				"references": []string{"ID"},
+			},
+		}),
+	)
 	reviews := g.GenerateModel("reviews")
 	watchHistory := g.GenerateModel("watch_history",
 		gen.FieldRelate(field.HasOne, "Platform", platforms, &field.RelateConfig{

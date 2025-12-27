@@ -31,6 +31,7 @@ func main() {
 			repositories.NewReviewRepository,
 			repositories.NewTmdbRepository,
 			repositories.NewWatchHistoryRepository,
+			repositories.NewWatchlistRepository,
 		),
 		fx.Provide( // Services
 			services.NewGenreService,
@@ -39,6 +40,7 @@ func main() {
 			services.NewReviewService,
 			services.NewTmdbService,
 			services.NewRedisService,
+			services.NewWatchlistService,
 		),
 		fx.Provide(
 			services.NewServiceContainer,
