@@ -32,6 +32,35 @@ func newWatchlist(db *gorm.DB, opts ...gen.DOOption) watchlist {
 	_watchlist.MovieID = field.NewInt32(tableName, "movie_id")
 	_watchlist.Priority = field.NewInt32(tableName, "priority")
 	_watchlist.AddedAt = field.NewTime(tableName, "added_at")
+	_watchlist.User = watchlistHasOneUser{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("User", "model.Users"),
+	}
+
+	_watchlist.Movie = watchlistHasOneMovie{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Movie", "model.Movies"),
+		Genres: struct {
+			field.RelationField
+			Movies struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Movie.Genres", "model.Genres"),
+			Movies: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Movie.Genres.Movies", "model.Movies"),
+			},
+		},
+		Series: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Movie.Series", "model.Series"),
+		},
+	}
 
 	_watchlist.fillFieldMap()
 
@@ -47,6 +76,9 @@ type watchlist struct {
 	MovieID  field.Int32
 	Priority field.Int32
 	AddedAt  field.Time
+	User     watchlistHasOneUser
+
+	Movie watchlistHasOneMovie
 
 	fieldMap map[string]field.Expr
 }
@@ -84,12 +116,13 @@ func (w *watchlist) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (w *watchlist) fillFieldMap() {
-	w.fieldMap = make(map[string]field.Expr, 5)
+	w.fieldMap = make(map[string]field.Expr, 7)
 	w.fieldMap["id"] = w.ID
 	w.fieldMap["user_id"] = w.UserID
 	w.fieldMap["movie_id"] = w.MovieID
 	w.fieldMap["priority"] = w.Priority
 	w.fieldMap["added_at"] = w.AddedAt
+
 }
 
 func (w watchlist) clone(db *gorm.DB) watchlist {
@@ -100,6 +133,158 @@ func (w watchlist) clone(db *gorm.DB) watchlist {
 func (w watchlist) replaceDB(db *gorm.DB) watchlist {
 	w.watchlistDo.ReplaceDB(db)
 	return w
+}
+
+type watchlistHasOneUser struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a watchlistHasOneUser) Where(conds ...field.Expr) *watchlistHasOneUser {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a watchlistHasOneUser) WithContext(ctx context.Context) *watchlistHasOneUser {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a watchlistHasOneUser) Session(session *gorm.Session) *watchlistHasOneUser {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a watchlistHasOneUser) Model(m *model.Watchlist) *watchlistHasOneUserTx {
+	return &watchlistHasOneUserTx{a.db.Model(m).Association(a.Name())}
+}
+
+type watchlistHasOneUserTx struct{ tx *gorm.Association }
+
+func (a watchlistHasOneUserTx) Find() (result *model.Users, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a watchlistHasOneUserTx) Append(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a watchlistHasOneUserTx) Replace(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a watchlistHasOneUserTx) Delete(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a watchlistHasOneUserTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a watchlistHasOneUserTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type watchlistHasOneMovie struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Genres struct {
+		field.RelationField
+		Movies struct {
+			field.RelationField
+		}
+	}
+	Series struct {
+		field.RelationField
+	}
+}
+
+func (a watchlistHasOneMovie) Where(conds ...field.Expr) *watchlistHasOneMovie {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a watchlistHasOneMovie) WithContext(ctx context.Context) *watchlistHasOneMovie {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a watchlistHasOneMovie) Session(session *gorm.Session) *watchlistHasOneMovie {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a watchlistHasOneMovie) Model(m *model.Watchlist) *watchlistHasOneMovieTx {
+	return &watchlistHasOneMovieTx{a.db.Model(m).Association(a.Name())}
+}
+
+type watchlistHasOneMovieTx struct{ tx *gorm.Association }
+
+func (a watchlistHasOneMovieTx) Find() (result *model.Movies, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a watchlistHasOneMovieTx) Append(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a watchlistHasOneMovieTx) Replace(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a watchlistHasOneMovieTx) Delete(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a watchlistHasOneMovieTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a watchlistHasOneMovieTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type watchlistDo struct{ gen.DO }

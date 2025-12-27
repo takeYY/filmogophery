@@ -17,6 +17,8 @@ type Watchlist struct {
 	MovieID  int32      `gorm:"column:movie_id;not null" json:"movie_id"`
 	Priority *int32     `gorm:"column:priority;default:1" json:"priority"`
 	AddedAt  *time.Time `gorm:"column:added_at;default:CURRENT_TIMESTAMP" json:"added_at"`
+	User     Users      `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Movie    Movies     `gorm:"foreignKey:MovieID;references:ID" json:"movie"`
 }
 
 // TableName Watchlist's table name
