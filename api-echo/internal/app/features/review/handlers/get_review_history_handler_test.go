@@ -1,3 +1,5 @@
+// TODO: /movies/{movieId}/watch-history に変更するため、いずれ消す
+
 package handlers
 
 import (
@@ -90,10 +92,10 @@ func TestGetWatchHistoryHandler_handle(t *testing.T) {
 	})
 	// Create watch_history
 	tests.CreateWatchHistory(t, tx, &model.WatchHistory{
-		ID: 65, ReviewID: rv2.ID, PlatformID: 99, WatchedDate: &[]time.Time{time.Date(2025, 1, 2, 0, 0, 0, 0, time.Local)}[0],
+		ID: 65, UserID: 1, MovieID: 2, PlatformID: 99, WatchedDate: &[]time.Time{time.Date(2025, 1, 2, 0, 0, 0, 0, time.Local)}[0],
 	})
 	tests.CreateWatchHistory(t, tx, &model.WatchHistory{
-		ID: 8979, ReviewID: rv2.ID, PlatformID: 1, WatchedDate: &[]time.Time{time.Date(2025, 2, 3, 0, 0, 0, 0, time.Local)}[0],
+		ID: 8979, UserID: 1, MovieID: 2, PlatformID: 1, WatchedDate: &[]time.Time{time.Date(2025, 2, 3, 0, 0, 0, 0, time.Local)}[0],
 	})
 
 	for _, tt := range []struct {

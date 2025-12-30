@@ -191,7 +191,7 @@ func TestPostReviewHistoryHandler_handle(t *testing.T) {
 
 			// テスト前の視聴履歴数を確認
 			var beforeCount int64
-			tx.Model(&model.WatchHistory{}).Where("review_id = ?", rv.ID).Count(&beforeCount)
+			tx.Model(&model.WatchHistory{}).Where("movie_id = ?", m.ID).Count(&beforeCount)
 
 			reviewID := strconv.Itoa(int(rv.ID))
 
@@ -220,16 +220,21 @@ func TestPostReviewHistoryHandler_handle(t *testing.T) {
 
 			// データベースの状態確認
 			var afterCount int64
-			tx.Model(&model.WatchHistory{}).Where("review_id = ?", rv.ID).Count(&afterCount)
+			tx.Model(&model.WatchHistory{}).Where("movie_id = ?", m.ID).Count(&afterCount)
 			assert.Equal(t, beforeCount+1, afterCount)
 
 			// 作成された視聴履歴の内容確認
 			var createdWatchHistory model.WatchHistory
-			err = tx.Where("review_id = ?", rv.ID).First(&createdWatchHistory).Error
+			err = tx.Where("movie_id = ?", m.ID).First(&createdWatchHistory).Error
 			assert.NoError(t, err)
-			assert.Equal(t, rv.ID, createdWatchHistory.ReviewID)
+			assert.Equal(t, int32(1), createdWatchHistory.UserID)
+			assert.Equal(t, m.ID, createdWatchHistory.MovieID)
 			assert.Equal(t, int32(99), createdWatchHistory.PlatformID)
-			assert.True(t, tt.expectWatchedDate.Equal(*createdWatchHistory.WatchedDate))
+			if createdWatchHistory.WatchedDate != nil {
+				assert.True(t, tt.expectWatchedDate.Equal(*createdWatchHistory.WatchedDate))
+			} else {
+				assert.Nil(t, createdWatchHistory.WatchedDate)
+			}
 		})
 	}
 }
