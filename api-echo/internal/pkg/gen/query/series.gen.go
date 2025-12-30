@@ -31,6 +31,7 @@ func newSeries(db *gorm.DB, opts ...gen.DOOption) series {
 	_series.Name = field.NewString(tableName, "name")
 	_series.PosterURL = field.NewString(tableName, "poster_url")
 	_series.CreatedAt = field.NewTime(tableName, "created_at")
+	_series.UpdatedAt = field.NewTime(tableName, "updated_at")
 
 	_series.fillFieldMap()
 
@@ -45,6 +46,7 @@ type series struct {
 	Name      field.String
 	PosterURL field.String
 	CreatedAt field.Time
+	UpdatedAt field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -65,6 +67,7 @@ func (s *series) updateTableName(table string) *series {
 	s.Name = field.NewString(table, "name")
 	s.PosterURL = field.NewString(table, "poster_url")
 	s.CreatedAt = field.NewTime(table, "created_at")
+	s.UpdatedAt = field.NewTime(table, "updated_at")
 
 	s.fillFieldMap()
 
@@ -81,11 +84,12 @@ func (s *series) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *series) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 4)
+	s.fieldMap = make(map[string]field.Expr, 5)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["poster_url"] = s.PosterURL
 	s.fieldMap["created_at"] = s.CreatedAt
+	s.fieldMap["updated_at"] = s.UpdatedAt
 }
 
 func (s series) clone(db *gorm.DB) series {

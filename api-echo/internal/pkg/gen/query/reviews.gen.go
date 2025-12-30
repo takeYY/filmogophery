@@ -34,6 +34,35 @@ func newReviews(db *gorm.DB, opts ...gen.DOOption) reviews {
 	_reviews.Comment = field.NewString(tableName, "comment")
 	_reviews.CreatedAt = field.NewTime(tableName, "created_at")
 	_reviews.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_reviews.User = reviewsHasOneUser{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("User", "model.Users"),
+	}
+
+	_reviews.Movie = reviewsHasOneMovie{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Movie", "model.Movies"),
+		Genres: struct {
+			field.RelationField
+			Movies struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Movie.Genres", "model.Genres"),
+			Movies: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Movie.Genres.Movies", "model.Movies"),
+			},
+		},
+		Series: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Movie.Series", "model.Series"),
+		},
+	}
 
 	_reviews.fillFieldMap()
 
@@ -51,6 +80,9 @@ type reviews struct {
 	Comment   field.String
 	CreatedAt field.Time
 	UpdatedAt field.Time
+	User      reviewsHasOneUser
+
+	Movie reviewsHasOneMovie
 
 	fieldMap map[string]field.Expr
 }
@@ -90,7 +122,7 @@ func (r *reviews) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (r *reviews) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 7)
+	r.fieldMap = make(map[string]field.Expr, 9)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["user_id"] = r.UserID
 	r.fieldMap["movie_id"] = r.MovieID
@@ -98,6 +130,7 @@ func (r *reviews) fillFieldMap() {
 	r.fieldMap["comment"] = r.Comment
 	r.fieldMap["created_at"] = r.CreatedAt
 	r.fieldMap["updated_at"] = r.UpdatedAt
+
 }
 
 func (r reviews) clone(db *gorm.DB) reviews {
@@ -108,6 +141,158 @@ func (r reviews) clone(db *gorm.DB) reviews {
 func (r reviews) replaceDB(db *gorm.DB) reviews {
 	r.reviewsDo.ReplaceDB(db)
 	return r
+}
+
+type reviewsHasOneUser struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a reviewsHasOneUser) Where(conds ...field.Expr) *reviewsHasOneUser {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a reviewsHasOneUser) WithContext(ctx context.Context) *reviewsHasOneUser {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a reviewsHasOneUser) Session(session *gorm.Session) *reviewsHasOneUser {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a reviewsHasOneUser) Model(m *model.Reviews) *reviewsHasOneUserTx {
+	return &reviewsHasOneUserTx{a.db.Model(m).Association(a.Name())}
+}
+
+type reviewsHasOneUserTx struct{ tx *gorm.Association }
+
+func (a reviewsHasOneUserTx) Find() (result *model.Users, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a reviewsHasOneUserTx) Append(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a reviewsHasOneUserTx) Replace(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a reviewsHasOneUserTx) Delete(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a reviewsHasOneUserTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a reviewsHasOneUserTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type reviewsHasOneMovie struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Genres struct {
+		field.RelationField
+		Movies struct {
+			field.RelationField
+		}
+	}
+	Series struct {
+		field.RelationField
+	}
+}
+
+func (a reviewsHasOneMovie) Where(conds ...field.Expr) *reviewsHasOneMovie {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a reviewsHasOneMovie) WithContext(ctx context.Context) *reviewsHasOneMovie {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a reviewsHasOneMovie) Session(session *gorm.Session) *reviewsHasOneMovie {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a reviewsHasOneMovie) Model(m *model.Reviews) *reviewsHasOneMovieTx {
+	return &reviewsHasOneMovieTx{a.db.Model(m).Association(a.Name())}
+}
+
+type reviewsHasOneMovieTx struct{ tx *gorm.Association }
+
+func (a reviewsHasOneMovieTx) Find() (result *model.Movies, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a reviewsHasOneMovieTx) Append(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a reviewsHasOneMovieTx) Replace(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a reviewsHasOneMovieTx) Delete(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a reviewsHasOneMovieTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a reviewsHasOneMovieTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type reviewsDo struct{ gen.DO }

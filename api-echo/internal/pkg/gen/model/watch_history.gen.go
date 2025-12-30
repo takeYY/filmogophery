@@ -13,9 +13,13 @@ const TableNameWatchHistory = "watch_history"
 // WatchHistory mapped from table <watch_history>
 type WatchHistory struct {
 	ID          int32      `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	ReviewID    int32      `gorm:"column:review_id;not null" json:"review_id"`
+	UserID      int32      `gorm:"column:user_id;not null" json:"user_id"`
+	MovieID     int32      `gorm:"column:movie_id;not null" json:"movie_id"`
 	PlatformID  int32      `gorm:"column:platform_id;not null" json:"platform_id"`
-	WatchedDate *time.Time `gorm:"column:watched_date;not null;default:1895-12-28" json:"watched_date"`
+	WatchedDate *time.Time `gorm:"column:watched_date" json:"watched_date"`
+	CreatedAt   *time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	User        Users      `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Movie       Movies     `gorm:"foreignKey:MovieID;references:ID" json:"movie"`
 	Platform    Platforms  `gorm:"foreignKey:PlatformID;references:ID" json:"platform"`
 }
 

@@ -19,6 +19,8 @@ type Reviews struct {
 	Comment   *string    `gorm:"column:comment" json:"comment"`
 	CreatedAt *time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt *time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	User      Users      `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Movie     Movies     `gorm:"foreignKey:MovieID;references:ID" json:"movie"`
 }
 
 // TableName Reviews's table name

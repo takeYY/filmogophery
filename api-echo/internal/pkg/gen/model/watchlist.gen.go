@@ -12,13 +12,14 @@ const TableNameWatchlist = "watchlist"
 
 // Watchlist mapped from table <watchlist>
 type Watchlist struct {
-	ID       int32      `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	UserID   int32      `gorm:"column:user_id;not null" json:"user_id"`
-	MovieID  int32      `gorm:"column:movie_id;not null" json:"movie_id"`
-	Priority *int32     `gorm:"column:priority;default:1" json:"priority"`
-	AddedAt  *time.Time `gorm:"column:added_at;default:CURRENT_TIMESTAMP" json:"added_at"`
-	User     Users      `gorm:"foreignKey:UserID;references:ID" json:"user"`
-	Movie    Movies     `gorm:"foreignKey:MovieID;references:ID" json:"movie"`
+	ID        int32      `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	UserID    int32      `gorm:"column:user_id;not null" json:"user_id"`
+	MovieID   int32      `gorm:"column:movie_id;not null" json:"movie_id"`
+	Priority  *int32     `gorm:"column:priority;default:1;comment:1が優先度高" json:"priority"` // 1が優先度高
+	AddedAt   *time.Time `gorm:"column:added_at;default:CURRENT_TIMESTAMP" json:"added_at"`
+	UpdatedAt *time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	User      Users      `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Movie     Movies     `gorm:"foreignKey:MovieID;references:ID" json:"movie"`
 }
 
 // TableName Watchlist's table name

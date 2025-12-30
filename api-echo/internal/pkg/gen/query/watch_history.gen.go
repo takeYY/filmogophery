@@ -28,9 +28,41 @@ func newWatchHistory(db *gorm.DB, opts ...gen.DOOption) watchHistory {
 	tableName := _watchHistory.watchHistoryDo.TableName()
 	_watchHistory.ALL = field.NewAsterisk(tableName)
 	_watchHistory.ID = field.NewInt32(tableName, "id")
-	_watchHistory.ReviewID = field.NewInt32(tableName, "review_id")
+	_watchHistory.UserID = field.NewInt32(tableName, "user_id")
+	_watchHistory.MovieID = field.NewInt32(tableName, "movie_id")
 	_watchHistory.PlatformID = field.NewInt32(tableName, "platform_id")
 	_watchHistory.WatchedDate = field.NewTime(tableName, "watched_date")
+	_watchHistory.CreatedAt = field.NewTime(tableName, "created_at")
+	_watchHistory.User = watchHistoryHasOneUser{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("User", "model.Users"),
+	}
+
+	_watchHistory.Movie = watchHistoryHasOneMovie{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Movie", "model.Movies"),
+		Genres: struct {
+			field.RelationField
+			Movies struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Movie.Genres", "model.Genres"),
+			Movies: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Movie.Genres.Movies", "model.Movies"),
+			},
+		},
+		Series: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Movie.Series", "model.Series"),
+		},
+	}
+
 	_watchHistory.Platform = watchHistoryHasOnePlatform{
 		db: db.Session(&gorm.Session{}),
 
@@ -47,10 +79,16 @@ type watchHistory struct {
 
 	ALL         field.Asterisk
 	ID          field.Int32
-	ReviewID    field.Int32
+	UserID      field.Int32
+	MovieID     field.Int32
 	PlatformID  field.Int32
 	WatchedDate field.Time
-	Platform    watchHistoryHasOnePlatform
+	CreatedAt   field.Time
+	User        watchHistoryHasOneUser
+
+	Movie watchHistoryHasOneMovie
+
+	Platform watchHistoryHasOnePlatform
 
 	fieldMap map[string]field.Expr
 }
@@ -68,9 +106,11 @@ func (w watchHistory) As(alias string) *watchHistory {
 func (w *watchHistory) updateTableName(table string) *watchHistory {
 	w.ALL = field.NewAsterisk(table)
 	w.ID = field.NewInt32(table, "id")
-	w.ReviewID = field.NewInt32(table, "review_id")
+	w.UserID = field.NewInt32(table, "user_id")
+	w.MovieID = field.NewInt32(table, "movie_id")
 	w.PlatformID = field.NewInt32(table, "platform_id")
 	w.WatchedDate = field.NewTime(table, "watched_date")
+	w.CreatedAt = field.NewTime(table, "created_at")
 
 	w.fillFieldMap()
 
@@ -87,11 +127,13 @@ func (w *watchHistory) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (w *watchHistory) fillFieldMap() {
-	w.fieldMap = make(map[string]field.Expr, 5)
+	w.fieldMap = make(map[string]field.Expr, 9)
 	w.fieldMap["id"] = w.ID
-	w.fieldMap["review_id"] = w.ReviewID
+	w.fieldMap["user_id"] = w.UserID
+	w.fieldMap["movie_id"] = w.MovieID
 	w.fieldMap["platform_id"] = w.PlatformID
 	w.fieldMap["watched_date"] = w.WatchedDate
+	w.fieldMap["created_at"] = w.CreatedAt
 
 }
 
@@ -103,6 +145,158 @@ func (w watchHistory) clone(db *gorm.DB) watchHistory {
 func (w watchHistory) replaceDB(db *gorm.DB) watchHistory {
 	w.watchHistoryDo.ReplaceDB(db)
 	return w
+}
+
+type watchHistoryHasOneUser struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a watchHistoryHasOneUser) Where(conds ...field.Expr) *watchHistoryHasOneUser {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a watchHistoryHasOneUser) WithContext(ctx context.Context) *watchHistoryHasOneUser {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a watchHistoryHasOneUser) Session(session *gorm.Session) *watchHistoryHasOneUser {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a watchHistoryHasOneUser) Model(m *model.WatchHistory) *watchHistoryHasOneUserTx {
+	return &watchHistoryHasOneUserTx{a.db.Model(m).Association(a.Name())}
+}
+
+type watchHistoryHasOneUserTx struct{ tx *gorm.Association }
+
+func (a watchHistoryHasOneUserTx) Find() (result *model.Users, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a watchHistoryHasOneUserTx) Append(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a watchHistoryHasOneUserTx) Replace(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a watchHistoryHasOneUserTx) Delete(values ...*model.Users) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a watchHistoryHasOneUserTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a watchHistoryHasOneUserTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type watchHistoryHasOneMovie struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Genres struct {
+		field.RelationField
+		Movies struct {
+			field.RelationField
+		}
+	}
+	Series struct {
+		field.RelationField
+	}
+}
+
+func (a watchHistoryHasOneMovie) Where(conds ...field.Expr) *watchHistoryHasOneMovie {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a watchHistoryHasOneMovie) WithContext(ctx context.Context) *watchHistoryHasOneMovie {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a watchHistoryHasOneMovie) Session(session *gorm.Session) *watchHistoryHasOneMovie {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a watchHistoryHasOneMovie) Model(m *model.WatchHistory) *watchHistoryHasOneMovieTx {
+	return &watchHistoryHasOneMovieTx{a.db.Model(m).Association(a.Name())}
+}
+
+type watchHistoryHasOneMovieTx struct{ tx *gorm.Association }
+
+func (a watchHistoryHasOneMovieTx) Find() (result *model.Movies, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a watchHistoryHasOneMovieTx) Append(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a watchHistoryHasOneMovieTx) Replace(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a watchHistoryHasOneMovieTx) Delete(values ...*model.Movies) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a watchHistoryHasOneMovieTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a watchHistoryHasOneMovieTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type watchHistoryHasOnePlatform struct {
