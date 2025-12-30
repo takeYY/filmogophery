@@ -31,6 +31,7 @@ func main() {
 		}))
 	series := g.GenerateModel("series")
 	platforms := g.GenerateModel("platforms")
+
 	movies := g.GenerateModel("movies",
 		gen.FieldRelate(field.Many2Many, "Genres", genres, &field.RelateConfig{
 			RelateSlicePointer: true,
@@ -52,7 +53,17 @@ func main() {
 			},
 		}),
 	)
+
 	users := g.GenerateModel("users")
+	refreshTokens := g.GenerateModel("refresh_tokens",
+		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"UserID"},
+				"references": []string{"ID"},
+			},
+		}),
+	)
+
 	movieGenres := g.GenerateModel("movie_genres")
 	watchlist := g.GenerateModel("watchlist",
 		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
@@ -68,8 +79,33 @@ func main() {
 			},
 		}),
 	)
-	reviews := g.GenerateModel("reviews")
+	reviews := g.GenerateModel("reviews",
+		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"UserID"},
+				"references": []string{"ID"},
+			},
+		}),
+		gen.FieldRelate(field.HasOne, "Movie", movies, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"MovieID"},
+				"references": []string{"ID"},
+			},
+		}),
+	)
 	watchHistory := g.GenerateModel("watch_history",
+		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"UserID"},
+				"references": []string{"ID"},
+			},
+		}),
+		gen.FieldRelate(field.HasOne, "Movie", movies, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"MovieID"},
+				"references": []string{"ID"},
+			},
+		}),
 		gen.FieldRelate(field.HasOne, "Platform", platforms, &field.RelateConfig{
 			GORMTag: field.GormTag{
 				"foreignKey": []string{"PlatformID"},
@@ -82,6 +118,7 @@ func main() {
 		genres,
 		movies,
 		users,
+		refreshTokens,
 		series,
 		movieGenres,
 		platforms,
