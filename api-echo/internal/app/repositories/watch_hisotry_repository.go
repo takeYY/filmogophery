@@ -19,8 +19,8 @@ type (
 
 		// --- Read --- //
 
-		// レビューIDに一致する視聴履歴を取得
-		FindByReviewID(ctx context.Context, reviewID int32) ([]*model.WatchHistory, error)
+		// 映画IDに一致する視聴履歴を取得
+		FindByMovieID(ctx context.Context, operator *model.Users, movie *model.Movies) ([]*model.WatchHistory, error)
 	}
 	watchHistoryRepository struct {
 		ReaderDB *gorm.DB
@@ -45,14 +45,17 @@ func (r *watchHistoryRepository) Save(ctx context.Context, tx *gorm.DB, watchHis
 	return wh.WithContext(ctx).Create(watchHistory)
 }
 
-// レビューIDに一致する視聴履歴を取得
-func (r *watchHistoryRepository) FindByReviewID(
-	ctx context.Context, reviewID int32,
+// 映画IDに一致する視聴履歴を取得
+func (r *watchHistoryRepository) FindByMovieID(
+	ctx context.Context, operator *model.Users, movie *model.Movies,
 ) ([]*model.WatchHistory, error) {
 	wh := query.Use(r.ReaderDB).WatchHistory
 
 	return wh.WithContext(ctx).
 		Preload(wh.Platform).
-		Where(wh.ReviewID.Eq(reviewID)).
+		Where(
+			wh.UserID.Eq(operator.ID),
+			wh.MovieID.Eq(movie.ID),
+		).
 		Find()
 }
