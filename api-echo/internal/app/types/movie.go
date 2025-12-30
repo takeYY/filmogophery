@@ -1,6 +1,8 @@
 package types
 
-import "filmogophery/internal/pkg/constant"
+import (
+	"filmogophery/internal/pkg/constant"
+)
 
 type (
 	Movie struct {

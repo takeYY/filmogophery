@@ -32,6 +32,7 @@ func newWatchlist(db *gorm.DB, opts ...gen.DOOption) watchlist {
 	_watchlist.MovieID = field.NewInt32(tableName, "movie_id")
 	_watchlist.Priority = field.NewInt32(tableName, "priority")
 	_watchlist.AddedAt = field.NewTime(tableName, "added_at")
+	_watchlist.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_watchlist.User = watchlistHasOneUser{
 		db: db.Session(&gorm.Session{}),
 
@@ -70,13 +71,14 @@ func newWatchlist(db *gorm.DB, opts ...gen.DOOption) watchlist {
 type watchlist struct {
 	watchlistDo
 
-	ALL      field.Asterisk
-	ID       field.Int32
-	UserID   field.Int32
-	MovieID  field.Int32
-	Priority field.Int32
-	AddedAt  field.Time
-	User     watchlistHasOneUser
+	ALL       field.Asterisk
+	ID        field.Int32
+	UserID    field.Int32
+	MovieID   field.Int32
+	Priority  field.Int32 // 1が優先度高
+	AddedAt   field.Time
+	UpdatedAt field.Time
+	User      watchlistHasOneUser
 
 	Movie watchlistHasOneMovie
 
@@ -100,6 +102,7 @@ func (w *watchlist) updateTableName(table string) *watchlist {
 	w.MovieID = field.NewInt32(table, "movie_id")
 	w.Priority = field.NewInt32(table, "priority")
 	w.AddedAt = field.NewTime(table, "added_at")
+	w.UpdatedAt = field.NewTime(table, "updated_at")
 
 	w.fillFieldMap()
 
@@ -116,12 +119,13 @@ func (w *watchlist) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (w *watchlist) fillFieldMap() {
-	w.fieldMap = make(map[string]field.Expr, 7)
+	w.fieldMap = make(map[string]field.Expr, 8)
 	w.fieldMap["id"] = w.ID
 	w.fieldMap["user_id"] = w.UserID
 	w.fieldMap["movie_id"] = w.MovieID
 	w.fieldMap["priority"] = w.Priority
 	w.fieldMap["added_at"] = w.AddedAt
+	w.fieldMap["updated_at"] = w.UpdatedAt
 
 }
 

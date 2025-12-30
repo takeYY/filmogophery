@@ -13,14 +13,15 @@ const TableNameMovies = "movies"
 // Movies mapped from table <movies>
 type Movies struct {
 	ID             int32      `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	TmdbID         int32      `gorm:"column:tmdb_id;not null" json:"tmdb_id"`
 	Title          string     `gorm:"column:title;not null" json:"title"`
 	Overview       string     `gorm:"column:overview;not null" json:"overview"`
 	ReleaseDate    time.Time  `gorm:"column:release_date;not null" json:"release_date"`
 	RuntimeMinutes int32      `gorm:"column:runtime_minutes;not null" json:"runtime_minutes"`
 	PosterURL      *string    `gorm:"column:poster_url" json:"poster_url"`
 	SeriesID       *int32     `gorm:"column:series_id" json:"series_id"`
-	TmdbID         int32      `gorm:"column:tmdb_id;not null" json:"tmdb_id"`
 	CreatedAt      *time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt      *time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	Genres         []*Genres  `gorm:"foreignKey:ID;joinForeignKey:movie_id;joinReferences:genre_id;many2many:movie_genres;references:ID" json:"genres"`
 	Series         *Series    `gorm:"default:null;constraint:OnDelete:SET NULL;foreignKey:SeriesID;references:ID" json:"series"`
 }

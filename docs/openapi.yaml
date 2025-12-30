@@ -2,11 +2,12 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.5.0v2025.12.16
+  version: 0.6.0v2025.12.30
+  license:
+    name: None
+    url: None
 
 servers:
-  - url: http://127.0.0.1:8000/v0
-    description: ローカル環境（モックデータ）
   - url: http://127.0.0.1:8000/v1
     description: ローカル環境
 
@@ -15,12 +16,16 @@ tags:
     description: ヘルスチェック
   - name: User
     description: ユーザー
+  - name: Auth
+    description: 認証・認可
   - name: Movie
     description: 映画
   - name: Trending
     description: トレンド
   - name: Review
     description: レビュー
+  - name: WatchHistory
+    description: 視聴履歴
   - name: Watchlist
     description: ウォッチリスト
   - name: Search
@@ -28,21 +33,30 @@ tags:
   - name: Master
     description: マスタデータ
 
+security:
+  - TOKEN_HEADER: []
+
 paths:
   /health:
     get:
       tags: [Health]
       summary: ヘルスチェック
       operationId: health
+      security: []
       responses:
         200:
           description: 成功
+        408:
+          description: タイムアウト
+        500:
+          description: システムエラー
 
   /users:
     post:
       tags: [User]
       summary: ユーザー登録
       operationId: createUser
+      security: []
       requestBody:
         content:
           application/json:
@@ -51,6 +65,81 @@ paths:
       responses:
         201:
           description: 成功
+        409:
+          description: 競合
+
+  /users/me:
+    get:
+      tags: [User]
+      summary: マイユーザー取得
+      operationId: getMyUser
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        401:
+          description: 未認証
+        404:
+          description: ユーザーなし
+
+  /users/{userId}:
+    get:
+      tags: [User]
+      summary: ユーザー取得
+      operationId: getUser
+      parameters:
+        - required: true
+          in: path
+          name: userId
+          description: ユーザーID
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        404:
+          description: ユーザーなし
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: ログイン
+      operationId: login
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        404:
+          description: ユーザーなし
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: ログアウト
+      operationId: logout
+      responses:
+        204:
+          description: 成功
+        401:
+          description: 未認証
 
   /movies:
     get:
@@ -82,8 +171,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Movie"
+        401:
+          description: 未認証
+        400:
+          description: バッドリクエスト
 
-  /movies/{id}:
+  /movies/{movieId}:
     get:
       tags: [Movie]
       summary: 映画詳細
@@ -91,7 +184,8 @@ paths:
       parameters:
         - required: true
           in: path
-          name: id
+          name: movieId
+          description: 映画ID
           schema:
             type: integer
       responses:
@@ -101,6 +195,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MovieDetail"
+        401:
+          description: 未認証
         404:
           description: 映画が見つからない
 
@@ -115,11 +211,45 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TrendingMovies"
-        404:
-          description: 映画が見つからない
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrendingMovies"
+        401:
+          description: 未認証
+        400:
+          description: バッドリクエスト
 
-  /movies/{id}/reviews:
+  /users/me/reviews:
+    get:
+      tags: [Review]
+      summary: マイレビュー一覧
+      operationId: getMyReviews
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 12
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MyReview"
+        400:
+          description: バッドリクエスト
+        401:
+          description: 未認証
+
+  /movies/{movieId}/reviews:
     post:
       tags: [Review]
       summary: レビュー登録
@@ -127,7 +257,8 @@ paths:
       parameters:
         - required: true
           in: path
-          name: id
+          name: movieId
+          description: 映画ID
           schema:
             type: integer
       requestBody:
@@ -138,10 +269,14 @@ paths:
       responses:
         201:
           description: 成功
+        401:
+          description: 未認証
         404:
           description: 映画が見つからない
+        409:
+          description: 既にレビューが存在する
 
-  /reviews/{id}:
+  /reviews/{reviewId}:
     put:
       tags: [Review]
       summary: レビュー更新
@@ -149,7 +284,8 @@ paths:
       parameters:
         - required: true
           in: path
-          name: id
+          name: reviewId
+          description: レビューID
           schema:
             type: integer
       requestBody:
@@ -160,18 +296,51 @@ paths:
       responses:
         204:
           description: 成功
+        401:
+          description: 未認証
         404:
           description: レビューが見つからない
 
-  /reviews/{id}/history:
+  /users/me/watch-history:
     get:
-      tags: [Review]
+      tags: [WatchHistory]
       summary: 視聴履歴一覧
       operationId: getWatchHistory
       parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 12
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MyWatchHistory"
+        401:
+          description: 未認証
+        400:
+          description: バッドリクエスト
+
+  /movies/{movieId}/watch-history:
+    get:
+      tags: [WatchHistory]
+      summary: 映画の視聴履歴一覧
+      operationId: getMovieWatchHistory
+      parameters:
         - required: true
           in: path
-          name: id
+          name: movieId
+          description: 映画ID
           schema:
             type: integer
       responses:
@@ -183,15 +352,19 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/WatchHistory"
+        401:
+          description: 未認証
+        404:
+          description: 映画が見つからない
 
     post:
-      tags: [Review]
-      summary: 視聴履歴追加
-      operationId: addWatchHistory
+      tags: [WatchHistory]
+      summary: 映画の視聴履歴追加
+      operationId: createMovieWatchHistory
       parameters:
         - required: true
           in: path
-          name: id
+          name: movieId
           schema:
             type: integer
       requestBody:
@@ -202,6 +375,10 @@ paths:
       responses:
         201:
           description: 成功
+        401:
+          description: 未認証
+        404:
+          description: 映画が見つからない
 
   /watchlist:
     get:
@@ -228,6 +405,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/WatchlistItem"
+        401:
+          description: 未認証
 
     post:
       tags: [Watchlist]
@@ -241,8 +420,10 @@ paths:
       responses:
         201:
           description: 成功
+        401:
+          description: 未認証
 
-  /watchlist/{id}:
+  /watchlist/{watchlistId}:
     put:
       tags: [Watchlist]
       summary: ウォッチリスト更新
@@ -250,7 +431,8 @@ paths:
       parameters:
         - required: true
           in: path
-          name: id
+          name: watchlistId
+          description: ウォッチリストID
           schema:
             type: integer
       requestBody:
@@ -261,6 +443,8 @@ paths:
       responses:
         204:
           description: 成功
+        401:
+          description: 未認証
 
     delete:
       tags: [Watchlist]
@@ -269,12 +453,15 @@ paths:
       parameters:
         - required: true
           in: path
-          name: id
+          name: watchlistId
+          description: ウォッチリストID
           schema:
             type: integer
       responses:
         204:
           description: 成功
+        401:
+          description: 未認証
 
   /search/movies:
     get:
@@ -311,6 +498,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Movie"
+        401:
+          description: 未認証
 
   /genres:
     get:
@@ -326,6 +515,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Genre"
+        401:
+          description: 未認証
 
   /platforms:
     get:
@@ -341,6 +532,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Platform"
+        401:
+          description: 未認証
 
   /series:
     get:
@@ -356,18 +549,66 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Series"
+        401:
+          description: 未認証
 
 components:
   schemas:
     CreateUser:
       type: object
-      required: [username, email]
+      required: [username, email, password]
       properties:
         username:
           type: string
         email:
           type: string
           format: email
+        password:
+          type: string
+          format: password
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ユーザーID
+        username:
+          type: string
+          description: ユーザー名
+
+    Login:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    Token:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: アクセストークン
+        refreshToken:
+          type: string
+          description: リフレッシュトークン
+        tokenType:
+          type: string
+          description: トークン種別
+          example: Bearer
+        expiresIn:
+          type: integer
+          description: トークンの有効時間(sec)
+          example: 3600
+        expiresAt:
+          type: string
+          description: トークンの有効期限
+          format: date-time
 
     Movie:
       title: Movie
@@ -490,6 +731,28 @@ components:
           type: string
           format: date-time
 
+    MyReview:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: レビューID
+        rating:
+          description: 評価
+          type: number
+          format: float
+        comment:
+          description: 感想
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        movie:
+          $ref: "#/components/schemas/Movie"
+
     CreateReview:
       type: object
       properties:
@@ -497,6 +760,8 @@ components:
           description: 評価
           type: number
           format: float
+          minimum: 0.1
+          maximum: 5.0
         comment:
           description: 鑑賞記録
           type: string
@@ -533,6 +798,19 @@ components:
           type: string
           format: date
 
+    MyWatchHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+        platform:
+          $ref: "#/components/schemas/Platform"
+        watchedAt:
+          type: string
+          format: date-time
+        movie:
+          $ref: "#/components/schemas/Movie"
+
     WatchlistItem:
       type: object
       properties:
@@ -561,3 +839,10 @@ components:
       properties:
         priority:
           type: integer
+
+  securitySchemes:
+    TOKEN_HEADER:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: アクセストークン

@@ -23,8 +23,9 @@ func RegisterV1Routes() fx.Option {
 			// --- Health --- //
 			asV1Route(healthHandler.NewCheckHealthHandler), // check health
 			// --- Movie --- //
-			asV1Route(movieHandler.NewGetMovieDetailHandler), // get movie detail
-			asV1Route(movieHandler.NewGetMoviesHandler),      // get movies
+			asV1Route(movieHandler.NewGetMovieDetailHandler),       // get movie detail
+			asV1Route(movieHandler.NewGetMoviesHandler),            // get movies
+			asV1Route(movieHandler.NewGetMovieWatchHistoryHandler), // get movie watch history
 			// --- Review --- //
 			asV1Route(reviewHandler.NewPostReviewHandler),        // create review
 			asV1Route(reviewHandler.NewPutReviewHandler),         // update review

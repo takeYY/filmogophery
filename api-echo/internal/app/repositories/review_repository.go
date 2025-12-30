@@ -58,6 +58,7 @@ func (r *reviewRepository) FindByID(ctx context.Context, userID int32, id int32)
 	rv := query.Use(r.ReaderDB).Reviews
 
 	result, err := rv.WithContext(ctx).
+		Preload(rv.Movie).
 		Where(
 			rv.ID.Eq(id),
 			rv.UserID.Eq(userID),

@@ -16,6 +16,7 @@ type Series struct {
 	Name      string     `gorm:"column:name;not null" json:"name"`
 	PosterURL *string    `gorm:"column:poster_url" json:"poster_url"`
 	CreatedAt *time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt *time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 // TableName Series's table name

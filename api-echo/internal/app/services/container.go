@@ -15,6 +15,7 @@ type (
 		MovieService() IMovieService
 		PlatformService() IPlatformService
 		ReviewService() IReviewService
+		WatchHistoryService() IWatchHistoryService
 		TmdbService() ITmdbService
 		RedisService() IRedisService
 	}
@@ -58,6 +59,12 @@ func (c *serviceContainer) PlatformService() IPlatformService {
 func (c *serviceContainer) ReviewService() IReviewService {
 	return NewReviewService(
 		repositories.NewReviewRepository(c.db),
+		repositories.NewWatchHistoryRepository(c.db),
+	)
+}
+
+func (c *serviceContainer) WatchHistoryService() IWatchHistoryService {
+	return NewWatchHistoryService(
 		repositories.NewWatchHistoryRepository(c.db),
 	)
 }

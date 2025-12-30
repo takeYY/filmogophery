@@ -102,7 +102,8 @@ func (s *reviewService) CreateWatchHistory(
 	}
 
 	watchHistory := &model.WatchHistory{
-		ReviewID:    review.ID,
+		UserID:      1, // TODO: 後でテナント分離する
+		MovieID:     review.MovieID,
 		PlatformID:  platform.ID,
 		WatchedDate: parsedWatchedDate,
 	}
@@ -156,7 +157,7 @@ func (s *reviewService) GetReviewByMovieID(ctx context.Context, userID int32, mo
 func (s *reviewService) GetWatchHistoryByReviewID(ctx context.Context, review *model.Reviews) ([]*model.WatchHistory, error) {
 	logger := logger.GetLogger()
 
-	watchHistories, err := s.watchHistoryRepo.FindByReviewID(ctx, review.ID)
+	watchHistories, err := s.watchHistoryRepo.FindByMovieID(ctx, &model.Users{ID: 1}, &review.Movie) // TODO: 後でテナント分離する
 	if err != nil {
 		logger.Error().Msgf("failed to get a watch history(reviewID=%d): %s", review.ID, err.Error())
 		return nil, responses.InternalServerError()
