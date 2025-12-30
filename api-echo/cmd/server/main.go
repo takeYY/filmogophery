@@ -41,6 +41,7 @@ func main() {
 			services.NewTmdbService,
 			services.NewRedisService,
 			services.NewWatchlistService,
+			services.NewWatchHistoryService,
 		),
 		fx.Provide(
 			services.NewServiceContainer,
