@@ -1,3 +1,5 @@
+// TODO: /movies/{movieId}/watch-history に変更するため、いずれ消す
+
 package handlers
 
 import (
