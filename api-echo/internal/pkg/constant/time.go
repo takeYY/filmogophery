@@ -8,7 +8,8 @@ const (
 )
 
 type (
-	Date string
+	Date     string
+	Datetime string // UTC datetime like '2006-01-02T15:04:05Z'
 )
 
 func GetDefaultDate() time.Time {
@@ -22,4 +23,8 @@ func ToDate(t time.Time) Date {
 
 func ToTime(date string) (time.Time, error) {
 	return time.Parse(DateFormat, date)
+}
+
+func ToUTC(t time.Time) Datetime {
+	return Datetime(t.In(time.UTC).Format(time.RFC3339))
 }

@@ -44,6 +44,13 @@ func NotFoundError(resource string, errors map[string][]string) error {
 	})
 }
 
+func ConflictError(resource string, errors map[string][]string) error {
+	return echo.NewHTTPError(http.StatusConflict, ErrorResponse{
+		Message: resource + "is already exist",
+		Errors:  errors,
+	})
+}
+
 func InternalServerError() error {
 	return echo.NewHTTPError(http.StatusInternalServerError, ErrorResponse{
 		Message: "system error",

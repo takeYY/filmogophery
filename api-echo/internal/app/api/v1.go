@@ -11,6 +11,7 @@ import (
 	reviewHandler "filmogophery/internal/app/features/review/handlers"
 	searchHandler "filmogophery/internal/app/features/search/handlers"
 	trendingHandler "filmogophery/internal/app/features/trending/handlers"
+	userHandler "filmogophery/internal/app/features/user/handlers"
 	watchlistHandler "filmogophery/internal/app/features/watchlist/handlers"
 	"filmogophery/internal/app/routers"
 )
@@ -22,6 +23,8 @@ func RegisterV1Routes() fx.Option {
 			fx.Private,
 			// --- Health --- //
 			asV1Route(healthHandler.NewCheckHealthHandler), // check health
+			// --- User --- //
+			asV1Route(userHandler.NewCreateUserHandler), // create user
 			// --- Movie --- //
 			asV1Route(movieHandler.NewGetMovieDetailHandler),       // get movie detail
 			asV1Route(movieHandler.NewGetMoviesHandler),            // get movies

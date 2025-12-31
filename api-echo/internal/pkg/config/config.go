@@ -27,6 +27,9 @@ type (
 	Tmdb struct {
 		ACCESS_TOKEN string
 	}
+	Token struct {
+		JWT_SECRET string
+	}
 
 	Config struct {
 		Server         server
@@ -35,6 +38,7 @@ type (
 		WriterDatabase Database
 		Redis          Redis
 		Tmdb           Tmdb
+		Token          Token
 	}
 )
 
@@ -78,6 +82,9 @@ func LoadConfig() *Config {
 		},
 		Tmdb: Tmdb{
 			ACCESS_TOKEN: os.Getenv("TMDB_ACCESS_TOKEN"),
+		},
+		Token: Token{
+			JWT_SECRET: os.Getenv("JWT_SECRET"),
 		},
 	}
 

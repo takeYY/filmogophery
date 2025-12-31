@@ -92,7 +92,7 @@ func TestPostReviewHandler_handle__Error(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(id)
 
-			svc := services.NewServiceContainer(tx, conf, nil)
+			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHandler{
 				interactor: review.NewCreateReviewInteractor(
 					svc.MovieService(),
@@ -173,7 +173,7 @@ func TestPostReviewHandler_handle(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(id)
 
-			svc := services.NewServiceContainer(tx, conf, nil)
+			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHandler{
 				interactor: review.NewCreateReviewInteractor(
 					svc.MovieService(),
