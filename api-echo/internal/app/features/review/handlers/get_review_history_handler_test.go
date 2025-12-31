@@ -37,7 +37,7 @@ func TestGetWatchHistoryHandler_handle__Error(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(id)
 
-	svc := services.NewServiceContainer(tx, conf, nil)
+	svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 	handler := &getReviewHistoryHandler{
 		interactor: review.NewGetReviewHistoryInteractor(
 			svc.ReviewService(),
@@ -141,7 +141,7 @@ func TestGetWatchHistoryHandler_handle(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(reviewID)
 
-			svc := services.NewServiceContainer(tx, conf, nil)
+			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &getReviewHistoryHandler{
 				interactor: review.NewGetReviewHistoryInteractor(
 					svc.ReviewService(),

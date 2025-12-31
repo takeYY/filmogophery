@@ -18,7 +18,7 @@ func TestGetGenresHandler_handle(t *testing.T) {
 	// Arrange
 	testDB := tests.SetupTestDB()
 	conf := config.LoadConfig()
-	svc := services.NewServiceContainer(testDB, conf, nil)
+	svc := services.NewServiceContainer(testDB, conf, nil, nil, nil)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/genres", nil)

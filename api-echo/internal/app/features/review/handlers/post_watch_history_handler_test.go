@@ -126,7 +126,7 @@ func TestPostReviewHistoryHandler_handle__Error(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(reviewID)
 
-			svc := services.NewServiceContainer(tx, conf, nil)
+			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHistoryHandler{
 				interactor: review.NewCreateReviewHistoryInteractor(
 					svc.ReviewService(),
@@ -203,7 +203,7 @@ func TestPostReviewHistoryHandler_handle(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(reviewID)
 
-			svc := services.NewServiceContainer(tx, conf, nil)
+			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHistoryHandler{
 				interactor: review.NewCreateReviewHistoryInteractor(
 					svc.ReviewService(),

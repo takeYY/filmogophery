@@ -32,7 +32,7 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 
 	// サービス作成（トランザクション使用）
 	now := time.Date(2025, 10, 13, 10, 20, 30, 456789, time.Local)
-	svc := services.NewServiceContainer(tx, conf, nil)
+	svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 
 	m1 := tests.CreateMovies(t, tx, &model.Movies{ // ポスターとジャンルなし
 		ID:             1,
