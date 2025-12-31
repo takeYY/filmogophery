@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.6.0v2025.12.30
+  version: 0.7.0v2025.12.31
   license:
     name: None
     url: None
@@ -65,6 +65,12 @@ paths:
       responses:
         201:
           description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        400:
+          description: バッドリクエスト
         409:
           description: 競合
 
