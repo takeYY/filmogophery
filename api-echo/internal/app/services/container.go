@@ -6,6 +6,8 @@ import (
 
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/pkg/config"
+	"filmogophery/internal/pkg/hasher"
+	"filmogophery/internal/pkg/jwt"
 )
 
 type (
@@ -15,21 +17,34 @@ type (
 		MovieService() IMovieService
 		PlatformService() IPlatformService
 		ReviewService() IReviewService
+		UserService() IUserService
 		WatchHistoryService() IWatchHistoryService
 		TmdbService() ITmdbService
 		RedisService() IRedisService
 	}
 
 	serviceContainer struct {
-		db    *gorm.DB
-		conf  *config.Config
-		redis *redis.Client
+		db     *gorm.DB
+		conf   *config.Config
+		hasher *hasher.IPasswordHasher
+		redis  *redis.Client
+		token  *jwt.ITokenGenerator
 	}
 )
 
-func NewServiceContainer(db *gorm.DB, conf *config.Config, redisClient *redis.Client) IServiceContainer {
+func NewServiceContainer(
+	db *gorm.DB,
+	conf *config.Config,
+	hasher *hasher.IPasswordHasher,
+	redisClient *redis.Client,
+	token *jwt.ITokenGenerator,
+) IServiceContainer {
 	return &serviceContainer{
-		db, conf, redisClient,
+		db,
+		conf,
+		hasher,
+		redisClient,
+		token,
 	}
 }
 
@@ -60,6 +75,18 @@ func (c *serviceContainer) ReviewService() IReviewService {
 	return NewReviewService(
 		repositories.NewReviewRepository(c.db),
 		repositories.NewWatchHistoryRepository(c.db),
+	)
+}
+
+func (c *serviceContainer) UserService() IUserService {
+	return NewUserService(
+		c.db,
+		NewAuthService(
+			c.token,
+			repositories.NewTokenRepository(c.db),
+		),
+		c.hasher,
+		repositories.NewUserRepository(c.db),
 	)
 }
 

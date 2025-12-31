@@ -12,6 +12,8 @@ import (
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/pkg/config"
 	"filmogophery/internal/pkg/db"
+	"filmogophery/internal/pkg/hasher"
+	"filmogophery/internal/pkg/jwt"
 	"filmogophery/internal/pkg/logger"
 	"filmogophery/internal/pkg/redis"
 )
@@ -23,6 +25,8 @@ func main() {
 			newLogger,         // ロガー
 			db.ConnectDB,      // DB
 			redis.NewClient,   // redis
+			newJWTToken,       // JWT Token
+			newBcryptHasher,   // Hasher
 		),
 		fx.Provide( // Repositories
 			repositories.NewGenreRepository,
@@ -30,16 +34,20 @@ func main() {
 			repositories.NewPlatformRepository,
 			repositories.NewReviewRepository,
 			repositories.NewTmdbRepository,
+			repositories.NewTokenRepository,
+			repositories.NewUserRepository,
 			repositories.NewWatchHistoryRepository,
 			repositories.NewWatchlistRepository,
 		),
 		fx.Provide( // Services
+			services.NewAuthService,
 			services.NewGenreService,
 			services.NewMovieService,
 			services.NewPlatformService,
 			services.NewReviewService,
 			services.NewTmdbService,
 			services.NewRedisService,
+			services.NewUserService,
 			services.NewWatchlistService,
 			services.NewWatchHistoryService,
 		),
@@ -58,6 +66,16 @@ func main() {
 func newLogger(conf *config.Config) zerolog.Logger {
 	logger.InitializeLogger(&conf.Logger)
 	return logger.GetLogger()
+}
+
+func newJWTToken(conf *config.Config) *jwt.ITokenGenerator {
+	token := jwt.NewTokenGenerator(conf)
+	return &token
+}
+
+func newBcryptHasher() *hasher.IPasswordHasher {
+	hash := hasher.NewBcryptHasher()
+	return &hash
 }
 
 func newEchoServer(conf *config.Config, gormDB *gorm.DB, serviceContainer services.IServiceContainer) *echo.Echo {
