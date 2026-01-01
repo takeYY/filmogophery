@@ -13,6 +13,7 @@ import (
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/validators"
+	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -54,6 +55,7 @@ func (h *getReviewHistoryHandler) handle(c echo.Context) error {
 
 	result, err := h.interactor.Run(
 		c.Request().Context(),
+		c.Get("operator").(*model.Users),
 		req.ID,
 	)
 	if err != nil {

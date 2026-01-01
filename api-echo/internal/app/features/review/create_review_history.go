@@ -5,11 +5,12 @@ import (
 
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/pkg/constant"
+	"filmogophery/internal/pkg/gen/model"
 )
 
 type (
 	CreateReviewHistoryUseCase interface {
-		Run(ctx context.Context, reviewID int32, platformID int32, watchedDate *constant.Date) error
+		Run(ctx context.Context, operator *model.Users, reviewID int32, platformID int32, watchedDate *constant.Date) error
 	}
 
 	createReviewHistoryInteractor struct {
@@ -29,7 +30,7 @@ func NewCreateReviewHistoryInteractor(
 }
 
 func (i *createReviewHistoryInteractor) Run(
-	ctx context.Context, reviewID int32, platformID int32, watchedDate *constant.Date,
+	ctx context.Context, operator *model.Users, reviewID int32, platformID int32, watchedDate *constant.Date,
 ) error {
 	// レビューの存在確認
 	review, err := i.reviewService.GetReviewByID(ctx, 1, reviewID)
@@ -44,5 +45,5 @@ func (i *createReviewHistoryInteractor) Run(
 	}
 
 	// 視聴履歴登録
-	return i.reviewService.CreateWatchHistory(ctx, nil, review, platform, watchedDate)
+	return i.reviewService.CreateWatchHistory(ctx, nil, operator, review, platform, watchedDate)
 }

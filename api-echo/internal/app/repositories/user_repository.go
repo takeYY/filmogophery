@@ -48,12 +48,12 @@ func NewUserRepository(db *gorm.DB) IUserRepository {
 
 // ユーザーを作成
 func (r *userRepository) Save(ctx context.Context, tx *gorm.DB, user *model.Users) error {
-	rv := query.Use(r.WriterDB).Users
+	u := query.Use(r.WriterDB).Users
 	if tx != nil {
-		rv = query.Use(tx).Users
+		u = query.Use(tx).Users
 	}
 
-	return rv.WithContext(ctx).
+	return u.WithContext(ctx).
 		Omit(field.AssociationFields).
 		Create(user)
 }
