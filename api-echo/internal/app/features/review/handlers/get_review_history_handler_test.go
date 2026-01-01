@@ -28,6 +28,8 @@ func TestGetWatchHistoryHandler_handle__Error(t *testing.T) {
 	tx := testDB.Begin()
 	defer tx.Rollback()
 
+	var operator *model.Users
+	tx.First(&operator)
 	id := "404"
 
 	e := echo.New()
@@ -36,6 +38,8 @@ func TestGetWatchHistoryHandler_handle__Error(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
 	c.SetParamValues(id)
+
+	c.Set("operator", operator)
 
 	svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 	handler := &getReviewHistoryHandler{
@@ -65,6 +69,9 @@ func TestGetWatchHistoryHandler_handle(t *testing.T) {
 	conf := config.LoadConfig()
 	tx := testDB.Begin()
 	defer tx.Rollback()
+
+	var operator *model.Users
+	tx.First(&operator)
 
 	// Create movies
 	m1 := tests.CreateMovies(t, tx, &model.Movies{
@@ -140,6 +147,8 @@ func TestGetWatchHistoryHandler_handle(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
 			c.SetParamValues(reviewID)
+
+			c.Set("operator", operator)
 
 			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &getReviewHistoryHandler{

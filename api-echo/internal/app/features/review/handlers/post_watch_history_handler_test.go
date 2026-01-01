@@ -29,6 +29,9 @@ func TestPostReviewHistoryHandler_handle__Error(t *testing.T) {
 	tx := testDB.Begin()
 	defer tx.Rollback()
 
+	var operator *model.Users
+	tx.First(&operator)
+
 	// Create movies
 	m := tests.CreateMovies(t, tx, &model.Movies{
 		ID:             1,
@@ -126,6 +129,8 @@ func TestPostReviewHistoryHandler_handle__Error(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(reviewID)
 
+			c.Set("operator", operator)
+
 			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHistoryHandler{
 				interactor: review.NewCreateReviewHistoryInteractor(
@@ -175,6 +180,9 @@ func TestPostReviewHistoryHandler_handle(t *testing.T) {
 			tx := testDB.Begin()
 			defer tx.Rollback()
 
+			var operator *model.Users
+			tx.First(&operator)
+
 			// Create movies
 			m := tests.CreateMovies(t, tx, &model.Movies{
 				ID:             1,
@@ -202,6 +210,8 @@ func TestPostReviewHistoryHandler_handle(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
 			c.SetParamValues(reviewID)
+
+			c.Set("operator", operator)
 
 			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHistoryHandler{
