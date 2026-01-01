@@ -5,9 +5,18 @@ export async function POST(
   req: Request,
   { params }: { params: { _: string; reviewId: string } }
 ) {
+  const token = req.headers.get("authorization");
   const url = `${APIBaseURL}/reviews/${params.reviewId}/history`;
 
   try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    };
+    if (token) {
+      headers.Authorization = token;
+    }
+
     const requestData = await req.json();
     const processedData = {
       ...requestData,
@@ -17,10 +26,7 @@ export async function POST(
 
     const res = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: headers,
       body: JSON.stringify(processedData),
     });
     console.log(`APIレスポンスステータス: ${res.status}`);
@@ -39,9 +45,18 @@ export async function PUT(
   req: Request,
   { params }: { params: { id: string; reviewId: string } }
 ) {
+  const token = req.headers.get("authorization");
   const url = `${APIBaseURL}/reviews/${params.reviewId}`;
 
   try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    };
+    if (token) {
+      headers.Authorization = token;
+    }
+
     const requestData = await req.json();
     const processedData = {
       ...requestData,
@@ -51,10 +66,7 @@ export async function PUT(
 
     const res = await fetch(url, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: headers,
       body: JSON.stringify(processedData),
     });
     console.log(`APIレスポンスステータス: ${res.status}`);

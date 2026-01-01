@@ -5,9 +5,18 @@ export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
+  const token = req.headers.get("authorization");
   const url = `${APIBaseURL}/movies/${params.id}/reviews`;
 
   try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    };
+    if (token) {
+      headers.Authorization = token;
+    }
+
     const requestData = await req.json();
     const processedData = {
       ...requestData,
@@ -17,10 +26,7 @@ export async function POST(
 
     const res = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: headers,
       body: JSON.stringify(processedData),
     });
     console.log(`APIレスポンスステータス: ${res.status}`);
