@@ -13,6 +13,7 @@ import (
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/validators"
+	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -29,6 +30,10 @@ func NewGetReviewHistoryHandler(svc services.IServiceContainer) routers.IRoute {
 	return &getReviewHistoryHandler{
 		interactor: review.NewGetReviewHistoryInteractor(svc.ReviewService()),
 	}
+}
+
+func (h *getReviewHistoryHandler) RequireAuth() bool {
+	return true
 }
 
 func (h *getReviewHistoryHandler) Register(g *echo.Group) {
@@ -50,6 +55,7 @@ func (h *getReviewHistoryHandler) handle(c echo.Context) error {
 
 	result, err := h.interactor.Run(
 		c.Request().Context(),
+		c.Get("operator").(*model.Users),
 		req.ID,
 	)
 	if err != nil {

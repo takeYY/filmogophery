@@ -18,6 +18,10 @@ func NewCheckHealthHandler() routers.IRoute {
 	return &checkHealthHandler{}
 }
 
+func (h *checkHealthHandler) RequireAuth() bool {
+	return false
+}
+
 func (h *checkHealthHandler) Register(g *echo.Group) {
 	g.GET("/health", h.handle)
 }

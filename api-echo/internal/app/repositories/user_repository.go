@@ -21,6 +21,8 @@ type (
 
 		// --- Read --- //
 
+		// ID に一致するアクティブなユーザーを取得
+		FindByID(ctx context.Context, id int32) (*model.Users, error)
 		// ユーザーを取得
 		FindByEmail(ctx context.Context, email string) (*model.Users, error)
 
@@ -46,14 +48,30 @@ func NewUserRepository(db *gorm.DB) IUserRepository {
 
 // ユーザーを作成
 func (r *userRepository) Save(ctx context.Context, tx *gorm.DB, user *model.Users) error {
-	rv := query.Use(r.WriterDB).Users
+	u := query.Use(r.WriterDB).Users
 	if tx != nil {
-		rv = query.Use(tx).Users
+		u = query.Use(tx).Users
 	}
 
-	return rv.WithContext(ctx).
+	return u.WithContext(ctx).
 		Omit(field.AssociationFields).
 		Create(user)
+}
+
+// ID に一致するアクティブなユーザーを取得
+func (r *userRepository) FindByID(ctx context.Context, id int32) (*model.Users, error) {
+	u := query.Use(r.ReaderDB).Users
+
+	result, err := u.WithContext(ctx).
+		Where(
+			u.ID.Eq(id),
+			u.IsActive.Is(true),
+		).Take()
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	return result, nil
 }
 
 // ユーザーを取得

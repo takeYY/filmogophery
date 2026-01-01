@@ -1,8 +1,10 @@
 @endpoint = http://localhost:8000/v1
+@token = xyz
 
 // --- 異常系 --- //
 
 PUT {{endpoint}}/reviews/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -13,6 +15,7 @@ Content-Type: application/json
 ###
 
 PUT {{endpoint}}/reviews/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -23,6 +26,7 @@ Content-Type: application/json
 ###
 
 PUT {{endpoint}}/reviews/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -33,6 +37,7 @@ Content-Type: application/json
 ###
 
 PUT {{endpoint}}/reviews/404
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -46,6 +51,7 @@ Content-Type: application/json
 // --- 正常系 --- //
 
 PUT {{endpoint}}/reviews/1/reviews
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

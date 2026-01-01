@@ -14,6 +14,7 @@ import (
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/constant"
+	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -37,6 +38,10 @@ func NewPostReviewHistoryHandler(svc services.IServiceContainer) routers.IRoute 
 	}
 }
 
+func (h *postReviewHistoryHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *postReviewHistoryHandler) Register(g *echo.Group) {
 	g.POST("/reviews/:id/history", h.handle)
 }
@@ -57,6 +62,7 @@ func (h *postReviewHistoryHandler) handle(c echo.Context) error {
 
 	err := h.interactor.Run(
 		c.Request().Context(),
+		c.Get("operator").(*model.Users),
 		req.ReviewID,
 		req.PlatformID,
 		req.WatchedDate,

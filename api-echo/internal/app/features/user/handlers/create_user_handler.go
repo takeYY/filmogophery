@@ -33,6 +33,10 @@ func NewCreateUserHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *createUserHandler) RequireAuth() bool {
+	return false
+}
+
 func (h *createUserHandler) Register(g *echo.Group) {
 	g.POST("/users", h.handle)
 }

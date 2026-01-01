@@ -1,20 +1,25 @@
 @endpoint = http://localhost:8000/v1/movies
+@token = xyz
 
 
 GET {{endpoint}}
+Authorization: Bearer {{token}}
 
 ###
 
 GET {{endpoint}}
 ?limit=1
+Authorization: Bearer {{token}}
 
 ###
 
 GET {{endpoint}}
 ?genre=war
+Authorization: Bearer {{token}}
 
 ###
 
 GET {{endpoint}}
 ?genre=drama
 &limit=1
+Authorization: Bearer {{token}}

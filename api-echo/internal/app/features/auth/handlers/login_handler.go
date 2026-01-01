@@ -32,6 +32,10 @@ func NewLoginHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *loginHandler) RequireAuth() bool {
+	return false
+}
+
 func (h *loginHandler) Register(g *echo.Group) {
 	g.POST("/auth/login", h.handle)
 }

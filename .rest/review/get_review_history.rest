@@ -1,11 +1,16 @@
 @endpoint = http://localhost:8000/v1
+@token = xyz
+
 
 GET {{endpoint}}/reviews/1/history
+Authorization: Bearer {{token}}
 
 ###
 
 GET {{endpoint}}/reviews/2/history
+Authorization: Bearer {{token}}
 
 ###
 
 GET {{endpoint}}/reviews/404/history
+Authorization: Bearer {{token}}

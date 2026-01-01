@@ -36,6 +36,10 @@ func NewGetWatchlistHandler(
 	}
 }
 
+func (h *getWatchlistHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getWatchlistHandler) Register(g *echo.Group) {
 	g.GET("/watchlist", h.handle)
 }
@@ -54,7 +58,7 @@ func (h *getWatchlistHandler) handle(c echo.Context) error {
 	logger.Info().Msg("successfully validated params")
 	result, err := h.interactor.Run(
 		c.Request().Context(),
-		&model.Users{ID: 1}, // TODO: 後でユーザー情報を渡すこと
+		c.Get("operator").(*model.Users),
 		req.Limit,
 		req.Offset,
 	)
