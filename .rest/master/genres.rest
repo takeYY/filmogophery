@@ -1,3 +1,6 @@
 @endpoint = http://localhost:8000/v1
+@token = xyz
+
 
 GET {{endpoint}}/genres
+Authorization: Bearer {{token}}

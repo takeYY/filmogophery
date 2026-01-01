@@ -1,8 +1,11 @@
 @endpoint = http://localhost:8000/v1/search/movies
+@token = xyz
 
 
 GET {{endpoint}}
 ?title=ターミネーター
+Authorization: Bearer {{token}}
+
 
 ###
 
@@ -10,3 +13,4 @@ GET {{endpoint}}
 ?title=君
 &limit=10
 &offset=7
+Authorization: Bearer {{token}}

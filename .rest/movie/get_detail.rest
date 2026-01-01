@@ -1,15 +1,20 @@
 @endpoint = http://localhost:8000/v1
+@token = xyz
 
 @movieTerminator = 218
 @movieTerminator2 = 280
 @movieNotFound = 404
 
+
 GET {{endpoint}}/movies/{{movieTerminator}}
+Authorization: Bearer {{token}}
 
 ###
 
 GET {{endpoint}}/movies/{{movieTerminator2}}
+Authorization: Bearer {{token}}
 
 ###
 
 GET {{endpoint}}/movies/{{movieNotFound}}
+Authorization: Bearer {{token}}

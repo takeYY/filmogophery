@@ -1,4 +1,5 @@
 @endpoint = http://localhost:8000/v1
+@token = xyz
 
 @movieTerminator = 218
 @movieTerminator2 = 280
@@ -7,6 +8,7 @@
 // --- 異常系 --- //
 
 POST {{endpoint}}/movies/{{movieNotFound}}/reviews
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -17,6 +19,7 @@ Content-Type: application/json
 ###
 
 POST {{endpoint}}/movies/{{movieNotFound}}/reviews
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -27,6 +30,7 @@ Content-Type: application/json
 ###
 
 POST {{endpoint}}/movies/{{movieNotFound}}/reviews
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -37,6 +41,7 @@ Content-Type: application/json
 ###
 
 POST {{endpoint}}/movies/{{movieTerminator}}/reviews
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -50,6 +55,7 @@ Content-Type: application/json
 // --- 正常系 --- //
 
 POST {{endpoint}}/movies/{{movieTerminator2}}/reviews
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

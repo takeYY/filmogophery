@@ -1,5 +1,6 @@
 @endpoint = http://localhost:8000/v1/auth/login
 
+
 POST {{endpoint}}
 content-type: application/json
 
