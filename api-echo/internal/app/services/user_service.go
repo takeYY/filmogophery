@@ -25,6 +25,9 @@ type (
 
 		// --- Update --- //
 
+		// ユーザーのログイン
+		LoginUser(ctx context.Context, email, password string) (*types.Token, error)
+
 		// --- Delete --- //
 	}
 	userService struct {
@@ -69,7 +72,7 @@ func (s *userService) CreateUser(
 		user := &model.Users{
 			Username:     username,
 			Email:        email,
-			PasswordHash: string(pwdHash),
+			PasswordHash: pwdHash,
 			LastLoginAt:  &now,
 		}
 		err := s.userRepo.Save(ctx, tx, user)
@@ -85,7 +88,64 @@ func (s *userService) CreateUser(
 		}
 
 		// トークンを登録
-		token, err = s.authSvc.GenerateToken(ctx, tx, user.ID)
+		token, err = s.authSvc.GenerateToken(ctx, tx, user.ID, now)
+		if err != nil {
+			logger.Error().Msgf("failed to create refresh token: %s", err.Error())
+			return responses.InternalServerError()
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
+// ユーザーのログイン
+func (s *userService) LoginUser(ctx context.Context, email, password string) (*types.Token, error) {
+	logger := logger.GetLogger()
+	now := time.Now()
+
+	user, err := s.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		logger.Error().Msgf("failed to fetch user: %s", err.Error())
+		return nil, responses.InternalServerError()
+	}
+	if user == nil {
+		logger.Error().Msgf("user(%s) is not found", email)
+		errors := make(map[string][]string)
+		errors["user"] = []string{"user is not found"}
+		return nil, responses.NotFoundError("user", errors)
+	}
+
+	// パスワードを検証
+	if err := s.hasher.Compare(user.PasswordHash, password); err != nil {
+		logger.Error().Msgf("invalid password for user(%s): %s", email, err.Error())
+		errors := make(map[string][]string)
+		errors["user"] = []string{"invalid email or password"}
+		return nil, responses.UnauthorizedError(errors)
+	}
+
+	token := &types.Token{}
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		// 最終ログイン日時を更新
+		user.LastLoginAt = &now
+		err := s.userRepo.Update(ctx, tx, user)
+		if err != nil {
+			logger.Error().Msgf("failed to update user: %s", err.Error())
+			return responses.InternalServerError()
+		}
+
+		// 有効なトークンを無効化
+		err = s.authSvc.RevokeToken(ctx, tx, user, now)
+		if err != nil {
+			return err
+		}
+
+		// 新しい有効なトークンを生成
+		token, err = s.authSvc.GenerateToken(ctx, tx, user.ID, now)
 		if err != nil {
 			logger.Error().Msgf("failed to create refresh token: %s", err.Error())
 			return responses.InternalServerError()

@@ -4,6 +4,13 @@
   "editor.insertSpaces": true,
   "editor.tabSize": 4,
   "workbench.editor.labelFormat": "medium",
+  "editor.rulers": [
+    80,
+    {
+      "column": 120,
+      "color": "#DC143C"
+    }
+  ],
   "[json]": {
     "editor.formatOnSave": true,
     "editor.tabSize": 2,

@@ -54,7 +54,9 @@ func main() {
 		}),
 	)
 
-	users := g.GenerateModel("users")
+	users := g.GenerateModel("users",
+		gen.FieldType("password_hash", "constant.PasswordHasher"),
+	)
 	refreshTokens := g.GenerateModel("refresh_tokens",
 		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
 			GORMTag: field.GormTag{

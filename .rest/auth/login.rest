@@ -1,0 +1,19 @@
+@endpoint = http://localhost:8000/v1/auth/login
+
+POST {{endpoint}}
+content-type: application/json
+
+{
+    "email": "john2@example.com",
+    "password": "invalidJohnConnor2"
+}
+
+###
+
+POST {{endpoint}}
+content-type: application/json
+
+{
+    "email": "john2@example.com",
+    "password": "JohnConnor2"
+}

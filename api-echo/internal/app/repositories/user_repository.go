@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
@@ -20,7 +21,13 @@ type (
 
 		// --- Read --- //
 
+		// ユーザーを取得
+		FindByEmail(ctx context.Context, email string) (*model.Users, error)
+
 		// --- Update --- //
+
+		// ユーザーを更新
+		Update(ctx context.Context, tx *gorm.DB, user *model.Users) error
 
 		// --- Delete --- //
 	}
@@ -47,4 +54,32 @@ func (r *userRepository) Save(ctx context.Context, tx *gorm.DB, user *model.User
 	return rv.WithContext(ctx).
 		Omit(field.AssociationFields).
 		Create(user)
+}
+
+// ユーザーを取得
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.Users, error) {
+	u := query.Use(r.ReaderDB).Users
+
+	result, err := u.WithContext(ctx).
+		Where(u.Email.Eq(email)).
+		Take()
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	return result, nil
+}
+
+// ユーザーを更新
+func (r *userRepository) Update(ctx context.Context, tx *gorm.DB, user *model.Users) error {
+	u := query.Use(r.WriterDB).Users
+	if tx != nil {
+		u = query.Use(tx).Users
+	}
+
+	_, err := u.WithContext(ctx).
+		Where(u.ID.Eq(user.ID)).
+		Updates(user)
+
+	return err
 }

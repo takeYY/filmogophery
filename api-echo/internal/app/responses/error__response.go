@@ -37,6 +37,13 @@ func BadRequestError(errors map[string][]string) error {
 	})
 }
 
+func UnauthorizedError(errors map[string][]string) error {
+	return echo.NewHTTPError(http.StatusUnauthorized, ErrorResponse{
+		Message: "unauthorized",
+		Errors:  errors,
+	})
+}
+
 func NotFoundError(resource string, errors map[string][]string) error {
 	return echo.NewHTTPError(http.StatusNotFound, ErrorResponse{
 		Message: resource + " not found",

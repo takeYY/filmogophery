@@ -5,6 +5,7 @@
 package model
 
 import (
+	"filmogophery/internal/pkg/constant"
 	"time"
 )
 
@@ -12,14 +13,14 @@ const TableNameUsers = "users"
 
 // Users mapped from table <users>
 type Users struct {
-	ID           int32      `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	Username     string     `gorm:"column:username;not null" json:"username"`
-	Email        string     `gorm:"column:email;not null" json:"email"`
-	PasswordHash string     `gorm:"column:password_hash;not null" json:"password_hash"`
-	IsActive     *bool      `gorm:"column:is_active;default:1" json:"is_active"`
-	LastLoginAt  *time.Time `gorm:"column:last_login_at" json:"last_login_at"`
-	CreatedAt    *time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt    *time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID           int32                   `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	Username     string                  `gorm:"column:username;not null" json:"username"`
+	Email        string                  `gorm:"column:email;not null" json:"email"`
+	PasswordHash constant.PasswordHasher `gorm:"column:password_hash;not null" json:"password_hash"`
+	IsActive     *bool                   `gorm:"column:is_active;default:1" json:"is_active"`
+	LastLoginAt  *time.Time              `gorm:"column:last_login_at" json:"last_login_at"`
+	CreatedAt    *time.Time              `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt    *time.Time              `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 // TableName Users's table name

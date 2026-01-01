@@ -30,7 +30,7 @@ func newUsers(db *gorm.DB, opts ...gen.DOOption) users {
 	_users.ID = field.NewInt32(tableName, "id")
 	_users.Username = field.NewString(tableName, "username")
 	_users.Email = field.NewString(tableName, "email")
-	_users.PasswordHash = field.NewString(tableName, "password_hash")
+	_users.PasswordHash = field.NewField(tableName, "password_hash")
 	_users.IsActive = field.NewBool(tableName, "is_active")
 	_users.LastLoginAt = field.NewTime(tableName, "last_login_at")
 	_users.CreatedAt = field.NewTime(tableName, "created_at")
@@ -48,7 +48,7 @@ type users struct {
 	ID           field.Int32
 	Username     field.String
 	Email        field.String
-	PasswordHash field.String
+	PasswordHash field.Field
 	IsActive     field.Bool
 	LastLoginAt  field.Time
 	CreatedAt    field.Time
@@ -72,7 +72,7 @@ func (u *users) updateTableName(table string) *users {
 	u.ID = field.NewInt32(table, "id")
 	u.Username = field.NewString(table, "username")
 	u.Email = field.NewString(table, "email")
-	u.PasswordHash = field.NewString(table, "password_hash")
+	u.PasswordHash = field.NewField(table, "password_hash")
 	u.IsActive = field.NewBool(table, "is_active")
 	u.LastLoginAt = field.NewTime(table, "last_login_at")
 	u.CreatedAt = field.NewTime(table, "created_at")
