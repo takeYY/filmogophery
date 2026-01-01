@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 
+	authHandler "filmogophery/internal/app/features/auth/handlers"
 	genreHandler "filmogophery/internal/app/features/genre/handlers"
 	healthHandler "filmogophery/internal/app/features/health/handlers"
 	movieHandler "filmogophery/internal/app/features/movie/handlers"
@@ -25,6 +26,8 @@ func RegisterV1Routes() fx.Option {
 			asV1Route(healthHandler.NewCheckHealthHandler), // check health
 			// --- User --- //
 			asV1Route(userHandler.NewCreateUserHandler), // create user
+			// --- Auth --- //
+			asV1Route(authHandler.NewLoginHandler), // login
 			// --- Movie --- //
 			asV1Route(movieHandler.NewGetMovieDetailHandler),       // get movie detail
 			asV1Route(movieHandler.NewGetMoviesHandler),            // get movies
