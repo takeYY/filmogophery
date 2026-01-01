@@ -11,10 +11,10 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | OperationID             | Tag          | Echo | Test |
 | :---------------------- | ------------ | :--: | :--: |
 | health                  | Health       |  ✅  |  ✅  |
-| createUser              | User         |  🚧  |  🚧  |
+| createUser              | User         |  ✅  |  🚧  |
 | getMyUser               | User         |      |      |
 | getUser                 | User         |      |      |
-| login                   | Auth         |      |      |
+| login                   | Auth         |  ✅  |      |
 | logout                  | Auth         |      |      |
 | getMovies               | Movie        |  ✅  |  ✅  |
 | getMovieDetail          | Movie        |  ✅  |  🚧  |
