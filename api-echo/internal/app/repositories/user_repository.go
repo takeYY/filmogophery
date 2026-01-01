@@ -21,6 +21,8 @@ type (
 
 		// --- Read --- //
 
+		// ID に一致するアクティブなユーザーを取得
+		FindByID(ctx context.Context, id int32) (*model.Users, error)
 		// ユーザーを取得
 		FindByEmail(ctx context.Context, email string) (*model.Users, error)
 
@@ -54,6 +56,22 @@ func (r *userRepository) Save(ctx context.Context, tx *gorm.DB, user *model.User
 	return rv.WithContext(ctx).
 		Omit(field.AssociationFields).
 		Create(user)
+}
+
+// ID に一致するアクティブなユーザーを取得
+func (r *userRepository) FindByID(ctx context.Context, id int32) (*model.Users, error) {
+	u := query.Use(r.ReaderDB).Users
+
+	result, err := u.WithContext(ctx).
+		Where(
+			u.ID.Eq(id),
+			u.IsActive.Is(true),
+		).Take()
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	return result, nil
 }
 
 // ユーザーを取得

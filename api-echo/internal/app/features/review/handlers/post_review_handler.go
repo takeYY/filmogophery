@@ -33,6 +33,10 @@ func NewPostReviewHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *postReviewHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *postReviewHandler) Register(g *echo.Group) {
 	g.POST("/movies/:id/reviews", h.handle)
 }

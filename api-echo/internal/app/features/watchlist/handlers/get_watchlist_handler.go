@@ -36,6 +36,10 @@ func NewGetWatchlistHandler(
 	}
 }
 
+func (h *getWatchlistHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getWatchlistHandler) Register(g *echo.Group) {
 	g.GET("/watchlist", h.handle)
 }

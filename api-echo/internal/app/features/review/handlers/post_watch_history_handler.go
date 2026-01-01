@@ -37,6 +37,10 @@ func NewPostReviewHistoryHandler(svc services.IServiceContainer) routers.IRoute 
 	}
 }
 
+func (h *postReviewHistoryHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *postReviewHistoryHandler) Register(g *echo.Group) {
 	g.POST("/reviews/:id/history", h.handle)
 }

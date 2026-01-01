@@ -31,6 +31,10 @@ func NewGetReviewHistoryHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *getReviewHistoryHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getReviewHistoryHandler) Register(g *echo.Group) {
 	g.GET("/reviews/:id/history", h.handle)
 }

@@ -25,6 +25,10 @@ func NewGetGenresHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *getGenresHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getGenresHandler) Register(g *echo.Group) {
 	g.GET("/genres", h.handle)
 }

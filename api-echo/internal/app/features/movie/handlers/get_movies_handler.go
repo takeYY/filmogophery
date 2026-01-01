@@ -31,6 +31,10 @@ func NewGetMoviesHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *getMoviesHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getMoviesHandler) Register(g *echo.Group) {
 	g.GET("/movies", h.handle)
 }

@@ -14,7 +14,10 @@ import (
 	trendingHandler "filmogophery/internal/app/features/trending/handlers"
 	userHandler "filmogophery/internal/app/features/user/handlers"
 	watchlistHandler "filmogophery/internal/app/features/watchlist/handlers"
+	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/routers"
+	"filmogophery/internal/pkg/config"
+	"filmogophery/internal/pkg/middleware"
 )
 
 func RegisterV1Routes() fx.Option {
@@ -52,10 +55,16 @@ func RegisterV1Routes() fx.Option {
 				fx.ParamTags(`group:"v1-routers"`),
 			),
 		),
-		fx.Invoke(func(e *echo.Echo, hs []routers.IRoute, m ...echo.MiddlewareFunc) {
-			g := e.Group("/v1", m...)
+		fx.Invoke(func(e *echo.Echo, conf *config.Config, userRepo repositories.IUserRepository, hs []routers.IRoute) {
+			g := e.Group("/v1")
+			authGroup := g.Group("", middleware.RequireAuthMiddleware(conf, userRepo))
+
 			for _, h := range hs {
-				h.Register(g)
+				if h.RequireAuth() { // 認証ミドルウェアを適用
+					h.Register(authGroup)
+				} else { // 認証は不要
+					h.Register(g)
+				}
 			}
 		}),
 	)

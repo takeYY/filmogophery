@@ -28,6 +28,10 @@ func NewGetTrendingMoviesHandler(svc services.IServiceContainer) routers.IRoute 
 	}
 }
 
+func (h *getTrendingMoviesHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getTrendingMoviesHandler) Register(g *echo.Group) {
 	g.GET("/trending/movies", h.handle)
 }

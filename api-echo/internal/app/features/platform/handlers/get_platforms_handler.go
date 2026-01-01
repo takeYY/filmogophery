@@ -25,6 +25,10 @@ func NewGetPlatformsHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *getPlatformsHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getPlatformsHandler) Register(g *echo.Group) {
 	g.GET("/platforms", h.handle)
 }

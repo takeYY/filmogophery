@@ -32,6 +32,10 @@ func NewPutReviewHandler(svc services.IServiceContainer) routers.IRoute {
 	}
 }
 
+func (h *putReviewHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *putReviewHandler) Register(g *echo.Group) {
 	g.PUT("/reviews/:id", h.handle)
 }

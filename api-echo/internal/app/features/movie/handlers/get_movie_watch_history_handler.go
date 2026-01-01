@@ -35,6 +35,10 @@ func NewGetMovieWatchHistoryHandler(
 	}
 }
 
+func (h *getMovieWatchHistoryHandler) RequireAuth() bool {
+	return true
+}
+
 func (h *getMovieWatchHistoryHandler) Register(g *echo.Group) {
 	g.GET("/movies/:movieId/watch-history", h.handle)
 }
