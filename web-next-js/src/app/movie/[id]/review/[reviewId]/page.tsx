@@ -7,6 +7,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Platform, MovieDetail, Genre } from "@/interface/index";
 import StarRating from "@/app/components/Rating";
 import Image from "next/image";
@@ -24,6 +25,14 @@ export default function Page({
   const [movieDetail, setMovie] = useState<MovieDetail>();
   const [rangeValue, onChange] = useState<string>("");
 
+  const token = useAuth();
+  const accessToken = token ? token.accessToken : null;
+
+  const headers: HeadersInit = {};
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
   // movieDetailが更新されたときにrangeValueを設定
   useEffect(() => {
     if (movieDetail?.review?.rating) {
@@ -35,7 +44,10 @@ export default function Page({
     const fetchPlatforms = async () => {
       console.log("platformsのデータ取得中...");
       try {
-        const response = await fetch(`/api/platforms`, { method: "GET" });
+        const response = await fetch(`/api/platforms`, {
+          method: "GET",
+          headers,
+        });
         const platforms: Platform[] = await response.json();
 
         console.log("platformsのデータ取得: 完了");
@@ -51,6 +63,7 @@ export default function Page({
       try {
         const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
+          headers,
         });
         const movieDetail: MovieDetail = await response.json();
 
@@ -80,7 +93,7 @@ export default function Page({
         `/api/movies/${params.id}/reviews/${movieDetail?.review?.id}`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(jsonData),
         }
       );

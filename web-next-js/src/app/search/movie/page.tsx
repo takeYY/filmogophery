@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Movie, Genre } from "@/interface/index";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -14,6 +15,14 @@ export default function SearchMovies() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const token = useAuth();
+  const accessToken = token ? token.accessToken : null;
+
+  const headers: HeadersInit = {};
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
   useEffect(() => {
     const fetchMovie = async () => {
       if (!query) {
@@ -25,6 +34,7 @@ export default function SearchMovies() {
       try {
         const response = await fetch(`/api/search/movie?query=${query}`, {
           method: "GET",
+          headers,
         });
         const movies: Movie[] = await response.json();
         console.log("moviesのデータ取得: 完了");
