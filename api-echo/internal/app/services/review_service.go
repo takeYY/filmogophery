@@ -22,7 +22,7 @@ type (
 		// レビューを作成
 		CreateReview(ctx context.Context, tx *gorm.DB, userID int32, movie *model.Movies, rating *float64, comment *string) error
 		// 視聴履歴を作成
-		CreateWatchHistory(ctx context.Context, tx *gorm.DB, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date) error
+		CreateWatchHistory(ctx context.Context, tx *gorm.DB, operator *model.Users, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date) error
 
 		// --- Read --- //
 
@@ -32,7 +32,7 @@ type (
 		GetReviewByMovieID(ctx context.Context, userID int32, movie *model.Movies) (*model.Reviews, error)
 
 		// レビューIDに一致する視聴履歴を取得
-		GetWatchHistoryByReviewID(ctx context.Context, review *model.Reviews) ([]*model.WatchHistory, error)
+		GetWatchHistoryByReviewID(ctx context.Context, operator *model.Users, review *model.Reviews) ([]*model.WatchHistory, error)
 
 		// --- Update -- //
 
@@ -86,7 +86,12 @@ func (s *reviewService) CreateReview(
 
 // 視聴履歴を作成
 func (s *reviewService) CreateWatchHistory(
-	ctx context.Context, tx *gorm.DB, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date,
+	ctx context.Context,
+	tx *gorm.DB,
+	operator *model.Users,
+	review *model.Reviews,
+	platform *model.Platforms,
+	watchedDate *constant.Date,
 ) error {
 	logger := logger.GetLogger()
 
@@ -102,7 +107,7 @@ func (s *reviewService) CreateWatchHistory(
 	}
 
 	watchHistory := &model.WatchHistory{
-		UserID:      1, // TODO: 後でテナント分離する
+		UserID:      operator.ID,
 		MovieID:     review.MovieID,
 		PlatformID:  platform.ID,
 		WatchedDate: parsedWatchedDate,
@@ -154,10 +159,12 @@ func (s *reviewService) GetReviewByMovieID(ctx context.Context, userID int32, mo
 }
 
 // レビューIDに一致する視聴履歴を取得
-func (s *reviewService) GetWatchHistoryByReviewID(ctx context.Context, review *model.Reviews) ([]*model.WatchHistory, error) {
+func (s *reviewService) GetWatchHistoryByReviewID(
+	ctx context.Context, operator *model.Users, review *model.Reviews,
+) ([]*model.WatchHistory, error) {
 	logger := logger.GetLogger()
 
-	watchHistories, err := s.watchHistoryRepo.FindByMovieID(ctx, &model.Users{ID: 1}, &review.Movie) // TODO: 後でテナント分離する
+	watchHistories, err := s.watchHistoryRepo.FindByMovieID(ctx, operator, &review.Movie)
 	if err != nil {
 		logger.Error().Msgf("failed to get a watch history(reviewID=%d): %s", review.ID, err.Error())
 		return nil, responses.InternalServerError()
