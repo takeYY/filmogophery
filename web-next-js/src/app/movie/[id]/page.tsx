@@ -6,15 +6,15 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
-import StarRating from "@/app/components/Rating";
+import StarRating from "@/components/Rating";
+import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
-import { MovieDetail, WatchHistory, Genre } from "@/interface/index";
+import { Genre, MovieDetail, WatchHistory } from "@/interface/index";
+import { formatRelativeTime } from "@/utils/date";
 import Image from "next/image";
 import Link from "next/link";
-import { posterUrlPrefix } from "@/constants/poster";
-import { formatRelativeTime } from "@/utils/date";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Page({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();

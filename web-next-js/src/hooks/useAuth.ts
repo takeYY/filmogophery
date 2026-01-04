@@ -1,6 +1,6 @@
+import { clearToken, getToken } from "@/utils/auth";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { getToken, clearToken } from "@/utils/auth";
 
 export const useAuth = () => {
   const router = useRouter();

@@ -1,11 +1,8 @@
 "use client";
 
-import { Inter } from "next/font/google";
+import { NavLinks } from "@/components/nav-links";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { NavLinks } from "@/app/components/nav-links";
 import { usePathname } from "next/navigation";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
