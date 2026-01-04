@@ -7,9 +7,9 @@
 "use client";
 
 import { saveToken } from "@/utils/auth";
-import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 
 export default function Login() {
   const router = useRouter();

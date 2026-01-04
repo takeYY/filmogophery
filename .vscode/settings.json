@@ -41,12 +41,18 @@
   "[typescript]": {
     "editor.formatOnSave": true,
     "editor.tabSize": 2,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always"
+    }
   },
   "[typescriptreact]": {
     "editor.formatOnSave": true,
     "editor.tabSize": 2,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always"
+    }
   },
   "[yaml]": {
     "editor.formatOnSave": true,

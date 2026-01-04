@@ -6,12 +6,12 @@
 
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import { posterUrlPrefix } from "@/constants/poster";
+import { useAuth } from "@/hooks/useAuth";
+import { Genre, Movie, TrendingMovie } from "@/interface/index";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { Movie, Genre, TrendingMovie } from "@/interface/index";
-import { posterUrlPrefix } from "@/constants/poster";
+import { useEffect, useRef, useState } from "react";
 import { Carousel } from "react-bootstrap";
 
 export default function Home() {

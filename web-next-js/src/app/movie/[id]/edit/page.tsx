@@ -6,13 +6,13 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import StarRating from "@/app/components/Rating";
-import { useAuth } from "@/hooks/useAuth";
-import { MovieDetail, Genre } from "@/interface/index";
+import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
+import { useAuth } from "@/hooks/useAuth";
+import { Genre, MovieDetail } from "@/interface/index";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();

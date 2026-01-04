@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { Movie, Genre } from "@/interface/index";
-import { useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { posterUrlPrefix } from "@/constants/poster";
+import { useAuth } from "@/hooks/useAuth";
+import { Genre, Movie } from "@/interface/index";
+import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 export default function SearchMovies() {
   const searchParams = useSearchParams();
@@ -61,7 +61,7 @@ export default function SearchMovies() {
   }, []);
 
   return (
-    <div className="container-fluid pb-4">
+    <div className="container pb-4">
       <h3 className="text-center mb-4">Search Movies</h3>
 
       {loading ? (

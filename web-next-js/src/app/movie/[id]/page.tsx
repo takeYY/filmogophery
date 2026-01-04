@@ -6,15 +6,15 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
-import StarRating from "@/app/components/Rating";
+import StarRating from "@/components/Rating";
+import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
-import { MovieDetail, WatchHistory, Genre } from "@/interface/index";
+import { Genre, MovieDetail, WatchHistory } from "@/interface/index";
+import { formatRelativeTime } from "@/utils/date";
 import Image from "next/image";
 import Link from "next/link";
-import { posterUrlPrefix } from "@/constants/poster";
-import { formatRelativeTime } from "@/utils/date";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Page({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();
@@ -198,14 +198,15 @@ export default function Page({ params }: { params: { id: string } }) {
               {/* */}
             </div>
             {/* 視聴履歴 */}
-            {/* FIXME: 視聴履歴作成から戻ってきたときにデータが更新されない。。。 */}
-            {/* TODO: 視聴履歴が多いと、ボタンの位置が下にずれていくのでここだけでスクロールできるようにしたい */}
             <div className="card-footer border-success text-light">
               <div>視聴履歴</div>
               {!watchHistory?.length && <div>なし</div>}
 
               {watchHistory?.length !== 0 && (
-                <dl className="row">
+                <dl
+                  className="row"
+                  style={{ maxHeight: "180px", overflowY: "auto" }}
+                >
                   {watchHistory?.map((wh: WatchHistory, i: number) => {
                     return (
                       <div key={i}>

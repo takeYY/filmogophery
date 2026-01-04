@@ -7,14 +7,19 @@ interface TokenData {
 }
 
 export const saveToken = (token: TokenData) => {
-  localStorage.setItem("token", JSON.stringify(token));
+  if (typeof window !== "undefined") {
+    localStorage.setItem("token", JSON.stringify(token));
+  }
 };
 
 export const getToken = (): TokenData | null => {
+  if (typeof window === "undefined") return null;
   const token = localStorage.getItem("token");
   return token ? JSON.parse(token) : null;
 };
 
 export const clearToken = () => {
-  localStorage.removeItem("token");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("token");
+  }
 };
