@@ -214,7 +214,9 @@ export default function Page({ params }: { params: { id: string } }) {
                         </dt>
                         <dd className="col-md-10">
                           <dl className="row">
-                            <dt className="col-md-4">{wh.watchedAt}</dt>
+                            <dt className="col-md-4">
+                              {wh.watchedAt.split("T")[0]}
+                            </dt>
                             <dd className="col-md-8">{wh.platform.name}</dd>
                           </dl>
                         </dd>
