@@ -1,11 +1,10 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
-import { getToken, clearToken } from "@/utils/auth";
 import type { User } from "@/interface";
+import { clearToken, getToken } from "@/utils/auth";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export function NavLinks() {
   const pathname = usePathname();
