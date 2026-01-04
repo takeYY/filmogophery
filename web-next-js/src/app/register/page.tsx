@@ -1,48 +1,48 @@
-// app/login/page.tsx
-/**
- * ログイン
- * パス: /login
- */
-
 "use client";
 
 import { saveToken } from "@/utils/auth";
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function Login() {
+export default function Register() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
 
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("パスワードが一致しません");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, email, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
         saveToken(data);
-        router.push(redirect); // 元のページに戻る
+        router.push("/");
       } else {
         const data = await response.json();
-        setError(data.message || "ログインに失敗しました");
+        setError(data.message || "ユーザー登録に失敗しました");
       }
     } catch (err) {
-      setError("ログインに失敗しました");
+      setError("ユーザー登録に失敗しました");
     } finally {
       setIsLoading(false);
     }
@@ -53,13 +53,26 @@ export default function Login() {
       <div className="container py-5">
         <div className="row justify-content-center">
           <div className="col-md-6">
-            <h3 className="text-center mb-4">ログイン</h3>
+            <h3 className="text-center mb-4">ユーザー登録</h3>
             <form onSubmit={handleSubmit}>
               {error && (
                 <div className="alert alert-danger" role="alert">
                   {error}
                 </div>
               )}
+              <div className="mb-3">
+                <label htmlFor="username" className="form-label">
+                  ユーザー名
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
                   メールアドレス
@@ -86,17 +99,30 @@ export default function Login() {
                   required
                 />
               </div>
+              <div className="mb-3">
+                <label htmlFor="confirmPassword" className="form-label">
+                  パスワード（確認）
+                </label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
               <button
                 type="submit"
                 className="btn btn-info w-100"
                 disabled={isLoading}
               >
-                {isLoading ? "ログイン中..." : "ログイン"}
+                {isLoading ? "登録中..." : "登録"}
               </button>
             </form>
             <div className="text-center mt-3">
-              <Link href="/register" className="text-decoration-none">
-                アカウントをお持ちでない方はこちら
+              <Link href="/login" className="text-decoration-none">
+                既にアカウントをお持ちの方はこちら
               </Link>
             </div>
           </div>

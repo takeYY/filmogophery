@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const hideNav = pathname === "/login";
+  const hideNav = pathname === "/login" || pathname === "/register";
 
   return (
     <html lang="ja">
