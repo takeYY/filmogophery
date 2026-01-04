@@ -61,7 +61,7 @@ export default function SearchMovies() {
   }, []);
 
   return (
-    <div className="container-fluid pb-4">
+    <div className="container pb-4">
       <h3 className="text-center mb-4">Search Movies</h3>
 
       {loading ? (
