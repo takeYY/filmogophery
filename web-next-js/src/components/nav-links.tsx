@@ -15,6 +15,7 @@ export function NavLinks() {
   const [query, setQuery] = useState<string>(q ? q : "");
   const [user, setUser] = useState<User | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,62 +78,91 @@ export function NavLinks() {
   };
 
   return (
-    <nav className="navbar nav-underline navbar-expand-lg navbar-dark">
-      <div className="container-fluid">
-        <a className="navbar-brand" href="#">
-          Filmogophery
-        </a>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNavAltMarkup"
-          aria-controls="navbarNavAltMarkup"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <ul className="navbar-nav">
-            <li className="nav-item">
+    <>
+      {/* Sidebar */}
+      <div
+        className="position-fixed top-0 start-0 bg-dark vh-100"
+        style={{
+          width: "250px",
+          zIndex: 1040,
+          transition: "transform 0.3s ease-in-out",
+          transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
+        }}
+      >
+        <div className="d-flex flex-column h-100 p-3">
+          <h5 className="text-light mb-4">Menu</h5>
+          <ul className="nav flex-column">
+            <li className="nav-item mb-2">
               <Link
-                className={`nav-link ${pathname === "/" ? "active" : ""}`}
+                className={`nav-link text-light ${
+                  pathname === "/" ? "active bg-primary rounded" : ""
+                }`}
                 href="/"
+                onClick={() => setSidebarOpen(false)}
               >
+                <i className="bi bi-house me-2"></i>
                 Home
               </Link>
             </li>
-
-            <li className="nav-item">
+            <li className="nav-item mb-2">
               <Link
-                className={`nav-link ${
-                  pathname === "/watch/list" ? "active" : ""
+                className={`nav-link text-light ${
+                  pathname === "/watch/list" ? "active bg-primary rounded" : ""
                 }`}
                 href="/watch/list"
+                onClick={() => setSidebarOpen(false)}
               >
+                <i className="bi bi-list-ul me-2"></i>
                 Watch List
               </Link>
             </li>
-
-            <li className="nav-item">
+            <li className="nav-item mb-2">
               <Link
-                className={`nav-link ${
-                  pathname === "/watch/calender" ? "active" : ""
+                className={`nav-link text-light ${
+                  pathname === "/watch/calendar"
+                    ? "active bg-primary rounded"
+                    : ""
                 }`}
                 href="/watch/calendar"
+                onClick={() => setSidebarOpen(false)}
               >
+                <i className="bi bi-calendar me-2"></i>
                 Watch Calendar
               </Link>
             </li>
           </ul>
+        </div>
+      </div>
+
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"
+          style={{ zIndex: 1039 }}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Top Navbar */}
+      <nav className="navbar navbar-dark bg-dark">
+        <div className="container-fluid">
+          <div className="d-flex align-items-center">
+            <button
+              className="btn btn-link text-light p-0 me-3"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              style={{ fontSize: "1.5rem" }}
+            >
+              <i className="bi bi-list"></i>
+            </button>
+            <a className="navbar-brand" href="#">
+              Filmogophery
+            </a>
+          </div>
 
           <form
-            className="d-flex position-absolute start-50 translate-middle-x"
+            className="d-flex position-absolute start-50 translate-middle-x w-25"
             role="search"
             onSubmit={handleSubmit}
-            style={{ width: "400px" }}
           >
             <input
               className="form-control me-2 text-light bg-dark"
@@ -151,7 +181,7 @@ export function NavLinks() {
             </button>
           </form>
 
-          <div className="ms-auto">
+          <div>
             {user && (
               <div className="position-relative" ref={dropdownRef}>
                 <button
@@ -179,7 +209,7 @@ export function NavLinks() {
             )}
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 }
