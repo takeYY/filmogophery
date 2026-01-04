@@ -13,6 +13,7 @@ import { MovieDetail, WatchHistory, Genre } from "@/interface/index";
 import Image from "next/image";
 import Link from "next/link";
 import { posterUrlPrefix } from "@/constants/poster";
+import { formatRelativeTime } from "@/utils/date";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -209,11 +210,13 @@ export default function Page({ params }: { params: { id: string } }) {
                     return (
                       <div key={i}>
                         <dt className="col-md-1 bg-transparent badge border border-primary rounded-pill">
-                          {`${calcDiffDate(new Date(wh.watchedAt))}日前`}
+                          {formatRelativeTime(new Date(wh.watchedAt))}
                         </dt>
                         <dd className="col-md-10">
                           <dl className="row">
-                            <dt className="col-md-4">{wh.watchedAt}</dt>
+                            <dt className="col-md-4">
+                              {wh.watchedAt.split("T")[0]}
+                            </dt>
                             <dd className="col-md-8">{wh.platform.name}</dd>
                           </dl>
                         </dd>
@@ -251,12 +254,4 @@ export default function Page({ params }: { params: { id: string } }) {
       </div>
     </div>
   );
-}
-
-function calcDiffDate(target: Date): string {
-  const now = new Date();
-  const diff = now.getTime() - target.getTime();
-  const result = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-  return Math.abs(result).toString();
 }
