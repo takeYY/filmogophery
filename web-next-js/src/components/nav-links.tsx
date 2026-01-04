@@ -154,9 +154,9 @@ export function NavLinks() {
             >
               <i className="bi bi-list"></i>
             </button>
-            <a className="navbar-brand" href="#">
+            <Link className="navbar-brand" href="/">
               Filmogophery
-            </a>
+            </Link>
           </div>
 
           <form
