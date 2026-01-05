@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.7.0v2025.12.31
+  version: 0.7.1v2025.01.05
   license:
     name: None
     url: None
