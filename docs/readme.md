@@ -12,7 +12,7 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | :---------------------- | ------------ | :--: | :--: |
 | health                  | Health       |  ✅  |  ✅  |
 | createUser              | User         |  ✅  |  🚧  |
-| getMyUser               | User         |      |      |
+| getCurrentUser          | User         |  ✅  |      |
 | getUser                 | User         |      |      |
 | login                   | Auth         |  ✅  |      |
 | logout                  | Auth         |      |      |

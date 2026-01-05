@@ -77,8 +77,8 @@ paths:
   /users/me:
     get:
       tags: [User]
-      summary: マイユーザー取得
-      operationId: getMyUser
+      summary: ログインユーザー取得
+      operationId: getCurrentUser
       responses:
         200:
           description: 成功
