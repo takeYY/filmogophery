@@ -48,6 +48,10 @@ func RequireAuthMiddleware(conf *config.Config, userRepo repositories.IUserRepos
 				logger.Error().Msgf("failed to fetch user: %s", err.Error())
 				return echo.ErrInternalServerError
 			}
+			if user == nil {
+				logger.Error().Msgf("user(%d) is not found", claims.UserID)
+				return echo.ErrNotFound
+			}
 
 			c.Set("operator", user)
 			return next(c)

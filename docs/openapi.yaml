@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.7.0v2025.12.31
+  version: 0.7.1v2025.01.05
   license:
     name: None
     url: None
@@ -77,8 +77,8 @@ paths:
   /users/me:
     get:
       tags: [User]
-      summary: マイユーザー取得
-      operationId: getMyUser
+      summary: ログインユーザー取得
+      operationId: getCurrentUser
       responses:
         200:
           description: 成功
