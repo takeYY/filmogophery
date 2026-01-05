@@ -28,7 +28,8 @@ func RegisterV1Routes() fx.Option {
 			// --- Health --- //
 			asV1Route(healthHandler.NewCheckHealthHandler), // check health
 			// --- User --- //
-			asV1Route(userHandler.NewCreateUserHandler), // create user
+			asV1Route(userHandler.NewCreateUserHandler),     // create user
+			asV1Route(userHandler.NewGetCurrentUserHandler), // get current user
 			// --- Auth --- //
 			asV1Route(authHandler.NewLoginHandler), // login
 			// --- Movie --- //
