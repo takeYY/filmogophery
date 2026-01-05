@@ -27,6 +27,8 @@ type (
 
 		// ユーザーのログイン
 		LoginUser(ctx context.Context, email, password string) (*types.Token, error)
+		// ユーザーのログアウト
+		LogoutUser(ctx context.Context, operator *model.Users) error
 
 		// --- Delete --- //
 	}
@@ -158,4 +160,17 @@ func (s *userService) LoginUser(ctx context.Context, email, password string) (*t
 	}
 
 	return token, nil
+}
+
+// ユーザーのログアウト
+func (s *userService) LogoutUser(ctx context.Context, operator *model.Users) error {
+	now := time.Now()
+
+	// トークンを無効化
+	err := s.authSvc.RevokeToken(ctx, nil, operator, now)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
