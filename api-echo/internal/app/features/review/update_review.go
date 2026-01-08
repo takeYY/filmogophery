@@ -4,11 +4,12 @@ import (
 	"context"
 
 	"filmogophery/internal/app/services"
+	"filmogophery/internal/pkg/gen/model"
 )
 
 type (
 	UpdateReviewUseCase interface {
-		Run(ctx context.Context, reviewID int32, rating *float64, comment *string) error
+		Run(ctx context.Context, operator *model.Users, reviewID int32, rating *float64, comment *string) error
 	}
 
 	updateReviewInteractor struct {
@@ -24,9 +25,9 @@ func NewUpdateReviewInteractor(
 	}
 }
 
-func (i *updateReviewInteractor) Run(ctx context.Context, reviewID int32, rating *float64, comment *string) error {
+func (i *updateReviewInteractor) Run(ctx context.Context, operator *model.Users, reviewID int32, rating *float64, comment *string) error {
 	// レビューの存在確認
-	review, err := i.reviewService.GetReviewByID(ctx, 1, reviewID)
+	review, err := i.reviewService.GetReviewByID(ctx, operator, reviewID)
 	if err != nil {
 		return err
 	}
