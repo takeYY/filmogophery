@@ -34,6 +34,9 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 	now := time.Date(2025, 10, 13, 10, 20, 30, 456789, time.Local)
 	svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 
+	var operator *model.Users
+	tx.First(&operator)
+
 	m1 := tests.CreateMovies(t, tx, &model.Movies{ // ポスターとジャンルなし
 		ID:             1,
 		Title:          "テスト映画タイトル1",
@@ -133,6 +136,8 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.Itoa(int(tt.movieID)))
+
+			c.Set("operator", operator)
 
 			handler := &getMovieDetailHandler{
 				interactor: movie.NewGetMovieDetailInteractor(
