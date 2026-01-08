@@ -27,6 +27,9 @@ func TestPostReviewHandler_handle__Error(t *testing.T) {
 	tx := testDB.Begin()
 	defer tx.Rollback()
 
+	var operator *model.Users
+	tx.First(&operator)
+
 	m := tests.CreateMovies(t, tx, &model.Movies{
 		ID:             1,
 		Title:          "テスト映画タイトル1",
@@ -92,6 +95,8 @@ func TestPostReviewHandler_handle__Error(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(id)
 
+			c.Set("operator", operator)
+
 			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHandler{
 				interactor: review.NewCreateReviewInteractor(
@@ -150,6 +155,9 @@ func TestPostReviewHandler_handle(t *testing.T) {
 			tx := testDB.Begin()
 			defer tx.Rollback()
 
+			var operator *model.Users
+			tx.First(&operator)
+
 			m := tests.CreateMovies(t, tx, &model.Movies{
 				ID:             65,
 				Title:          "テスト映画タイトル1",
@@ -172,6 +180,8 @@ func TestPostReviewHandler_handle(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
 			c.SetParamValues(id)
+
+			c.Set("operator", operator)
 
 			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHandler{
