@@ -33,7 +33,7 @@ func (i *createReviewHistoryInteractor) Run(
 	ctx context.Context, operator *model.Users, reviewID int32, platformID int32, watchedDate *constant.Date,
 ) error {
 	// レビューの存在確認
-	review, err := i.reviewService.GetReviewByID(ctx, 1, reviewID)
+	review, err := i.reviewService.GetReviewByID(ctx, operator, reviewID)
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ func NewGetReviewHistoryInteractor(
 
 func (i *getReviewHistoryInteractor) Run(ctx context.Context, operator *model.Users, reviewID int32) ([]*types.ReviewHistory, error) {
 	// レビューの存在確認
-	review, err := i.reviewService.GetReviewByID(ctx, 1, reviewID)
+	review, err := i.reviewService.GetReviewByID(ctx, operator, reviewID)
 	if err != nil {
 		return nil, err
 	}
