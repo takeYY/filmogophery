@@ -11,7 +11,7 @@ import (
 
 type (
 	GetMovieDetailsUseCase interface {
-		Run(ctx context.Context, movieID int32) (*types.MovieDetail, error)
+		Run(ctx context.Context, operator *model.Users, movieID int32) (*types.MovieDetail, error)
 	}
 
 	getMovieDetailInteractor struct {
@@ -43,7 +43,9 @@ func NewGetMovieDetailInteractor(
 	}
 }
 
-func (i *getMovieDetailInteractor) Run(ctx context.Context, movieID int32) (*types.MovieDetail, error) {
+func (i *getMovieDetailInteractor) Run(
+	ctx context.Context, operator *model.Users, movieID int32,
+) (*types.MovieDetail, error) {
 	logger := logger.GetLogger()
 
 	// 映画詳細を取得
@@ -62,7 +64,7 @@ func (i *getMovieDetailInteractor) Run(ctx context.Context, movieID int32) (*typ
 	}()
 
 	go func() {
-		review, err := i.reviewService.GetReviewByMovieID(ctx, 1, movie)
+		review, err := i.reviewService.GetReviewByMovieID(ctx, operator, movie)
 		reviewCh <- reviewResult{review, err}
 	}()
 

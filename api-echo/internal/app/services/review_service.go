@@ -29,7 +29,7 @@ type (
 		// IDに一致するレビューを取得
 		GetReviewByID(ctx context.Context, userID int32, id int32) (*model.Reviews, error)
 		// 映画IDに一致するレビューを取得
-		GetReviewByMovieID(ctx context.Context, userID int32, movie *model.Movies) (*model.Reviews, error)
+		GetReviewByMovieID(ctx context.Context, user *model.Users, movie *model.Movies) (*model.Reviews, error)
 
 		// レビューIDに一致する視聴履歴を取得
 		GetWatchHistoryByReviewID(ctx context.Context, operator *model.Users, review *model.Reviews) ([]*model.WatchHistory, error)
@@ -142,12 +142,12 @@ func (s *reviewService) GetReviewByID(ctx context.Context, userID int32, id int3
 }
 
 // 映画IDに一致するレビューを取得
-func (s *reviewService) GetReviewByMovieID(ctx context.Context, userID int32, movie *model.Movies) (*model.Reviews, error) {
+func (s *reviewService) GetReviewByMovieID(ctx context.Context, user *model.Users, movie *model.Movies) (*model.Reviews, error) {
 	logger := logger.GetLogger()
 
-	review, err := s.reviewRepo.FindByMovieID(ctx, userID, movie.ID)
+	review, err := s.reviewRepo.FindByMovieID(ctx, user.ID, movie.ID)
 	if err != nil {
-		logger.Error().Msgf("failed to get a review(userID=%d, movieID=%d): %s", userID, movie.ID, err.Error())
+		logger.Error().Msgf("failed to get a review(userID=%d, movieID=%d): %s", user.ID, movie.ID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 	if review == nil {
