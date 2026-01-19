@@ -158,12 +158,13 @@ func (i *getTrendingMoviesInteractor) newMoviesForCreation(tmdbMovies []types.Tm
 		}
 
 		newMovies = append(newMovies, &model.Movies{
-			TmdbID:      int32(tmdbMovie.ID),
-			Title:       tmdbMovie.Title,
-			Overview:    tmdbMovie.Overview,
-			ReleaseDate: releaseDate,
-			PosterURL:   &tmdbMovie.PosterPath,
-			Genres:      genres,
+			TmdbID:         int32(tmdbMovie.ID),
+			Title:          tmdbMovie.Title,
+			Overview:       tmdbMovie.Overview,
+			ReleaseDate:    releaseDate,
+			RuntimeMinutes: 1, // ここの時間はメンテボタンで修正できるようにする
+			PosterURL:      &tmdbMovie.PosterPath,
+			Genres:         genres,
 		})
 	}
 
