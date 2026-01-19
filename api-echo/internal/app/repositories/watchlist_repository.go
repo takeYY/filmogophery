@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
 
@@ -13,6 +14,9 @@ import (
 type (
 	IWatchlistRepository interface {
 		// --- Create --- //
+
+		// ウォッチリストを登録
+		Create(ctx context.Context, tx *gorm.DB, watchlist *model.Watchlist) error
 
 		// --- Read --- //
 
@@ -35,6 +39,18 @@ func NewWatchlistRepository(db *gorm.DB) IWatchlistRepository {
 		ReaderDB: db.Clauses(dbresolver.Read),
 		WriterDB: db.Clauses(dbresolver.Write),
 	}
+}
+
+// ウォッチリストを登録
+func (r *watchlistRepository) Create(ctx context.Context, tx *gorm.DB, watchlist *model.Watchlist) error {
+	wl := query.Use(r.WriterDB).Watchlist
+	if tx != nil {
+		wl = query.Use(tx).Watchlist
+	}
+
+	return wl.WithContext(ctx).
+		Omit(field.AssociationFields).
+		Create(watchlist)
 }
 
 // ユーザーのウォッチリストを取得

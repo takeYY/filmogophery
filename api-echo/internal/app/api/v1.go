@@ -43,7 +43,8 @@ func RegisterV1Routes() fx.Option {
 			asV1Route(reviewHandler.NewGetReviewHistoryHandler),  // get review history
 			asV1Route(reviewHandler.NewPostReviewHistoryHandler), // create review history
 			// --- Watchlist --- //
-			asV1Route(watchlistHandler.NewGetWatchlistHandler), // get watchlist
+			asV1Route(watchlistHandler.NewGetWatchlistHandler),  // get watchlist
+			asV1Route(watchlistHandler.NewPostWatchlistHandler), // create watchlist
 			// --- Trending --- //
 			asV1Route(trendingHandler.NewGetTrendingMoviesHandler), // get trending movies
 			// --- Search --- //
