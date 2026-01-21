@@ -14,6 +14,7 @@ export default function SearchMovies() {
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addedToWatchlist, setAddedToWatchlist] = useState<number[]>([]);
 
   const token = useAuth();
   const accessToken = token ? token.accessToken : null;
@@ -51,14 +52,34 @@ export default function SearchMovies() {
     fetchMovie();
   }, [query]);
 
-  const addWatchList = useCallback(async (movie: Movie) => {
-    console.log(`movie is %o`, movie);
-    console.log("successfully added a movie to watchlist");
-    try {
-    } catch {
-      console.log("failed to add watch list");
-    }
-  }, []);
+  const addWatchList = useCallback(
+    async (movie: Movie) => {
+      if (!accessToken) {
+        console.log("未認証のため、ウォッチリストに追加できません");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/watchlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ movieId: movie.id }),
+        });
+
+        if (response.ok) {
+          setAddedToWatchlist((prev) => [...prev, movie.id]);
+        } else {
+          console.log("failed to add watch list");
+        }
+      } catch {
+        console.log("failed to add watch list");
+      }
+    },
+    [accessToken],
+  );
 
   return (
     <div className="container pb-4">
@@ -79,7 +100,20 @@ export default function SearchMovies() {
           {movies.map((movie: Movie) => {
             return (
               <div className="col" key={movie.id}>
-                <div className="card mb-2 bg-dark border-info">
+                <div className="card mb-2 bg-dark border-info position-relative">
+                  <button
+                    className={`position-absolute top-0 start-0 m-2 btn btn-sm rounded-circle ${
+                      addedToWatchlist.includes(movie.id)
+                        ? "btn-success"
+                        : "btn-warning"
+                    }`}
+                    onClick={() => addWatchList(movie)}
+                    title="ウォッチリストに追加"
+                    style={{ zIndex: 10, width: "36px", height: "36px" }}
+                    disabled={addedToWatchlist.includes(movie.id)}
+                  >
+                    {addedToWatchlist.includes(movie.id) ? "✓" : "➕"}
+                  </button>
                   <div className="row g-0">
                     <div className="col-md-4">
                       {/* ポスター */}
@@ -128,17 +162,8 @@ export default function SearchMovies() {
 
                         <div className="border-top border-success">
                           <div className="row mt-2">
-                            {/* TODO: ウォッチリストに追加するアクションを実装すること */}
-                            <div className="col-md-6 text-center">
-                              <button
-                                className="btn btn-outline-warning"
-                                onClick={() => addWatchList(movie)}
-                              >
-                                Watch List
-                              </button>
-                            </div>
                             {/* TODO: レビューを登録するアクションを実装すること。ただし、既にレビュー済みであればこのリンクは消すこと */}
-                            <div className="col-md-6 text-center">
+                            <div className="col text-center">
                               <Link
                                 className="btn btn-outline-success"
                                 href={`/movie/${movie.id}/review/create`}
