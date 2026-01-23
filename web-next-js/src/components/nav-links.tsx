@@ -107,9 +107,9 @@ export function NavLinks() {
             <li className="nav-item mb-2">
               <Link
                 className={`nav-link text-light ${
-                  pathname === "/watch/list" ? "active bg-primary rounded" : ""
+                  pathname === "/watchlist" ? "active bg-primary rounded" : ""
                 }`}
-                href="/watch/list"
+                href="/watchlist"
                 onClick={() => setSidebarOpen(false)}
               >
                 <i className="bi bi-list-ul me-2"></i>
