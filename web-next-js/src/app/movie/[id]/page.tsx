@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 export default function Page({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();
   const isUpdated = searchParams.get("updated") === "true";
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const [showAlert, setShowAlert] = useState(isUpdated);
   const [movie, setMovie] = useState<MovieDetail | null>();
@@ -57,6 +58,7 @@ export default function Page({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchMoviesAndWatchHistory = async () => {
       console.log("movieのデータ取得中...");
+      setIsLoading(true);
       try {
         const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
@@ -83,7 +85,7 @@ export default function Page({ params }: { params: { id: string } }) {
               method: "GET",
               headers,
               cache: "no-store",
-            }
+            },
           );
           const watchHistoryData: WatchHistory[] =
             await watchHistoryResponse.json();
@@ -97,11 +99,26 @@ export default function Page({ params }: { params: { id: string } }) {
         console.log("movieのデータ取得: エラー。空配列で定義します");
         setMovie(undefined);
         setWatchHistory([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchMoviesAndWatchHistory();
   }, [params.id, searchParams]);
+
+  if (isLoading) {
+    return (
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
+        <div className="spinner-border text-info" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!movie) {
     return <div>Movie({params.id}) is not found</div>;

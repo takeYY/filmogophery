@@ -35,7 +35,7 @@ export default function Home() {
 
   function separateTrending(
     trending: TrendingMovie[] | undefined,
-    size: number
+    size: number,
   ) {
     if (!trending || trending.length === 0) {
       return [[]];
@@ -112,7 +112,7 @@ export default function Home() {
           setIsLoadingMore(false);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (observerTarget.current) {
@@ -150,23 +150,25 @@ export default function Home() {
             return (
               <Carousel.Item key={`carousel-item-${index}`}>
                 <div className="row justify-content-md-center">
-                  {trending.map((t: TrendingMovie, i: number) => {
+                  {trending.map((trend: TrendingMovie, i: number) => {
                     return (
                       <div
                         className="col-md-2"
-                        key={`carousel-movie-${t.id || i}`}
+                        key={`carousel-movie-${trend.id || i}`}
                       >
                         <Image
                           src={
                             posterUrlPrefix +
-                            (t.posterURL
-                              ? t.posterURL
+                            (trend.posterURL
+                              ? trend.posterURL
                               : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
                           }
                           alt="ポスター画像"
                           className="img-fluid"
                           width={200}
                           height={200}
+                          onClick={() => router.push(`/movie/${trend.id}`)}
+                          style={{ cursor: "pointer" }}
                         />
                       </div>
                     );
