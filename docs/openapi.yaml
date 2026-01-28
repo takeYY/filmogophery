@@ -309,7 +309,7 @@ paths:
 
   /users/me/watch-history:
     get:
-      tags: [WatchHistory]
+      tags: [WatchHistory, User]
       summary: 視聴履歴一覧
       operationId: getWatchHistory
       parameters:
