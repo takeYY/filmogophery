@@ -17,6 +17,8 @@ type (
 
 		// 映画IDに一致する視聴履歴を取得する
 		GetByMovieID(ctx context.Context, operator *model.Users, movie *model.Movies) ([]*model.WatchHistory, error)
+		// ユーザーIDに一致する視聴履歴を取得する
+		GetByUserID(ctx context.Context, operator *model.Users, limit, offset int32) ([]*model.WatchHistory, error)
 
 		// --- Update --- //
 
@@ -44,6 +46,21 @@ func (s *watchHistoryService) GetByMovieID(
 	whs, err := s.watchHistRepo.FindByMovieID(ctx, operator, movie)
 	if err != nil {
 		logger.Error().Msgf("failed to get a watch history(movieID=%d): %s", movie.ID, err.Error())
+		return nil, responses.InternalServerError()
+	}
+
+	return whs, nil
+}
+
+// ユーザーIDに一致する視聴履歴を取得する
+func (s *watchHistoryService) GetByUserID(
+	ctx context.Context, operator *model.Users, limit, offset int32,
+) ([]*model.WatchHistory, error) {
+	logger := logger.GetLogger()
+
+	whs, err := s.watchHistRepo.FindByUserID(ctx, operator, limit, offset)
+	if err != nil {
+		logger.Error().Msgf("failed to get a watch history(userID=%d): %s", operator.ID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 

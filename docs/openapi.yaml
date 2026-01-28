@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.7.1v2026.01.05
+  version: 0.7.2v2026.01.28
   license:
     name: None
     url: None
@@ -309,7 +309,7 @@ paths:
 
   /users/me/watch-history:
     get:
-      tags: [WatchHistory]
+      tags: [WatchHistory, User]
       summary: 視聴履歴一覧
       operationId: getWatchHistory
       parameters:
