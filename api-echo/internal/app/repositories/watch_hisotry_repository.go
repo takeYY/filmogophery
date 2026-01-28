@@ -21,6 +21,8 @@ type (
 
 		// 映画IDに一致する視聴履歴を取得
 		FindByMovieID(ctx context.Context, operator *model.Users, movie *model.Movies) ([]*model.WatchHistory, error)
+		// ユーザーIDに一致する視聴履歴を取得
+		FindByUserID(ctx context.Context, operator *model.Users, limit, offset int32) ([]*model.WatchHistory, error)
 	}
 	watchHistoryRepository struct {
 		ReaderDB *gorm.DB
@@ -57,5 +59,23 @@ func (r *watchHistoryRepository) FindByMovieID(
 			wh.UserID.Eq(operator.ID),
 			wh.MovieID.Eq(movie.ID),
 		).
+		Find()
+}
+
+// ユーザーIDに一致する視聴履歴を取得
+func (r *watchHistoryRepository) FindByUserID(
+	ctx context.Context, operator *model.Users, limit, offset int32,
+) ([]*model.WatchHistory, error) {
+	wh := query.Use(r.ReaderDB).WatchHistory
+
+	return wh.WithContext(ctx).
+		Preload(wh.Platform).
+		Preload(wh.Movie.Genres).
+		Where(
+			wh.UserID.Eq(operator.ID),
+		).
+		Order(wh.WatchedDate.Desc()).
+		Limit(int(limit)).
+		Offset(int(offset)).
 		Find()
 }
