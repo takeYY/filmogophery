@@ -123,7 +123,7 @@ export function NavLinks() {
                     ? "active bg-primary rounded"
                     : ""
                 }`}
-                href="/watch/calendar"
+                href="/watch-calendar"
                 onClick={() => setSidebarOpen(false)}
               >
                 <i className="bi bi-calendar me-2"></i>
