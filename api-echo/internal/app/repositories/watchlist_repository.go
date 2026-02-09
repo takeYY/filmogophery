@@ -26,6 +26,9 @@ type (
 		// --- Update --- //
 
 		// --- Delete --- //
+
+		// IDに一致するウォッチリストを削除
+		DeleteByID(ctx context.Context, tx *gorm.DB, id int32) (int64, error)
 	}
 
 	watchlistRepository struct {
@@ -66,4 +69,18 @@ func (r *watchlistRepository) FindByUserID(
 		Limit(int(limit)).
 		Offset(int(offset)).
 		Find()
+}
+
+// IDに一致するウォッチリストを削除
+func (r *watchlistRepository) DeleteByID(ctx context.Context, tx *gorm.DB, id int32) (int64, error) {
+	wl := query.Use(r.WriterDB).Watchlist
+	if tx != nil {
+		wl = query.Use(tx).Watchlist
+	}
+
+	result, err := wl.WithContext(ctx).
+		Where(wl.ID.Eq(id)).
+		Omit(field.AssociationFields).
+		Delete()
+	return result.RowsAffected, err
 }
