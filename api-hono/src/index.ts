@@ -7,6 +7,6 @@ app.get("/", (c) => {
 });
 
 export default {
-  port: 8001,
+  port: process.env.SERVER_PORT,
   fetch: app.fetch,
 };
