@@ -23,13 +23,13 @@ jobs:
 
       - name: Build Image & Run Container
         run: |
-          docker compose build
-          docker compose up -d db
+          docker compose -f compose.shared.yml -f compose.echo.yml build
+          docker compose -f compose.shared.yml -f compose.echo.yml up -d db
           sleep 30
-          docker compose logs db
-          docker compose up -d api
-          docker compose ps
+          docker compose -f compose.shared.yml -f compose.echo.yml logs db
+          docker compose -f compose.shared.yml -f compose.echo.yml up -d api
+          docker compose -f compose.shared.yml -f compose.echo.yml ps
 
       - name: Run Tests in Container
         run: |
-          docker compose exec api gotest -v ./... -cover
+          docker compose -f compose.shared.yml -f compose.echo.yml exec api gotest -v ./... -cover
