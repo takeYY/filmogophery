@@ -47,4 +47,4 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifi
 
 EXPOSE ${PORT}
 
-ENTRYPOINT ["bun", "index.js"]
+ENTRYPOINT ["bun", "server.js"]
