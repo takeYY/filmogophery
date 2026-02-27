@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/
 
 WORKDIR ${APP_DIR}
 
-COPY ${TARGET_DIR}/package.json ${TARGET_DIR}/tsconfig.json ${TARGET_DIR}/.env ./
+COPY ${TARGET_DIR}/package.json ${TARGET_DIR}/tsconfig.json ${TARGET_DIR}/.env ${TARGET_DIR}/drizzle.config.ts ./
 RUN bun install --ignore-scripts --production
 
 COPY ${TARGET_DIR}/src ./src
