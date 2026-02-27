@@ -9,19 +9,19 @@ const logger = {
 
 const readerDatabase = {
   DB_CORE: process.env.READER_DB_CORE_COUNT,
-  HOST: process.env.READER_DB_HOST,
+  HOST: process.env.READER_DB_HOST?.split(":")[0],
   PORT: Number(process.env.READER_DB_PORT) ?? 3306,
   USER: process.env.READER_DB_USER,
-  PASSWORD: process.env.READER_DB_PASSWORD,
+  PASSWORD: process.env.READER_DB_PWD,
   NAME: process.env.READER_DB_NAME,
 };
 
 const writerDatabase = {
   DB_CORE: process.env.WRITER_DB_CORE_COUNT,
-  HOST: process.env.WRITER_DB_HOST,
+  HOST: process.env.WRITER_DB_HOST?.split(":")[0],
   PORT: Number(process.env.WRITER_DB_PORT) ?? 3306,
   USER: process.env.WRITER_DB_USER,
-  PASSWORD: process.env.WRITER_DB_PASSWORD,
+  PASSWORD: process.env.WRITER_DB_PWD,
   NAME: process.env.WRITER_DB_NAME,
 };
 
