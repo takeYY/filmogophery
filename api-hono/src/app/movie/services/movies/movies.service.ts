@@ -23,7 +23,7 @@ export async function getMovies(
   offset: number,
 ): Promise<Ok<Movie[], never>> {
   const result = await getMoviesByGenre(genre, limit, offset);
-  if (result == undefined) {
+  if (result.length == 0) {
     return ok([]);
   }
 
