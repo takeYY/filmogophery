@@ -27,9 +27,9 @@ jobs:
           docker compose -f compose.shared.yml -f compose.echo.yml up -d db
           sleep 30
           docker compose -f compose.shared.yml -f compose.echo.yml logs db
-          docker compose -f compose.shared.yml -f compose.echo.yml up -d api
+          docker compose -f compose.shared.yml -f compose.echo.yml up -d api_echo
           docker compose -f compose.shared.yml -f compose.echo.yml ps
 
       - name: Run Tests in Container
         run: |
-          docker compose -f compose.shared.yml -f compose.echo.yml exec api gotest -v ./... -cover
+          docker compose -f compose.shared.yml -f compose.echo.yml exec api_echo gotest -v ./... -cover
