@@ -43,6 +43,11 @@ test_echo:
 	docker compose -f compose.shared.yml -f compose.echo.yml exec api gotest -v ./... -cover
 	docker compose -f compose.shared.yml -f compose.echo.yml stop
 
+test_hono:
+	docker compose -f compose.shared.yml -f compose.hono.yml up -d api_hono
+	docker compose -f compose.shared.yml -f compose.hono.yml exec api_hono bun test
+	docker compose -f compose.shared.yml -f compose.hono.yml stop
+
 gen_models:
 	make up_d
 	docker compose -f compose.shared.yml -f $(TARGET_COMPOSE) exec api go run cmd/gen/gorm_gen.go
