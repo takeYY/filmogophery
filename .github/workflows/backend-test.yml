@@ -50,4 +50,5 @@ jobs:
           docker compose -f compose.shared.yml -f compose.hono.yml up -d db
           sleep 30
           docker compose -f compose.shared.yml -f compose.hono.yml up -d api_hono
+          docker compose -f compose.shared.yml -f compose.hono.yml exec api_hono bun install
           docker compose -f compose.shared.yml -f compose.hono.yml exec api_hono bun test
