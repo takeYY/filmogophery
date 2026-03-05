@@ -25,7 +25,7 @@ export default function (app: AppType) {
       const query = c.req.valid("query");
 
       const result = await getMovies(query.genre, query.limit, query.offset);
-      return c.json(result, StatusCodes.OK);
+      return c.json(result.value, StatusCodes.OK);
     },
   );
 }
