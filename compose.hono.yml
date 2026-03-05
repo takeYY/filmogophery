@@ -1,0 +1,19 @@
+services:
+  api_hono:
+    container_name: api_hono
+    build:
+      context: .
+      dockerfile: ./docker/server/Dockerfile.hono
+      target: dev
+    ports:
+      - 8000:8000
+    volumes:
+      - ./api-hono/:/usr/src/app
+    command: bun run dev
+    env_file:
+      - ./api-hono/.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started

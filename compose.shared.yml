@@ -1,24 +1,4 @@
 services:
-  api:
-    container_name: api_echo
-    build:
-      context: .
-      dockerfile: ./docker/server/Dockerfile
-      target: dev
-    ports:
-      - 8000:8000
-    volumes:
-      - ./api-echo/:/usr/src/app
-    command: >
-      bash -c 'air'
-    env_file:
-      - ./api-echo/.env
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-
   db:
     image: mysql:8.0.32
     container_name: mysql_filmogophery

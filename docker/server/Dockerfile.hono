@@ -1,0 +1,50 @@
+ARG BUN_VERSION=1.2.18
+ARG PORT=8001
+
+FROM oven/bun:${BUN_VERSION}-slim AS dev
+
+ENV TARGET_DIR=./api-hono
+ENV APP_DIR=/usr/src/app
+
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+WORKDIR ${APP_DIR}
+
+COPY ${TARGET_DIR}/package.json ${TARGET_DIR}/tsconfig.json ${TARGET_DIR}/.env ${TARGET_DIR}/drizzle.config.ts ./
+RUN bun install --ignore-scripts --production
+
+COPY ${TARGET_DIR}/src ./src
+
+
+FROM oven/bun:${BUN_VERSION}-slim AS builder
+
+ENV TARGET_DIR=./api-hono
+ENV APP_DIR=/usr/src/app
+
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+WORKDIR ${APP_DIR}
+
+COPY ${TARGET_DIR}/package.json ${TARGET_DIR}/tsconfig.json ./
+RUN bun install --ignore-scripts --production
+
+COPY ${TARGET_DIR}/src ./src
+
+RUN bun run build
+
+FROM oven/bun:${BUN_VERSION}-slim
+
+ARG PORT
+ENV APP_DIR=/usr/src/app
+
+RUN apt-get update && apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR ${APP_DIR}
+
+COPY --from=builder ${APP_DIR}/dist ${APP_DIR}
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
+EXPOSE ${PORT}
+
+ENTRYPOINT ["bun", "server.js"]
