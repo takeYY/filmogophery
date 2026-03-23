@@ -22,9 +22,15 @@ export default function (app: AppType) {
     }),
 
     async (c) => {
+      const logger = c.get("logger");
       const query = c.req.valid("query");
 
-      const result = await getMovies(query.genre, query.limit, query.offset);
+      const result = await getMovies(
+        logger,
+        query.genre,
+        query.limit,
+        query.offset,
+      );
       return c.json(result.value, StatusCodes.OK);
     },
   );
