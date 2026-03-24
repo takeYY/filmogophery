@@ -1,6 +1,9 @@
 import * as movieRepo from "@/app/movie/repositories/movies/movies.repository";
 import { getMovies } from "@/app/movie/services/movies/movies.service";
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
+import pino from "pino";
+
+const logger = pino({ level: "silent" });
 
 describe("getMovies", () => {
   afterEach(() => {
@@ -10,7 +13,7 @@ describe("getMovies", () => {
   test("映画が見つからない場合は空配列を返す", async () => {
     spyOn(movieRepo, "getMoviesByGenre").mockResolvedValue([]);
 
-    const result = await getMovies(undefined, 12, 0);
+    const result = await getMovies(logger, undefined, 12, 0);
     const data = result._unsafeUnwrap();
 
     expect(result.isOk()).toBe(true);
@@ -32,7 +35,7 @@ describe("getMovies", () => {
       },
     ]);
 
-    const result = await getMovies(undefined, 12, 0);
+    const result = await getMovies(logger, undefined, 12, 0);
     const data = result._unsafeUnwrap();
 
     expect(result.isOk()).toBe(true);

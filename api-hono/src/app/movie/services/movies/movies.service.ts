@@ -1,4 +1,5 @@
 import { Ok, ok } from "neverthrow";
+import { Logger } from "pino";
 import { getMoviesByGenre } from "../../repositories/movies/movies.repository";
 
 export interface Genre {
@@ -18,12 +19,15 @@ export interface Movie {
 }
 
 export async function getMovies(
+  logger: Logger,
   genre: string | undefined,
   limit: number,
   offset: number,
 ): Promise<Ok<Movie[], never>> {
+  logger.info({ genre, limit, offset }, "getMovies called");
   const result = await getMoviesByGenre(genre, limit, offset);
   if (result.length == 0) {
+    logger.info("movie is not found");
     return ok([]);
   }
 
