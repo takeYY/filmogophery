@@ -1,6 +1,15 @@
-import { Ok, ok } from "neverthrow";
+import { users } from "@/core/drizzle/schema";
+import { MovieIsNotFound, TmdbMovieIsNotFound } from "@/core/errors";
+import type { TmdbMovieDetailResponse } from "@/core/services/tmdb/tmdb.service";
+import { getTmdbMovieDetailById } from "@/core/services/tmdb/tmdb.service";
+import { err, Ok, ok } from "neverthrow";
 import { Logger } from "pino";
-import { getMoviesByGenre } from "../../repositories/movies/movies.repository";
+import {
+  fetchMovieById,
+  getMoviesByGenre,
+} from "../../repositories/movies/movies.repository";
+import { fetchReviewByMovieId } from "../../repositories/reviews/reviews.repository";
+import { fetchSeriesByMovieId } from "../../repositories/series/series.repository";
 
 export interface Genre {
   code: string;
@@ -16,6 +25,26 @@ export interface Movie {
   posterUrl: string | null;
   tmdbId: number;
   genres: Genre[];
+}
+
+interface Review {
+  id: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+  rating: string | null;
+  comment: string | null;
+}
+
+interface Series {
+  name: string | null;
+  posterUrl: string | null;
+}
+
+export interface MovieDetail extends Movie {
+  voteAverage: number;
+  voteCount: number;
+  series: Series | null;
+  review: Review | null;
 }
 
 export async function getMovies(
@@ -49,4 +78,66 @@ export async function getMovies(
   });
 
   return ok(movies);
+}
+
+export async function getMovieById(
+  logger: Logger,
+  operator: typeof users.$inferSelect,
+  id: number,
+) {
+  logger.info({ id }, "getMovieById called");
+
+  const movie = await fetchMovieById(id);
+  if (movie === undefined) {
+    logger.info({ id }, "movie is not found");
+    return err(new MovieIsNotFound());
+  }
+
+  const codes = movie.genreCodes?.split(",") || [];
+  const names = movie.genreNames?.split(",") || [];
+  const genres = codes.map((code, i) => ({ code, name: names[i] }));
+
+  const tmdbMovie = await getTmdbMovieDetailById(movie.tmdbId);
+  if (tmdbMovie.isErr()) {
+    return err(new TmdbMovieIsNotFound());
+  }
+  const tmdb = (await tmdbMovie.value.json()) as TmdbMovieDetailResponse;
+
+  const review = await fetchReviewByMovieId(operator.id, movie.id);
+  let reviewResponse: Review | null;
+  if (review === undefined) {
+    reviewResponse = null;
+  } else {
+    reviewResponse = {
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
+    };
+  }
+
+  const voteAverage = Math.round((tmdb.vote_average / 2) * 10) / 10;
+
+  const series = await fetchSeriesByMovieId(movie.id);
+  let seriesResponse: Series | null;
+  if (series === undefined) {
+    seriesResponse = null;
+  } else {
+    seriesResponse = {
+      name: series.name,
+      posterUrl: series.posterUrl,
+    };
+  }
+
+  const result: MovieDetail = {
+    ...movie,
+    voteAverage,
+    voteCount: tmdb.vote_count,
+    series: seriesResponse,
+    review: reviewResponse,
+    genres,
+  };
+
+  return ok(result);
 }
