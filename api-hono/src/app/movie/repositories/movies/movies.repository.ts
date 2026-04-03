@@ -39,3 +39,32 @@ export async function getMoviesByGenre(
 
   return await query.limit(limit).offset(offset);
 }
+
+export async function fetchMovieById(
+  id: number,
+  db: MySql2Database = dbConnections.readonly,
+) {
+  const [movie] = await db
+    .select({
+      id: movies.id,
+      title: movies.title,
+      overview: movies.overview,
+      releaseDate: movies.releaseDate,
+      runtimeMinute: movies.runtimeMinutes,
+      posterUrl: movies.posterUrl,
+      tmdbId: movies.tmdbId,
+      genreCodes: sql<string>`GROUP_CONCAT(DISTINCT ${genres.code})`.as(
+        "genre_codes",
+      ),
+      genreNames: sql<string>`GROUP_CONCAT(DISTINCT ${genres.name})`.as(
+        "genre_names",
+      ),
+    })
+    .from(movies)
+    .leftJoin(movieGenres, eq(movies.id, movieGenres.movieId))
+    .leftJoin(genres, eq(movieGenres.genreId, genres.id))
+    .where(eq(movies.id, id))
+    .groupBy(movies.id);
+
+  return movie;
+}
