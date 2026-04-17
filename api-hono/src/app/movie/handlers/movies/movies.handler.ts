@@ -1,4 +1,5 @@
 import { AppType } from "@/core/app";
+import { Movie } from "@/core/types/movie";
 import { validator } from "hono/validator";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
@@ -31,7 +32,7 @@ export default function (app: AppType) {
         query.limit,
         query.offset,
       );
-      return c.json(result.value, StatusCodes.OK);
+      return c.json(result.value satisfies Movie[], StatusCodes.OK);
     },
   );
 }

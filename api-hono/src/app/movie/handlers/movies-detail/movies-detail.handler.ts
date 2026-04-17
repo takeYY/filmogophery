@@ -1,14 +1,12 @@
 import { AppType } from "@/core/app";
 import { MovieIsNotFound } from "@/core/errors";
 import { requireAuthMiddleware } from "@/core/middlewares/auth.middleware";
+import { MovieDetail } from "@/core/types/movie";
 import { validator } from "hono/validator";
 import { StatusCodes } from "http-status-codes";
 import { match, P } from "ts-pattern";
 import z from "zod";
-import {
-  getMovieById,
-  MovieDetail,
-} from "../../services/movies/movies.service";
+import { getMovieById } from "../../services/movies/movies.service";
 
 const pathSchema = z.object({
   id: z.coerce.number().int().min(1),
