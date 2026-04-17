@@ -1,7 +1,8 @@
 import { users } from "@/core/drizzle/schema";
 import { MovieIsNotFound, TmdbMovieIsNotFound } from "@/core/errors";
-import type { TmdbMovieDetailResponse } from "@/core/services/tmdb/tmdb.service";
 import { getTmdbMovieDetailById } from "@/core/services/tmdb/tmdb.service";
+import { Movie, MovieDetail, Review, Series } from "@/core/types/movie";
+import type { TmdbMovieDetailResponse } from "@/core/types/tmdb";
 import { err, Ok, ok } from "neverthrow";
 import { Logger } from "pino";
 import {
@@ -10,42 +11,6 @@ import {
 } from "../../repositories/movies/movies.repository";
 import { fetchReviewByMovieId } from "../../repositories/reviews/reviews.repository";
 import { fetchSeriesByMovieId } from "../../repositories/series/series.repository";
-
-export interface Genre {
-  code: string;
-  name: string;
-}
-
-export interface Movie {
-  id: number;
-  title: string;
-  overview: string;
-  releaseDate: string;
-  runtimeMinute: number;
-  posterUrl: string | null;
-  tmdbId: number;
-  genres: Genre[];
-}
-
-interface Review {
-  id: number;
-  createdAt: string | null;
-  updatedAt: string | null;
-  rating: string | null;
-  comment: string | null;
-}
-
-interface Series {
-  name: string | null;
-  posterUrl: string | null;
-}
-
-export interface MovieDetail extends Movie {
-  voteAverage: number;
-  voteCount: number;
-  series: Series | null;
-  review: Review | null;
-}
 
 export async function getMovies(
   logger: Logger,
