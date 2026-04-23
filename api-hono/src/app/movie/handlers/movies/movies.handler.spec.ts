@@ -1,3 +1,4 @@
+import { Variables } from "@/core/app";
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { Hono } from "hono";
 import { StatusCodes } from "http-status-codes";
@@ -26,7 +27,7 @@ describe("movies.handler", () => {
 
     spyOn(moviesService, "getMovies").mockResolvedValue(ok(mockMovies));
 
-    const testApp = new Hono().basePath("/v1");
+    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
     moviesHandler(testApp);
 
     const res = await testApp.request("/v1/movies");
@@ -51,7 +52,7 @@ describe("movies.handler", () => {
 
     spyOn(moviesService, "getMovies").mockResolvedValue(ok(mockMovies));
 
-    const testApp = new Hono().basePath("/v1");
+    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
     moviesHandler(testApp);
 
     const res = await testApp.request(
@@ -65,7 +66,7 @@ describe("movies.handler", () => {
   test("should return empty array when no movies found", async () => {
     spyOn(moviesService, "getMovies").mockResolvedValue(ok([]));
 
-    const testApp = new Hono().basePath("/v1");
+    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
     moviesHandler(testApp);
 
     const res = await testApp.request("/v1/movies");
@@ -75,7 +76,7 @@ describe("movies.handler", () => {
   });
 
   test("should return 400 for invalid limit", async () => {
-    const testApp = new Hono().basePath("/v1");
+    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
     moviesHandler(testApp);
 
     const res = await testApp.request("/v1/movies?limit=-1");
@@ -84,7 +85,7 @@ describe("movies.handler", () => {
   });
 
   test("should return 400 for invalid offset", async () => {
-    const testApp = new Hono().basePath("/v1");
+    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
     moviesHandler(testApp);
 
     const res = await testApp.request("/v1/movies?offset=-1");
