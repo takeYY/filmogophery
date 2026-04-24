@@ -5,7 +5,7 @@ import crypto from "crypto";
 import { sign } from "hono/jwt";
 import { err, ok } from "neverthrow";
 import { Logger } from "pino";
-import { insertUser } from "../../repositories/users/users.repository";
+import { insertUser as _insertUser } from "../../repositories/users/users.repository";
 
 const EXPIRES_IN = 3600; // 1時間
 
@@ -19,11 +19,16 @@ export type Token = {
   expiresAt: string;
 };
 
+type Deps = {
+  insertUser?: typeof _insertUser;
+};
+
 export async function createUser(
   logger: Logger,
   username: string,
   email: string,
   password: string,
+  { insertUser = _insertUser }: Deps = {},
 ) {
   logger.info({ username, email }, "createUser called");
 

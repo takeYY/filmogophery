@@ -7,7 +7,7 @@ export async function insertUser(
     username: string;
     email: string;
     passwordHash: string;
-    lastLoginAt: string;
+    lastLoginAt?: string;
   },
   db: MySql2Database = dbConnections.default,
 ) {
