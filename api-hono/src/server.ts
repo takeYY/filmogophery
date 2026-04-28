@@ -1,5 +1,6 @@
 import { app } from "./core/app";
 
+import "@/app/auth";
 import "@/app/health";
 import "@/app/movie";
 import "@/app/search";
