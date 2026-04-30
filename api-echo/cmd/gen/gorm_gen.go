@@ -116,6 +116,24 @@ func main() {
 		}),
 	)
 
+	userPoints := g.GenerateModel("user_points",
+		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"UserID"},
+				"references": []string{"ID"},
+			},
+		}),
+	)
+	pointHistory := g.GenerateModel("point_history",
+		gen.FieldRelate(field.HasOne, "User", users, &field.RelateConfig{
+			GORMTag: field.GormTag{
+				"foreignKey": []string{"UserID"},
+				"references": []string{"ID"},
+			},
+		}),
+		gen.FieldType("action", "constant.PointAction"),
+	)
+
 	g.ApplyBasic(
 		genres,
 		movies,
@@ -127,6 +145,8 @@ func main() {
 		watchlist,
 		reviews,
 		watchHistory,
+		userPoints,
+		pointHistory,
 	)
 
 	g.Execute()
