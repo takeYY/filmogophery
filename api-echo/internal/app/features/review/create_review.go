@@ -15,16 +15,19 @@ type (
 	createReviewInteractor struct {
 		movieService  services.IMovieService
 		reviewService services.IReviewService
+		pointService  services.IPointService
 	}
 )
 
 func NewCreateReviewInteractor(
 	movieService services.IMovieService,
 	reviewService services.IReviewService,
+	pointService services.IPointService,
 ) CreateReviewUseCase {
 	return &createReviewInteractor{
 		movieService,
 		reviewService,
+		pointService,
 	}
 }
 
@@ -36,10 +39,15 @@ func (i *createReviewInteractor) Run(ctx context.Context, operator *model.Users,
 	}
 
 	// レビューを作成
-	err = i.reviewService.CreateReview(ctx, nil, operator, movie, rating, comment)
+	if err := i.reviewService.CreateReview(ctx, nil, operator, movie, rating, comment); err != nil {
+		return err
+	}
+
+	// 作成したレビューを取得してポイント付与
+	review, err := i.reviewService.GetReviewByMovieID(ctx, operator, movie)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return i.pointService.GrantReviewPoints(ctx, nil, operator, review)
 }

@@ -22,7 +22,7 @@ type (
 		// レビューを作成
 		CreateReview(ctx context.Context, tx *gorm.DB, operator *model.Users, movie *model.Movies, rating *float64, comment *string) error
 		// 視聴履歴を作成
-		CreateWatchHistory(ctx context.Context, tx *gorm.DB, operator *model.Users, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date) error
+		CreateWatchHistory(ctx context.Context, tx *gorm.DB, operator *model.Users, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date) (*model.WatchHistory, error)
 
 		// --- Read --- //
 
@@ -92,7 +92,7 @@ func (s *reviewService) CreateWatchHistory(
 	review *model.Reviews,
 	platform *model.Platforms,
 	watchedDate *constant.Date,
-) error {
+) (*model.WatchHistory, error) {
 	logger := logger.GetLogger()
 
 	var parsedWatchedDate *time.Time
@@ -101,7 +101,7 @@ func (s *reviewService) CreateWatchHistory(
 		if err != nil {
 			em := fmt.Sprintf("failed to parse watchedDate: %s", err.Error())
 			logger.Error().Msg(em)
-			return responses.BadRequestError(map[string][]string{"WatchedDate": {"failed to parse date"}})
+			return nil, responses.BadRequestError(map[string][]string{"WatchedDate": {"failed to parse date"}})
 		}
 		parsedWatchedDate = &parsedDate
 	}
@@ -115,11 +115,11 @@ func (s *reviewService) CreateWatchHistory(
 	err := s.watchHistoryRepo.Save(ctx, tx, watchHistory)
 	if err != nil {
 		logger.Error().Msgf("failed to create watch_history: %s", err.Error())
-		return responses.InternalServerError()
+		return nil, responses.InternalServerError()
 	}
 	logger.Debug().Msg("successfully created watch history")
 
-	return nil
+	return watchHistory, nil
 }
 
 // IDに一致するレビューを取得

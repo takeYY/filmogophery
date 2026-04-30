@@ -16,6 +16,7 @@ type (
 		GenreService() IGenreService
 		MovieService() IMovieService
 		PlatformService() IPlatformService
+		PointService() IPointService
 		ReviewService() IReviewService
 		UserService() IUserService
 		WatchHistoryService() IWatchHistoryService
@@ -68,6 +69,12 @@ func (c *serviceContainer) MovieService() IMovieService {
 func (c *serviceContainer) PlatformService() IPlatformService {
 	return NewPlatformService(
 		repositories.NewPlatformRepository(c.db),
+	)
+}
+
+func (c *serviceContainer) PointService() IPointService {
+	return NewPointService(
+		repositories.NewPointRepository(c.db),
 	)
 }
 

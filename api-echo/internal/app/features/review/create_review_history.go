@@ -16,16 +16,22 @@ type (
 	createReviewHistoryInteractor struct {
 		reviewService   services.IReviewService
 		platformService services.IPlatformService
+		pointService    services.IPointService
+		movieService    services.IMovieService
 	}
 )
 
 func NewCreateReviewHistoryInteractor(
 	reviewService services.IReviewService,
 	platformService services.IPlatformService,
+	pointService services.IPointService,
+	movieService services.IMovieService,
 ) CreateReviewHistoryUseCase {
 	return &createReviewHistoryInteractor{
 		reviewService,
 		platformService,
+		pointService,
+		movieService,
 	}
 }
 
@@ -45,5 +51,16 @@ func (i *createReviewHistoryInteractor) Run(
 	}
 
 	// 視聴履歴登録
-	return i.reviewService.CreateWatchHistory(ctx, nil, operator, review, platform, watchedDate)
+	watchHistory, err := i.reviewService.CreateWatchHistory(ctx, nil, operator, review, platform, watchedDate)
+	if err != nil {
+		return err
+	}
+
+	// 映画情報を取得してポイント付与
+	movie, err := i.movieService.GetMovieByID(ctx, review.MovieID)
+	if err != nil {
+		return err
+	}
+
+	return i.pointService.GrantWatchHistoryPoints(ctx, nil, operator, watchHistory, movie)
 }
