@@ -128,6 +128,32 @@ CREATE TABLE
         INDEX idx_watched_date (watched_date)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
+-- ユーザーポイントテーブル
+CREATE TABLE
+    `user_points` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `user_id` INT NOT NULL UNIQUE,
+        `total_points` INT NOT NULL DEFAULT 0,
+        `level` TINYINT NOT NULL DEFAULT 1,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES `users` (id) ON DELETE CASCADE
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- ポイント履歴テーブル
+CREATE TABLE
+    `point_history` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `user_id` INT NOT NULL,
+        `points` INT NOT NULL COMMENT '付与ポイント数',
+        `action` VARCHAR(50) NOT NULL COMMENT 'watch_history / review',
+        `reference_id` INT NOT NULL COMMENT 'actionに対応するレコードのID',
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES `users` (id) ON DELETE CASCADE,
+        INDEX idx_user_id (user_id),
+        INDEX idx_created_at (created_at)
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 USE db4test;
 
 -- db4devのテーブル構造をコピー
@@ -160,3 +186,9 @@ CREATE TABLE
 
 CREATE TABLE
     `watch_history` LIKE `db4dev`.`watch_history`;
+
+CREATE TABLE
+    `user_points` LIKE `db4dev`.`user_points`;
+
+CREATE TABLE
+    `point_history` LIKE `db4dev`.`point_history`;
