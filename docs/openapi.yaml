@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.7.2v2026.01.28
+  version: 0.8.0v2026.04.30
   license:
     name: None
     url: None
@@ -73,6 +73,34 @@ paths:
           description: バッドリクエスト
         409:
           description: 競合
+
+  /users/me/points:
+    get:
+      tags: [User]
+      summary: ポイント・レベル取得
+      operationId: getUserPoints
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: ポイント履歴の取得件数
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: ポイント履歴の取得位置
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPoints"
+        401:
+          description: 未認証
 
   /users/me:
     get:
@@ -560,6 +588,52 @@ paths:
 
 components:
   schemas:
+    UserPoints:
+      type: object
+      properties:
+        totalPoints:
+          type: integer
+          description: 累計ポイント
+          example: 120
+        level:
+          type: integer
+          description: 現在のレベル
+          example: 2
+        nextLevelPoints:
+          type: integer
+          description: 次のレベルまでの残りポイント
+          example: 180
+        currentLevelWidth:
+          type: integer
+          description: 現在のレベル幅（レベルアップに必要なポイント数）
+          example: 200
+        pointHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/PointHistoryItem"
+
+    PointHistoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ポイント履歴ID
+        points:
+          type: integer
+          description: 付与ポイント数
+          example: 20
+        action:
+          type: string
+          description: ポイント付与アクション
+          enum: [watch_history, review]
+        referenceId:
+          type: integer
+          description: アクションに対応するレコードのID
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+
     CreateUser:
       type: object
       required: [username, email, password]
