@@ -90,12 +90,12 @@ export default function Page({
       };
       console.log("page payload:", jsonData);
       const response = await fetch(
-        `/api/movies/${params.id}/reviews/${movieDetail?.review?.id}`,
+        `/api/movies/${params.id}/reviews/${params.reviewId}`,
         {
           method: "POST",
           headers,
           body: JSON.stringify(jsonData),
-        }
+        },
       );
 
       if (!response.ok) {
