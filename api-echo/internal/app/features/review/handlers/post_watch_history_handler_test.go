@@ -136,6 +136,8 @@ func TestPostReviewHistoryHandler_handle__Error(t *testing.T) {
 				interactor: review.NewCreateReviewHistoryInteractor(
 					svc.ReviewService(),
 					svc.PlatformService(),
+					svc.PointService(),
+					svc.MovieService(),
 				),
 			}
 
@@ -218,6 +220,8 @@ func TestPostReviewHistoryHandler_handle(t *testing.T) {
 				interactor: review.NewCreateReviewHistoryInteractor(
 					svc.ReviewService(),
 					svc.PlatformService(),
+					svc.PointService(),
+					svc.MovieService(),
 				),
 			}
 
