@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { movies, movieGenres, genres, series, users, refreshTokens, reviews, watchHistory, platforms, watchlist } from "./schema";
+import { movies, movieGenres, genres, series, users, pointHistory, refreshTokens, reviews, userPoints, watchHistory, platforms, watchlist } from "./schema";
 
 export const movieGenresRelations = relations(movieGenres, ({one}) => ({
 	movie: one(movies, {
@@ -31,18 +31,27 @@ export const seriesRelations = relations(series, ({many}) => ({
 	movies: many(movies),
 }));
 
-export const refreshTokensRelations = relations(refreshTokens, ({one}) => ({
+export const pointHistoryRelations = relations(pointHistory, ({one}) => ({
 	user: one(users, {
-		fields: [refreshTokens.userId],
+		fields: [pointHistory.userId],
 		references: [users.id]
 	}),
 }));
 
 export const usersRelations = relations(users, ({many}) => ({
+	pointHistories: many(pointHistory),
 	refreshTokens: many(refreshTokens),
 	reviews: many(reviews),
+	userPoints: many(userPoints),
 	watchHistories: many(watchHistory),
 	watchlists: many(watchlist),
+}));
+
+export const refreshTokensRelations = relations(refreshTokens, ({one}) => ({
+	user: one(users, {
+		fields: [refreshTokens.userId],
+		references: [users.id]
+	}),
 }));
 
 export const reviewsRelations = relations(reviews, ({one}) => ({
@@ -53,6 +62,13 @@ export const reviewsRelations = relations(reviews, ({one}) => ({
 	movie: one(movies, {
 		fields: [reviews.movieId],
 		references: [movies.id]
+	}),
+}));
+
+export const userPointsRelations = relations(userPoints, ({one}) => ({
+	user: one(users, {
+		fields: [userPoints.userId],
+		references: [users.id]
 	}),
 }));
 
