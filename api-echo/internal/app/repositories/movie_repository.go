@@ -25,6 +25,8 @@ type (
 		FindByID(ctx context.Context, id int32) (*model.Movies, error)
 		// ジャンルを指定して取得
 		FindByGenre(ctx context.Context, genre string, limit int32, offset int32) ([]*model.Movies, error)
+		// ユーザーがレビューした映画を取得（ジャンル絞り込み可）
+		FindReviewedByUser(ctx context.Context, userID int32, genre string, limit int32, offset int32) ([]*model.Movies, error)
 		// tmdbIDs に一致する映画を取得
 		FindByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([]*model.Movies, error)
 	}
@@ -92,6 +94,33 @@ func (r *movieRepository) FindByGenre(
 
 	return q.
 		Order(m.CreatedAt.Desc()).
+		Limit(int(limit)).
+		Offset(int(offset)).
+		Find()
+}
+
+// ユーザーがレビューした映画を取得（ジャンル絞り込み可）
+func (r *movieRepository) FindReviewedByUser(
+	ctx context.Context, userID int32, genre string, limit int32, offset int32,
+) ([]*model.Movies, error) {
+	m := query.Use(r.ReaderDB).Movies
+	rv := query.Use(r.ReaderDB).Reviews
+	g := query.Use(r.ReaderDB).Genres
+	mg := query.Use(r.ReaderDB).MovieGenres
+
+	q := m.WithContext(ctx).
+		Preload(m.Genres).
+		LeftJoin(rv, rv.MovieID.EqCol(m.ID)).
+		Where(rv.UserID.Eq(userID))
+
+	if genre != "" {
+		q = q.LeftJoin(mg, mg.MovieID.EqCol(m.ID)).
+			LeftJoin(g, g.ID.EqCol(mg.GenreID)).
+			Where(g.Code.Eq(genre))
+	}
+
+	return q.
+		Order(rv.CreatedAt.Desc()).
 		Limit(int(limit)).
 		Offset(int(offset)).
 		Find()

@@ -135,10 +135,6 @@ export default function Home() {
     );
   }
 
-  if (!movies || movies.length === 0) {
-    return <div className="container text-center py-5">No movies found</div>;
-  }
-
   return (
     <main>
       <div className="container pb-4">
@@ -179,79 +175,96 @@ export default function Home() {
           })}
         </Carousel>
 
-        <div className="row row-cols-md-3 g-4">
-          {movies.map((movie: Movie, index: number) => {
-            return (
-              <div className="col" key={`movie-card-${movie.id || index}`}>
-                <button
-                  className="card mb-2 bg-dark border-info"
-                  onClick={() => router.push(`/movie/${movie.id}`)}
-                >
-                  <div className="row g-0">
-                    <div className="col-md-4">
-                      {/* ポスター */}
-                      <Image
-                        src={
-                          posterUrlPrefix +
-                          (movie.posterURL
-                            ? movie.posterURL
-                            : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
-                        }
-                        className="card-img-top"
-                        alt="..."
-                        width={200}
-                        height={200}
-                      />
-                    </div>
-                    <div className="col-md-8">
-                      <div className="card-body text-light">
-                        {/* タイトル */}
-                        <h5 className="card-title">{movie.title}</h5>
-                        {/* ジャンル */}
-                        {movie.genres.length !== 0 && (
-                          <div className="card-text d-grid gap-2 d-md-block">
-                            {movie.genres.map((g: Genre, i: number) => {
-                              return (
-                                <button
-                                  key={i}
-                                  type="button"
-                                  className="btn btn-outline-info btn-sm"
-                                >
-                                  {g.name}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                        {/* 公開日 */}
-                        <p className="card-text">
-                          公開日：{movie.releaseDate.substring(0, 10)}
-                        </p>
-                        {/* 概要 */}
-                        <p className="card-text">
-                          {movie.overview.length > 40
-                            ? movie.overview.substring(0, 37) + "..."
-                            : movie.overview}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              </div>
-            );
-          })}
-        </div>
-
-        <div
-          ref={observerTarget}
-          style={{ height: "20px", marginTop: "20px" }}
-        />
-        {isLoadingMore && (
-          <div className="text-center py-3">
-            <div className="spinner-border text-info" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
+        <h5>レビュー済み映画</h5>
+        {!movies || movies.length === 0 ? (
+          <div className="text-center py-4">
+            <p className="text-muted mb-3">
+              まだレビューした映画がありません。
+            </p>
+            <button
+              className="btn btn-outline-info"
+              onClick={() => router.push("/search")}
+            >
+              映画を探す
+            </button>
           </div>
+        ) : (
+          <>
+            <div className="row row-cols-md-3 g-4">
+              {movies.map((movie: Movie, index: number) => {
+                return (
+                  <div className="col" key={`movie-card-${movie.id || index}`}>
+                    <button
+                      className="card mb-2 bg-dark border-info"
+                      onClick={() => router.push(`/movie/${movie.id}`)}
+                    >
+                      <div className="row g-0">
+                        <div className="col-md-4">
+                          {/* ポスター */}
+                          <Image
+                            src={
+                              posterUrlPrefix +
+                              (movie.posterURL
+                                ? movie.posterURL
+                                : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
+                            }
+                            className="card-img-top"
+                            alt="..."
+                            width={200}
+                            height={200}
+                          />
+                        </div>
+                        <div className="col-md-8">
+                          <div className="card-body text-light">
+                            {/* タイトル */}
+                            <h5 className="card-title">{movie.title}</h5>
+                            {/* ジャンル */}
+                            {movie.genres.length !== 0 && (
+                              <div className="card-text d-grid gap-2 d-md-block">
+                                {movie.genres.map((g: Genre, i: number) => {
+                                  return (
+                                    <button
+                                      key={i}
+                                      type="button"
+                                      className="btn btn-outline-info btn-sm"
+                                    >
+                                      {g.name}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            {/* 公開日 */}
+                            <p className="card-text">
+                              公開日：{movie.releaseDate.substring(0, 10)}
+                            </p>
+                            {/* 概要 */}
+                            <p className="card-text">
+                              {movie.overview.length > 40
+                                ? movie.overview.substring(0, 37) + "..."
+                                : movie.overview}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div
+              ref={observerTarget}
+              style={{ height: "20px", marginTop: "20px" }}
+            />
+            {isLoadingMore && (
+              <div className="text-center py-3">
+                <div className="spinner-border text-info" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>
