@@ -41,18 +41,18 @@ export default function Page({ params }: { params: { id: string } }) {
       // 3秒後に自動で非表示
       const timer = setTimeout(() => {
         setShowAlert(false);
-        // URLからupdatedパラメータを削除
-        router.replace(`/movie/${params.id}`, { scroll: false });
+        // history APIでNext.jsの再レンダリングを起こさずURLを更新
+        window.history.replaceState(null, "", `/movie/${params.id}`);
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [isUpdated, params.id, router]);
+  }, []); // マウント時のみ実行
 
   // 手動でアラートを閉じる
   const handleCloseAlert = () => {
     setShowAlert(false);
-    router.replace(`/movie/${params.id}`, { scroll: false });
+    window.history.replaceState(null, "", `/movie/${params.id}`);
   };
 
   useEffect(() => {
@@ -105,7 +105,7 @@ export default function Page({ params }: { params: { id: string } }) {
     };
 
     fetchMoviesAndWatchHistory();
-  }, [params.id, searchParams]);
+  }, [params.id]); // searchParamsを依存配列から除外してURLクリア時の再フェッチを防ぐ
 
   if (isLoading) {
     return (
