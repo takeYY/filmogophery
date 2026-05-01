@@ -22,9 +22,11 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		MovieGenres:   newMovieGenres(db, opts...),
 		Movies:        newMovies(db, opts...),
 		Platforms:     newPlatforms(db, opts...),
+		PointHistory:  newPointHistory(db, opts...),
 		RefreshTokens: newRefreshTokens(db, opts...),
 		Reviews:       newReviews(db, opts...),
 		Series:        newSeries(db, opts...),
+		UserPoints:    newUserPoints(db, opts...),
 		Users:         newUsers(db, opts...),
 		WatchHistory:  newWatchHistory(db, opts...),
 		Watchlist:     newWatchlist(db, opts...),
@@ -38,9 +40,11 @@ type Query struct {
 	MovieGenres   movieGenres
 	Movies        movies
 	Platforms     platforms
+	PointHistory  pointHistory
 	RefreshTokens refreshTokens
 	Reviews       reviews
 	Series        series
+	UserPoints    userPoints
 	Users         users
 	WatchHistory  watchHistory
 	Watchlist     watchlist
@@ -55,9 +59,11 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		MovieGenres:   q.MovieGenres.clone(db),
 		Movies:        q.Movies.clone(db),
 		Platforms:     q.Platforms.clone(db),
+		PointHistory:  q.PointHistory.clone(db),
 		RefreshTokens: q.RefreshTokens.clone(db),
 		Reviews:       q.Reviews.clone(db),
 		Series:        q.Series.clone(db),
+		UserPoints:    q.UserPoints.clone(db),
 		Users:         q.Users.clone(db),
 		WatchHistory:  q.WatchHistory.clone(db),
 		Watchlist:     q.Watchlist.clone(db),
@@ -79,9 +85,11 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		MovieGenres:   q.MovieGenres.replaceDB(db),
 		Movies:        q.Movies.replaceDB(db),
 		Platforms:     q.Platforms.replaceDB(db),
+		PointHistory:  q.PointHistory.replaceDB(db),
 		RefreshTokens: q.RefreshTokens.replaceDB(db),
 		Reviews:       q.Reviews.replaceDB(db),
 		Series:        q.Series.replaceDB(db),
+		UserPoints:    q.UserPoints.replaceDB(db),
 		Users:         q.Users.replaceDB(db),
 		WatchHistory:  q.WatchHistory.replaceDB(db),
 		Watchlist:     q.Watchlist.replaceDB(db),
@@ -93,9 +101,11 @@ type queryCtx struct {
 	MovieGenres   *movieGenresDo
 	Movies        *moviesDo
 	Platforms     *platformsDo
+	PointHistory  *pointHistoryDo
 	RefreshTokens *refreshTokensDo
 	Reviews       *reviewsDo
 	Series        *seriesDo
+	UserPoints    *userPointsDo
 	Users         *usersDo
 	WatchHistory  *watchHistoryDo
 	Watchlist     *watchlistDo
@@ -107,9 +117,11 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		MovieGenres:   q.MovieGenres.WithContext(ctx),
 		Movies:        q.Movies.WithContext(ctx),
 		Platforms:     q.Platforms.WithContext(ctx),
+		PointHistory:  q.PointHistory.WithContext(ctx),
 		RefreshTokens: q.RefreshTokens.WithContext(ctx),
 		Reviews:       q.Reviews.WithContext(ctx),
 		Series:        q.Series.WithContext(ctx),
+		UserPoints:    q.UserPoints.WithContext(ctx),
 		Users:         q.Users.WithContext(ctx),
 		WatchHistory:  q.WatchHistory.WithContext(ctx),
 		Watchlist:     q.Watchlist.WithContext(ctx),

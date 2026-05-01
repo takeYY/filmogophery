@@ -51,6 +51,20 @@ export const platforms = mysqlTable("platforms", {
 	unique("code").on(table.code),
 ]);
 
+export const pointHistory = mysqlTable("point_history", {
+	id: int().autoincrement().notNull(),
+	userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" } ),
+	points: int().notNull(),
+	action: varchar({ length: 50 }).notNull(),
+	referenceId: int("reference_id").notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+},
+(table) => [
+	index("idx_created_at").on(table.createdAt),
+	index("idx_user_id").on(table.userId),
+	primaryKey({ columns: [table.id], name: "point_history_id"}),
+]);
+
 export const refreshTokens = mysqlTable("refresh_tokens", {
 	id: int().autoincrement().notNull(),
 	userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" } ),
@@ -93,6 +107,19 @@ export const series = mysqlTable("series", {
 (table) => [
 	primaryKey({ columns: [table.id], name: "series_id"}),
 	unique("name").on(table.name),
+]);
+
+export const userPoints = mysqlTable("user_points", {
+	id: int().autoincrement().notNull(),
+	userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" } ),
+	totalPoints: int("total_points").default(0).notNull(),
+	level: tinyint().default(1).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "user_points_id"}),
+	unique("user_id").on(table.userId),
 ]);
 
 export const users = mysqlTable("users", {

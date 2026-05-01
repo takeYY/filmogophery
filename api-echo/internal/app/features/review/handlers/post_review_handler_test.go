@@ -102,6 +102,7 @@ func TestPostReviewHandler_handle__Error(t *testing.T) {
 				interactor: review.NewCreateReviewInteractor(
 					svc.MovieService(),
 					svc.ReviewService(),
+					svc.PointService(),
 				),
 			}
 
@@ -188,6 +189,7 @@ func TestPostReviewHandler_handle(t *testing.T) {
 				interactor: review.NewCreateReviewInteractor(
 					svc.MovieService(),
 					svc.ReviewService(),
+					svc.PointService(),
 				),
 			}
 

@@ -6,9 +6,11 @@
 
 "use client";
 
+import { PointToast } from "@/components/PointToast";
 import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
+import { usePointToast } from "@/hooks/usePointToast";
 import { Genre, MovieDetail, Platform } from "@/interface/index";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -32,6 +34,10 @@ export default function Page({
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
   }
+
+  const authHeader = token ? `${token.tokenType} ${token.accessToken}` : "";
+  const { toastData, captureBeforePoints, showToastAfter, closeToast } =
+    usePointToast(authHeader);
 
   // movieDetailが更新されたときにrangeValueを設定
   useEffect(() => {
@@ -89,23 +95,25 @@ export default function Page({
         watchedDate: formData.get("watchedDate"),
       };
       console.log("page payload:", jsonData);
+      const before = await captureBeforePoints();
       const response = await fetch(
-        `/api/movies/${params.id}/reviews/${movieDetail?.review?.id}`,
+        `/api/movies/${params.id}/reviews/${params.reviewId}`,
         {
           method: "POST",
           headers,
           body: JSON.stringify(jsonData),
-        }
+        },
       );
 
       if (!response.ok) {
         throw new Error("Failed to submit the data. Please try again.");
       }
 
-      router.push(`/movie/${params.id}?updated=true&t=${Date.now()}`);
-      router.refresh();
+      await showToastAfter(before);
+      setTimeout(() => {
+        router.push(`/movie/${params.id}?updated=true&t=${Date.now()}`);
+      }, 2000);
     } catch (error) {
-      // Capture the error message to display to the user
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -118,6 +126,7 @@ export default function Page({
 
   return (
     <div className="container-fluid pb-4">
+      <PointToast data={toastData} onClose={closeToast} />
       <h3 className="text-center mb-4">Create Movie Watch Record</h3>
 
       <form action={onSubmit}>

@@ -34,6 +34,8 @@ func NewPostReviewHistoryHandler(svc services.IServiceContainer) routers.IRoute 
 		interactor: review.NewCreateReviewHistoryInteractor(
 			svc.ReviewService(),
 			svc.PlatformService(),
+			svc.PointService(),
+			svc.MovieService(),
 		),
 	}
 }

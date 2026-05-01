@@ -30,6 +30,7 @@ func NewPostReviewHandler(svc services.IServiceContainer) routers.IRoute {
 		interactor: review.NewCreateReviewInteractor(
 			svc.MovieService(),
 			svc.ReviewService(),
+			svc.PointService(),
 		),
 	}
 }

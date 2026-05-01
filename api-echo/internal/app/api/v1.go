@@ -31,6 +31,7 @@ func RegisterV1Routes() fx.Option {
 			asV1Route(userHandler.NewCreateUserHandler),      // create user
 			asV1Route(userHandler.NewGetCurrentUserHandler),  // get current user
 			asV1Route(userHandler.NewGetWatchHistoryHandler), // get watch history
+			asV1Route(userHandler.NewGetUserPointsHandler),   // get user points
 			// --- Auth --- //
 			asV1Route(authHandler.NewLoginHandler),  // login
 			asV1Route(authHandler.NewLogoutHandler), // logout

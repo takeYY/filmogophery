@@ -119,6 +119,18 @@ export function NavLinks() {
             <li className="nav-item mb-2">
               <Link
                 className={`nav-link text-light ${
+                  pathname === "/mypage" ? "active bg-primary rounded" : ""
+                }`}
+                href="/mypage"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <i className="bi bi-trophy me-2"></i>
+                My Page
+              </Link>
+            </li>
+            <li className="nav-item mb-2">
+              <Link
+                className={`nav-link text-light ${
                   pathname === "/watch/calendar"
                     ? "active bg-primary rounded"
                     : ""
@@ -200,6 +212,13 @@ export function NavLinks() {
                       <div className="fw-bold">{user.username}</div>
                       <small className="text-muted">{user.email}</small>
                     </div>
+                    <Link
+                      className="dropdown-item"
+                      href="/mypage"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      マイページ
+                    </Link>
                     <button className="dropdown-item" onClick={handleLogout}>
                       ログアウト
                     </button>

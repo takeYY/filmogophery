@@ -6,9 +6,11 @@
 
 "use client";
 
+import { PointToast } from "@/components/PointToast";
 import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
+import { usePointToast } from "@/hooks/usePointToast";
 import { Genre, MovieDetail } from "@/interface/index";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -27,6 +29,10 @@ export default function Page({ params }: { params: { id: string } }) {
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
   }
+
+  const authHeader = token ? `${token.tokenType} ${token.accessToken}` : "";
+  const { toastData, captureBeforePoints, showToastAfter, closeToast } =
+    usePointToast(authHeader);
 
   // movieDetailが更新されたときにrangeValueを設定
   useEffect(() => {
@@ -65,6 +71,7 @@ export default function Page({ params }: { params: { id: string } }) {
         rating: formData.get("rating"),
         comment: formData.get("comment"),
       };
+      const before = await captureBeforePoints();
       const response = await fetch(`/api/movies/${params.id}/reviews`, {
         method: "POST",
         headers,
@@ -74,8 +81,10 @@ export default function Page({ params }: { params: { id: string } }) {
       console.log("感想の更新完了: %o", resultCode);
 
       if (resultCode === 201) {
-        router.push(`/movie/${params.id}?updated=true`);
-        router.refresh();
+        await showToastAfter(before);
+        setTimeout(() => {
+          router.push(`/movie/${params.id}?updated=true`);
+        }, 2000);
       }
     } catch (error) {
       console.log(error);
@@ -90,6 +99,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="container-fluid pb-4">
+      <PointToast data={toastData} onClose={closeToast} />
       <h3 className="text-center mb-4">Create Movie Review</h3>
 
       <form action={onSubmit}>
