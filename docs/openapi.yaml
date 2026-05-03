@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Filmogophery
   description: FilmogopheryのAPI
-  version: 0.8.0v2026.04.30
+  version: 0.9.0v2026.05.03
   license:
     name: None
     url: None
@@ -178,7 +178,7 @@ paths:
   /movies:
     get:
       tags: [Movie]
-      summary: 映画一覧
+      summary: レビュー済み映画一覧
       operationId: getMovies
       parameters:
         - name: genre
@@ -198,7 +198,7 @@ paths:
             default: 0
       responses:
         200:
-          description: 成功
+          description: 成功（ログインユーザーがレビュー済みの映画一覧をレビュー日時の降順で返す）
           content:
             application/json:
               schema:
@@ -761,6 +761,10 @@ components:
         tmdbID:
           description: tmdbのID
           type: integer
+        hasReview:
+          description: ログインユーザーがレビュー済みかどうか
+          type: boolean
+          example: false
 
     Genre:
       type: object
