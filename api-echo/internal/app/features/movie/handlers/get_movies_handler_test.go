@@ -84,8 +84,11 @@ func TestGetMoviesHandler_handle(t *testing.T) {
 	tests.CreateMovieGenres(t, tx, &model.MovieGenres{MovieID: m2.ID, GenreID: 878}) // SF
 
 	// ユーザー1のレビューを作成（m1, m2 のみ）
-	tests.CreateReviews(t, tx, &model.Reviews{UserID: 1, MovieID: m1.ID})
-	tests.CreateReviews(t, tx, &model.Reviews{UserID: 1, MovieID: m2.ID})
+	// created_at を明示的に設定して ORDER BY created_at DESC の順序を保証する
+	t1 := time.Date(2025, 10, 11, 12, 0, 0, 0, time.UTC)
+	t2 := time.Date(2025, 10, 12, 12, 0, 0, 0, time.UTC)
+	tests.CreateReviews(t, tx, &model.Reviews{UserID: 1, MovieID: m1.ID, CreatedAt: &t1})
+	tests.CreateReviews(t, tx, &model.Reviews{UserID: 1, MovieID: m2.ID, CreatedAt: &t2})
 
 	svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 
