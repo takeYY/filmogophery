@@ -7,19 +7,20 @@ import { err, Ok, ok } from "neverthrow";
 import { Logger } from "pino";
 import {
   fetchMovieById,
-  getMoviesByGenre,
+  getReviewedMoviesByUser,
 } from "../../repositories/movies/movies.repository";
 import { fetchReviewByMovieId } from "../../repositories/reviews/reviews.repository";
 import { fetchSeriesByMovieId } from "../../repositories/series/series.repository";
 
 export async function getMovies(
   logger: Logger,
+  userId: number,
   genre: string | undefined,
   limit: number,
   offset: number,
 ): Promise<Ok<Movie[], never>> {
-  logger.info({ genre, limit, offset }, "getMovies called");
-  const result = await getMoviesByGenre(genre, limit, offset);
+  logger.info({ userId, genre, limit, offset }, "getMovies called");
+  const result = await getReviewedMoviesByUser(userId, genre, limit, offset);
   if (result.length == 0) {
     logger.info("movie is not found");
     return ok([]);

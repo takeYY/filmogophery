@@ -23,6 +23,8 @@ type (
 
 		// 映画一覧を取得
 		GetMovies(ctx context.Context, genre string, limit int32, offset int32) ([]*model.Movies, error)
+		// ユーザーがレビューした映画一覧を取得（ジャンル絞り込み可）
+		GetReviewedMoviesByUser(ctx context.Context, userID int32, genre string, limit int32, offset int32) ([]*model.Movies, error)
 		// IDに一致する映画を取得
 		GetMovieByID(ctx context.Context, movieID int32) (*model.Movies, error)
 		// tmdbIDsに一致する映画を取得
@@ -88,6 +90,20 @@ func (s *movieService) GetMovies(ctx context.Context, genre string, limit int32,
 		return nil, responses.InternalServerError()
 	}
 	logger.Debug().Msg("successfully fetched movies")
+
+	return movies, err
+}
+
+// ユーザーがレビューした映画一覧を取得（ジャンル絞り込み可）
+func (s *movieService) GetReviewedMoviesByUser(ctx context.Context, userID int32, genre string, limit int32, offset int32) ([]*model.Movies, error) {
+	logger := logger.GetLogger()
+
+	movies, err := s.movieRepo.FindReviewedByUser(ctx, userID, genre, limit, offset)
+	if err != nil {
+		logger.Error().Msgf("failed to get reviewed movies for user(id=%d): %s", userID, err.Error())
+		return nil, responses.InternalServerError()
+	}
+	logger.Debug().Msg("successfully fetched reviewed movies")
 
 	return movies, err
 }

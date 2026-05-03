@@ -1,4 +1,5 @@
 import { AppType } from "@/core/app";
+import { requireAuthMiddleware } from "@/core/middlewares/auth.middleware";
 import { Movie } from "@/core/types/movie";
 import { validator } from "hono/validator";
 import { StatusCodes } from "http-status-codes";
@@ -22,12 +23,16 @@ export default function (app: AppType) {
       return parsed.data;
     }),
 
+    requireAuthMiddleware,
+
     async (c) => {
       const logger = c.get("logger");
+      const operator = c.get("operator")!;
       const query = c.req.valid("query");
 
       const result = await getMovies(
         logger,
+        operator.id,
         query.genre,
         query.limit,
         query.offset,
