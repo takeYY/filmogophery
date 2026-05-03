@@ -163,7 +163,13 @@ export default function Home() {
                           className="img-fluid"
                           width={200}
                           height={200}
-                          onClick={() => router.push(`/movie/${trend.id}`)}
+                          onClick={() =>
+                            router.push(
+                              trend.isReviewed
+                                ? `/movie/${trend.id}`
+                                : `/movie/${trend.id}/review/create`,
+                            )
+                          }
                           style={{ cursor: "pointer" }}
                         />
                       </div>
