@@ -165,7 +165,7 @@ export default function Home() {
                           height={200}
                           onClick={() =>
                             router.push(
-                              trend.isReviewed
+                              trend.hasReview
                                 ? `/movie/${trend.id}`
                                 : `/movie/${trend.id}/review/create`,
                             )

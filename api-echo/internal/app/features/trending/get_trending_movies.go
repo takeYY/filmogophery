@@ -101,7 +101,7 @@ func (i *getTrendingMoviesInteractor) Run(ctx context.Context, operator *model.U
 		return nil, err
 	}
 	for idx := range movies {
-		movies[idx].IsReviewed = reviewedIDs[movies[idx].ID]
+		movies[idx].HasReview = reviewedIDs[movies[idx].ID]
 	}
 
 	return movies, nil

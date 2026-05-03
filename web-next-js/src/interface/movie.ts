@@ -42,5 +42,5 @@ export type TrendingMovie = {
   title: string;
   posterURL: string;
   tmdbID: number;
-  isReviewed: boolean;
+  hasReview: boolean;
 };
