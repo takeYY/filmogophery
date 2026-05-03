@@ -18,29 +18,31 @@ import (
 
 type (
 	GetTrendingMoviesUseCase interface {
-		Run(ctx context.Context) ([]types.TrendingMovie, error)
+		Run(ctx context.Context, operator *model.Users) ([]types.TrendingMovie, error)
 	}
 
 	getTrendingMoviesInteractor struct {
-		db       *gorm.DB
-		movieSvc services.IMovieService
-		redisSvc services.IRedisService
-		tmdbSvc  services.ITmdbService
+		db        *gorm.DB
+		movieSvc  services.IMovieService
+		reviewSvc services.IReviewService
+		redisSvc  services.IRedisService
+		tmdbSvc   services.ITmdbService
 	}
 )
 
 func NewGetTrendingMoviesInteractor(
 	db *gorm.DB,
 	movieSvc services.IMovieService,
+	reviewSvc services.IReviewService,
 	redisSvc services.IRedisService,
 	tmdbSvc services.ITmdbService,
 ) GetTrendingMoviesUseCase {
 	return &getTrendingMoviesInteractor{
-		db, movieSvc, redisSvc, tmdbSvc,
+		db, movieSvc, reviewSvc, redisSvc, tmdbSvc,
 	}
 }
 
-func (i *getTrendingMoviesInteractor) Run(ctx context.Context) ([]types.TrendingMovie, error) {
+func (i *getTrendingMoviesInteractor) Run(ctx context.Context, operator *model.Users) ([]types.TrendingMovie, error) {
 	logger := logger.GetLogger()
 
 	// redis 格納用のキャッシュキーを生成
@@ -48,50 +50,61 @@ func (i *getTrendingMoviesInteractor) Run(ctx context.Context) ([]types.Trending
 
 	// Redis から情報を取得（あれば）
 	movies := i.getMoviesFromRedis(ctx, cacheKey)
-	if movies != nil {
-		return movies, nil
+	if movies == nil {
+		// Redis になければ TMDb APIから人気映画を取得
+		tmdbMovies, err := i.tmdbSvc.GetTrendingMovies()
+		if err != nil {
+			return nil, err
+		}
+		logger.Debug().Msg("successfully got Trending movies")
+
+		// 取得した映画のtmdbIDリストで既存映画を取得
+		mvs, err := i.getExistingMovies(ctx, tmdbMovies.Results)
+		if err != nil {
+			return nil, err
+		}
+		logger.Debug().Msg("successfully got movies by tmdbID")
+
+		// moviesテーブルにない映画情報を作成
+		newMovies := i.newMoviesForCreation(tmdbMovies.Results, mvs)
+
+		// moviesテーブルにない映画を一括登録
+		createdMovies, err := i.batchCreateMovies(ctx, newMovies)
+		if err != nil {
+			return nil, err
+		}
+
+		// 既存と新規作成した映画をマージ
+		var allMovies []*model.Movies
+		if createdMovies == nil {
+			allMovies = mvs
+		} else {
+			allMovies = append(mvs, createdMovies...)
+		}
+
+		// TMDBの順序に合わせて返却用の映画情報に変換
+		movies = i.newMoviesForResponse(tmdbMovies.Results, allMovies)
+
+		// Redisにキャッシュ（24時間）
+		if err := i.redisSvc.Set(ctx, cacheKey, movies, 24*time.Hour); err != nil {
+			logger.Warn().Err(err).Msg("failed to cache movies in redis")
+		}
 	}
 
-	// Redis になければ TMDb APIから人気映画を取得
-	tmdbMovies, err := i.tmdbSvc.GetTrendingMovies()
+	// レビュー済みフラグを付与
+	movieIDs := make([]int32, 0, len(movies))
+	for _, m := range movies {
+		movieIDs = append(movieIDs, m.ID)
+	}
+	reviewedIDs, err := i.reviewSvc.GetReviewedMovieIDs(ctx, operator.ID, movieIDs)
 	if err != nil {
 		return nil, err
 	}
-	logger.Debug().Msg("successfully got Trending movies")
-
-	// 取得した映画のtmdbIDリストで既存映画を取得
-	mvs, err := i.getExistingMovies(ctx, tmdbMovies.Results)
-	if err != nil {
-		return nil, err
-	}
-	logger.Debug().Msg("successfully got movies by tmdbID")
-
-	// moviesテーブルにない映画情報を作成
-	newMovies := i.newMoviesForCreation(tmdbMovies.Results, mvs)
-
-	// moviesテーブルにない映画を一括登録
-	createdMovies, err := i.batchCreateMovies(ctx, newMovies)
-	if err != nil {
-		return nil, err
+	for idx := range movies {
+		movies[idx].IsReviewed = reviewedIDs[movies[idx].ID]
 	}
 
-	// 既存と新規作成した映画をマージ
-	var allMovies []*model.Movies
-	if createdMovies == nil {
-		allMovies = mvs
-	} else {
-		allMovies = append(mvs, createdMovies...)
-	}
-
-	// TMDBの順序に合わせて返却用の映画情報に変換
-	resultMovies := i.newMoviesForResponse(tmdbMovies.Results, allMovies)
-
-	// Redisにキャッシュ（24時間）
-	if err := i.redisSvc.Set(ctx, cacheKey, resultMovies, 24*time.Hour); err != nil {
-		logger.Warn().Err(err).Msg("failed to cache movies in redis")
-	}
-
-	return resultMovies, nil
+	return movies, nil
 }
 
 func (i *getTrendingMoviesInteractor) newCacheKey() string {
