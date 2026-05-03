@@ -8,6 +8,7 @@ import (
 	"filmogophery/internal/app/features/trending"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
+	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
 
@@ -22,6 +23,7 @@ func NewGetTrendingMoviesHandler(svc services.IServiceContainer) routers.IRoute 
 		interactor: trending.NewGetTrendingMoviesInteractor(
 			svc.DB(),
 			svc.MovieService(),
+			svc.ReviewService(),
 			svc.RedisService(),
 			svc.TmdbService(),
 		),
@@ -40,7 +42,10 @@ func (h *getTrendingMoviesHandler) handle(c echo.Context) error {
 	logger := logger.GetLogger()
 	logger.Info().Msg("accessed GET trending movies")
 
-	result, err := h.interactor.Run(c.Request().Context())
+	result, err := h.interactor.Run(
+		c.Request().Context(),
+		c.Get("operator").(*model.Users),
+	)
 	if err != nil {
 		return err
 	}

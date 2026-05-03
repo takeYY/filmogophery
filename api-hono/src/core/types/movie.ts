@@ -33,3 +33,11 @@ export interface MovieDetail extends Movie {
   series: Series | null;
   review: Review | null;
 }
+
+export interface TrendingMovie {
+  id: number;
+  title: string;
+  posterUrl: string | null;
+  tmdbId: number;
+  hasReview: boolean;
+}

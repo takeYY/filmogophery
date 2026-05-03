@@ -6,5 +6,6 @@ type (
 		Title     string  `json:"title"`
 		PosterURL *string `json:"posterURL"`
 		TmdbID    int32   `json:"tmdbID"`
+		HasReview bool    `json:"hasReview"`
 	}
 )

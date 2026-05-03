@@ -24,6 +24,8 @@ type (
 		FindByID(ctx context.Context, userID int32, id int32) (*model.Reviews, error)
 		// 映画IDに一致するレビューを取得
 		FindByMovieID(ctx context.Context, userID int32, movieID int32) (*model.Reviews, error)
+		// 映画IDリストのうちレビュー済みのIDセットを取得
+		FindReviewedMovieIDs(ctx context.Context, userID int32, movieIDs []int32) (map[int32]bool, error)
 
 		// --- Update --- //
 
@@ -84,6 +86,28 @@ func (r *reviewRepository) FindByMovieID(ctx context.Context, userID int32, movi
 		return nil, nil
 	}
 	return result, err
+}
+
+// 映画IDリストのうちレビュー済みのIDセットを取得
+func (r *reviewRepository) FindReviewedMovieIDs(ctx context.Context, userID int32, movieIDs []int32) (map[int32]bool, error) {
+	rv := query.Use(r.ReaderDB).Reviews
+
+	results, err := rv.WithContext(ctx).
+		Select(rv.MovieID).
+		Where(
+			rv.UserID.Eq(userID),
+			rv.MovieID.In(movieIDs...),
+		).
+		Find()
+	if err != nil {
+		return nil, err
+	}
+
+	reviewedIDs := make(map[int32]bool, len(results))
+	for _, r := range results {
+		reviewedIDs[r.MovieID] = true
+	}
+	return reviewedIDs, nil
 }
 
 // レビューを更新

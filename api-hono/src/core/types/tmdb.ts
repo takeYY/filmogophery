@@ -72,3 +72,19 @@ export type TmdbSearchResponse = {
   total_pages: number;
   total_results: number;
 };
+
+export type TmdbTrendingMovieResult = {
+  id: number;
+  title: string;
+  overview: string;
+  release_date: string;
+  poster_path: string | null;
+  genre_ids: number[];
+};
+
+export type TmdbTrendingResponse = {
+  page: number;
+  results: TmdbTrendingMovieResult[];
+  total_pages: number;
+  total_results: number;
+};

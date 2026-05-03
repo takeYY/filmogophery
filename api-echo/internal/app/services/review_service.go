@@ -34,6 +34,9 @@ type (
 		// レビューIDに一致する視聴履歴を取得
 		GetWatchHistoryByReviewID(ctx context.Context, operator *model.Users, review *model.Reviews) ([]*model.WatchHistory, error)
 
+		// 映画IDリストのうちレビュー済みのIDセットを取得
+		GetReviewedMovieIDs(ctx context.Context, userID int32, movieIDs []int32) (map[int32]bool, error)
+
 		// --- Update -- //
 
 		// レビューを更新
@@ -172,6 +175,18 @@ func (s *reviewService) GetWatchHistoryByReviewID(
 	logger.Debug().Msg("successfully fetched watch histories")
 
 	return watchHistories, err
+}
+
+// 映画IDリストのうちレビュー済みのIDセットを取得
+func (s *reviewService) GetReviewedMovieIDs(ctx context.Context, userID int32, movieIDs []int32) (map[int32]bool, error) {
+	logger := logger.GetLogger()
+
+	reviewedIDs, err := s.reviewRepo.FindReviewedMovieIDs(ctx, userID, movieIDs)
+	if err != nil {
+		logger.Error().Msgf("failed to get reviewed movie ids: %s", err.Error())
+		return nil, responses.InternalServerError()
+	}
+	return reviewedIDs, nil
 }
 
 // レビューを更新
