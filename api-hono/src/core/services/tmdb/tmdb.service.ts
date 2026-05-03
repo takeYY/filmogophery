@@ -1,5 +1,5 @@
 import { environment } from "@/core/environment";
-import { TmdbSearchResponse } from "@/core/types/tmdb";
+import { TmdbSearchResponse, TmdbTrendingResponse } from "@/core/types/tmdb";
 import { err, ok } from "neverthrow";
 
 const BASE_URL = `https://api.themoviedb.org/3`;
@@ -36,6 +36,23 @@ export async function getTmdbMovieDetailById(tmdbId: number) {
       },
     });
     return ok(response);
+  } catch (e) {
+    return err(e as TypeError | Error);
+  }
+}
+
+export async function getTrendingMovies() {
+  const url = BASE_URL + `/trending/movie/day?language=ja-JP`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${environment.TMDB.ACCESS_TOKEN}`,
+      },
+    });
+    return ok((await response.json()) as TmdbTrendingResponse);
   } catch (e) {
     return err(e as TypeError | Error);
   }
