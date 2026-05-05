@@ -26,7 +26,7 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | updateReview            | Review       |   ✅(🚧)   |  ✅  |
 | getMovieWatchHistory    | WatchHistory |   ✅(✅)   |  ✅  |
 | createMovieWatchHistory | WatchHistory |   ✅(✅)   |  ✅  |
-| getWatchHistory         | WatchHistory |   ✅( )    |      |
+| getWatchHistory         | WatchHistory |   ✅( )    |  ✅  |
 | getWatchlist            | Watchlist    |   ✅(🚧)   |      |
 | addToWatchlist          | Watchlist    |   ✅(🚧)   |      |
 | updateWatchlistItem     | Watchlist    |   🚧(🚧)   |      |
