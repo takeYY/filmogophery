@@ -41,3 +41,30 @@ export async function fetchWatchlistByUserId(
     .limit(limit)
     .offset(offset);
 }
+
+/**
+ * 映画IDに一致する映画が存在するか確認する
+ */
+export async function fetchMovieById(
+  movieId: number,
+  db: MySql2Database = dbConnections.readonly,
+) {
+  const [movie] = await db
+    .select({ id: movies.id })
+    .from(movies)
+    .where(eq(movies.id, movieId))
+    .limit(1);
+  return movie ?? null;
+}
+
+/**
+ * ウォッチリストに登録する
+ */
+export async function insertWatchlist(
+  userId: number,
+  movieId: number,
+  priority: number,
+  db: MySql2Database = dbConnections.default,
+) {
+  await db.insert(watchlist).values({ userId, movieId, priority });
+}
