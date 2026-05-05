@@ -11,7 +11,7 @@ import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
 import { usePointToast } from "@/hooks/usePointToast";
-import { Genre, MovieDetail } from "@/interface/index";
+import { Genre, MovieDetail, Platform } from "@/interface/index";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -21,6 +21,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [movieDetail, setMovie] = useState<MovieDetail>();
   const [rangeValue, onChange] = useState<string>("");
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [selectedPlatformId, setSelectedPlatformId] = useState<string>("");
+  const [watchedDate, setWatchedDate] = useState<string>("");
 
   const token = useAuth();
   const accessToken = token ? token.accessToken : null;
@@ -42,35 +45,45 @@ export default function Page({ params }: { params: { id: string } }) {
   }, [movieDetail]);
 
   useEffect(() => {
-    const fetchMovieDetail = async () => {
+    const fetchData = async () => {
       console.log("movieDetailのデータ取得中...");
       try {
-        const response = await fetch(`/api/movies/${params.id}`, {
-          method: "GET",
-          headers,
-        });
-        const movieDetail: MovieDetail = await response.json();
+        const [movieRes, platformRes] = await Promise.all([
+          fetch(`/api/movies/${params.id}`, { method: "GET", headers }),
+          fetch(`/api/platforms`, { method: "GET", headers }),
+        ]);
+        const movieDetail: MovieDetail = await movieRes.json();
+        const platforms: Platform[] = await platformRes.json();
 
         console.log("movieDetailのデータ取得: 完了");
-        console.log("%o", movieDetail);
-
-        return setMovie(movieDetail);
+        setMovie(movieDetail);
+        setPlatforms(platforms);
       } catch {
-        console.log("moviesのデータ取得: エラー。空配列で定義します");
-        return setMovie(undefined);
+        console.log("データ取得: エラー");
+        setMovie(undefined);
       }
     };
 
-    fetchMovieDetail();
+    fetchData();
   }, [params.id]);
 
   async function onSubmit(formData: FormData) {
     setIsLoading(true);
     try {
+      // 視聴履歴（platformIdが選択されている場合のみ送信）
+      const watchHistory = selectedPlatformId
+        ? {
+            platformId: Number(selectedPlatformId),
+            watchedDate: watchedDate || undefined,
+          }
+        : undefined;
+
       const jsonData = {
-        rating: formData.get("rating"),
-        comment: formData.get("comment"),
+        rating: formData.get("rating") || undefined,
+        comment: formData.get("comment") || undefined,
+        watchHistory,
       };
+
       const before = await captureBeforePoints();
       const response = await fetch(`/api/movies/${params.id}/reviews`, {
         method: "POST",
@@ -78,7 +91,7 @@ export default function Page({ params }: { params: { id: string } }) {
         body: JSON.stringify(jsonData),
       });
       const resultCode: number = response.status;
-      console.log("感想の更新完了: %o", resultCode);
+      console.log("レビュー登録完了: %o", resultCode);
 
       if (resultCode === 201) {
         await showToastAfter(before);
@@ -96,6 +109,9 @@ export default function Page({ params }: { params: { id: string } }) {
   if (!movieDetail) {
     return <div></div>;
   }
+
+  // 今日の日付（視聴日の上限）
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="container-fluid pb-4">
@@ -171,6 +187,85 @@ export default function Page({ params }: { params: { id: string } }) {
                 <p className="card-text">
                   上映時間：{movieDetail.runtimeMinutes}分
                 </p>
+
+                {/* プラットフォーム */}
+                <div className="form-group row">
+                  <label className="col-sm-4 col-form-label d-flex align-items-center">
+                    <div className="bg-transparent badge border border-info rounded-pill">
+                      任意
+                    </div>
+                    {"　"}
+                    プラットフォーム
+                  </label>
+                  <div className="col-sm-8 d-flex align-items-center">
+                    <div className="px-2 row">
+                      <div className="form-check form-check-inline col-md-3">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="platformId"
+                          id="platform-none"
+                          value=""
+                          checked={selectedPlatformId === ""}
+                          onChange={() => setSelectedPlatformId("")}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="platform-none"
+                        >
+                          登録しない
+                        </label>
+                      </div>
+                      {platforms.map((p: Platform) => (
+                        <div
+                          key={p.code}
+                          className="form-check form-check-inline col-md-3"
+                        >
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="platformId"
+                            id={p.code}
+                            value={p.id}
+                            checked={selectedPlatformId === p.id.toString()}
+                            onChange={() =>
+                              setSelectedPlatformId(p.id.toString())
+                            }
+                          />
+                          <label className="form-check-label" htmlFor={p.code}>
+                            {p.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 鑑賞日 */}
+                {selectedPlatformId && (
+                  <div className="form-group row mt-4">
+                    <label className="col-sm-4 col-form-label d-flex align-items-center">
+                      <div className="bg-transparent badge border border-info rounded-pill">
+                        任意
+                      </div>
+                      {"　"}鑑賞日
+                    </label>
+                    <div className="col-sm-8">
+                      <input
+                        type="date"
+                        className="form-control w-50 bg-dark text-light"
+                        value={watchedDate}
+                        max={today}
+                        onChange={(e) => setWatchedDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="h4 pb-2 mb-4 text-success border-bottom border-success mt-4">
+                  Review
+                </div>
+
                 {/* 評価 */}
                 <div className="form-group row mt-4">
                   <label className="col-sm-4 col-form-label d-flex align-items-center">
