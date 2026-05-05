@@ -4,9 +4,11 @@ import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { Hono } from "hono";
 import { StatusCodes } from "http-status-codes";
 import { err, ok } from "neverthrow";
+import pino from "pino";
 import * as createReviewService from "../../services/create-review/create-review.service";
 import createReviewHandler from "./create-review.handler";
 
+const testLogger = pino({ level: "silent" });
 const mockUser = { id: 1, name: "Test User", email: "test@example.com" };
 
 describe("create-review.handler", () => {
@@ -26,6 +28,10 @@ describe("create-review.handler", () => {
 
   const makeApp = () => {
     const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
+    testApp.use(async (c, next) => {
+      c.set("logger", testLogger);
+      await next();
+    });
     createReviewHandler(testApp);
     return testApp;
   };
