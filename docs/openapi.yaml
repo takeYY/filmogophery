@@ -779,6 +779,9 @@ components:
     Platform:
       type: object
       properties:
+        id:
+          description: プラットフォームID
+          type: integer
         code:
           description: 鑑賞媒体コード
           type: string
@@ -849,6 +852,18 @@ components:
         comment:
           description: 鑑賞記録
           type: string
+        watchHistory:
+          description: 視聴履歴（任意）
+          type: object
+          required: [platformId]
+          properties:
+            platformId:
+              description: プラットフォームID
+              type: integer
+            watchedDate:
+              description: 視聴日
+              type: string
+              format: date
 
     UpdateReview:
       type: object
