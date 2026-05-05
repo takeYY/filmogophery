@@ -68,3 +68,17 @@ export async function insertWatchlist(
 ) {
   await db.insert(watchlist).values({ userId, movieId, priority });
 }
+
+/**
+ * ウォッチリストIDに一致するレコードを削除する
+ * 削除件数を返す（0なら該当なし）
+ */
+export async function deleteWatchlistById(
+  watchlistId: number,
+  db: MySql2Database = dbConnections.default,
+) {
+  const [result] = await db
+    .delete(watchlist)
+    .where(eq(watchlist.id, watchlistId));
+  return result.affectedRows;
+}
