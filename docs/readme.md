@@ -12,20 +12,20 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | :---------------------- | ------------ | :--------: | :--: |
 | health                  | Health       |   ✅(✅)   |  ✅  |
 | createUser              | User         |   ✅(🚧)   |  ✅  |
-| getCurrentUser          | User         |   ✅( )    |      |
+| getCurrentUser          | User         |   ✅( )    |  ✅  |
 | getUser                 | User         |    ( )     |      |
 | getUserPoints           | User         |   ✅( )    |  ✅  |
 | login                   | Auth         |   ✅( )    |  ✅  |
-| logout                  | Auth         |   ✅( )    |      |
+| logout                  | Auth         |   ✅( )    |  ✅  |
 | getMovies               | Movie        |   ✅(✅)   |  ✅  |
 | getMovieDetail          | Movie        |   ✅(🚧)   |  ✅  |
 | searchMovies            | Movie        |   ✅(🚧)   |  ✅  |
 | getTrendingMovies       | Trending     |   ✅(🚧)   |  ✅  |
 | getMyReviews            | Review       |    ( )     |      |
 | createReview            | Review       |   ✅(✅)   |  ✅  |
-| updateReview            | Review       |   ✅(🚧)   |      |
-| getMovieWatchHistory    | WatchHistory |   ✅(✅)   |      |
-| createMovieWatchHistory | WatchHistory |   ✅(✅)   |      |
+| updateReview            | Review       |   ✅(🚧)   |  ✅  |
+| getMovieWatchHistory    | WatchHistory |   ✅(✅)   |  ✅  |
+| createMovieWatchHistory | WatchHistory |   ✅(✅)   |  ✅  |
 | getWatchHistory         | WatchHistory |   ✅( )    |      |
 | getWatchlist            | Watchlist    |   ✅(🚧)   |      |
 | addToWatchlist          | Watchlist    |   ✅(🚧)   |      |
