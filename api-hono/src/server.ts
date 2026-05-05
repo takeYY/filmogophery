@@ -2,6 +2,7 @@ import { app } from "./core/app";
 
 import "@/app/auth";
 import "@/app/health";
+import "@/app/master";
 import "@/app/movie";
 import "@/app/review";
 import "@/app/search";
