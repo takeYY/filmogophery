@@ -65,7 +65,11 @@ export async function fetchReviewById(
   db: MySql2Database = dbConnections.readonly,
 ) {
   const [review] = await db
-    .select({ id: reviews.id, userId: reviews.userId })
+    .select({
+      id: reviews.id,
+      userId: reviews.userId,
+      movieId: reviews.movieId,
+    })
     .from(reviews)
     .where(and(eq(reviews.id, reviewId), eq(reviews.userId, userId)))
     .limit(1);
@@ -153,6 +157,34 @@ export async function createReviewWithWatchHistory(
         watchHistoryId,
       );
     }
+  });
+}
+
+/**
+ * 視聴履歴・ポイントをトランザクションで登録する
+ */
+export async function createWatchHistoryWithPoints(
+  input: CreateWatchHistoryInput,
+  runtimeMinutes: number,
+  db: MySql2Database = dbConnections.default,
+) {
+  return db.transaction(async (tx) => {
+    const [whResult] = await tx.insert(watchHistory).values({
+      userId: input.userId,
+      movieId: input.movieId,
+      platformId: input.platformId,
+      watchedDate: input.watchedDate ?? undefined,
+    });
+    const watchHistoryId = whResult.insertId;
+
+    const watchPoints = calcWatchPoints(runtimeMinutes);
+    await grantPoints(
+      tx,
+      input.userId,
+      watchPoints,
+      "watch_history",
+      watchHistoryId,
+    );
   });
 }
 
