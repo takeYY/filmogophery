@@ -100,8 +100,10 @@ func TestPostReviewHandler_handle__Error(t *testing.T) {
 			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHandler{
 				interactor: review.NewCreateReviewInteractor(
+					tx,
 					svc.MovieService(),
 					svc.ReviewService(),
+					svc.PlatformService(),
 					svc.PointService(),
 				),
 			}
@@ -187,8 +189,10 @@ func TestPostReviewHandler_handle(t *testing.T) {
 			svc := services.NewServiceContainer(tx, conf, nil, nil, nil)
 			handler := &postReviewHandler{
 				interactor: review.NewCreateReviewInteractor(
+					tx,
 					svc.MovieService(),
 					svc.ReviewService(),
+					svc.PlatformService(),
 					svc.PointService(),
 				),
 			}

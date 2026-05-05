@@ -34,17 +34,17 @@ func TestGetPlatformsHandler_handle(t *testing.T) {
 
 	// expected
 	expected := `[
-		{"code": "primeVideo", "name": "Prime Video"},
-		{"code": "netflix", "name": "Netflix"},
-		{"code": "uNext", "name": "U-NEXT"},
-		{"code": "disneyPlus", "name": "Disney+"},
-		{"code": "youtube", "name": "YouTube"},
-		{"code": "appleTv", "name": "Apple TV+"},
-		{"code": "hulu", "name": "Hulu"},
-		{"code": "dAnime", "name": "dアニメ"},
-		{"code": "telasa", "name": "TELASA"},
-		{"code": "cinema", "name": "映画館"},
-		{"code": "unknown", "name": "不明"}
+		{"id": 1,  "code": "primeVideo", "name": "Prime Video"},
+		{"id": 2,  "code": "netflix",    "name": "Netflix"},
+		{"id": 3,  "code": "uNext",      "name": "U-NEXT"},
+		{"id": 4,  "code": "disneyPlus", "name": "Disney+"},
+		{"id": 5,  "code": "youtube",    "name": "YouTube"},
+		{"id": 6,  "code": "appleTv",    "name": "Apple TV+"},
+		{"id": 7,  "code": "hulu",       "name": "Hulu"},
+		{"id": 8,  "code": "dAnime",     "name": "dアニメ"},
+		{"id": 9,  "code": "telasa",     "name": "TELASA"},
+		{"id": 10, "code": "cinema",     "name": "映画館"},
+		{"id": 99, "code": "unknown",    "name": "不明"}
 	]`
 
 	// Assert
