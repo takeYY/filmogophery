@@ -56,6 +56,40 @@ export async function fetchReviewByMovieId(
   return review ?? null;
 }
 
+/**
+ * レビューIDとユーザーIDに一致するレビューを取得する
+ */
+export async function fetchReviewById(
+  userId: number,
+  reviewId: number,
+  db: MySql2Database = dbConnections.readonly,
+) {
+  const [review] = await db
+    .select({ id: reviews.id, userId: reviews.userId })
+    .from(reviews)
+    .where(and(eq(reviews.id, reviewId), eq(reviews.userId, userId)))
+    .limit(1);
+  return review ?? null;
+}
+
+/**
+ * レビューを更新する
+ */
+export async function updateReview(
+  reviewId: number,
+  rating: string | null,
+  comment: string | null,
+  db: MySql2Database = dbConnections.default,
+) {
+  await db
+    .update(reviews)
+    .set({
+      rating: rating ?? undefined,
+      comment: comment ?? undefined,
+    })
+    .where(eq(reviews.id, reviewId));
+}
+
 export type CreateReviewInput = {
   userId: number;
   movieId: number;
