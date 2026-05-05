@@ -122,6 +122,7 @@ func TestGetWatchHistoryHandler_handle(t *testing.T) {
 				{
 					"id": 65,
 					"platform": {
+						"id": 99,
 						"code": "unknown",
 						"name": "不明"
 					},
@@ -130,6 +131,7 @@ func TestGetWatchHistoryHandler_handle(t *testing.T) {
 				{
 					"id": 8979,
 					"platform": {
+						"id": 1,
 						"code": "primeVideo",
 						"name": "Prime Video"
 					},
