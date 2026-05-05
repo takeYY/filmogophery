@@ -1,6 +1,6 @@
 import { dbConnections } from "@/core/db";
-import { users } from "@/core/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { refreshTokens, users } from "@/core/drizzle/schema";
+import { and, eq, gt, isNull } from "drizzle-orm";
 import { MySql2Database } from "drizzle-orm/mysql2";
 
 export async function findUserByEmail(
@@ -21,4 +21,24 @@ export async function updateLastLoginAt(
   db: MySql2Database = dbConnections.default,
 ) {
   await db.update(users).set({ lastLoginAt }).where(eq(users.id, userId));
+}
+
+/**
+ * ユーザーの有効なリフレッシュトークンをすべて無効化する
+ */
+export async function revokeActiveTokensByUserId(
+  userId: number,
+  now: string,
+  db: MySql2Database = dbConnections.default,
+) {
+  await db
+    .update(refreshTokens)
+    .set({ revokedAt: now })
+    .where(
+      and(
+        eq(refreshTokens.userId, userId),
+        isNull(refreshTokens.revokedAt),
+        gt(refreshTokens.expiresAt, now),
+      ),
+    );
 }
