@@ -56,6 +56,44 @@ export async function fetchReviewByMovieId(
   return review ?? null;
 }
 
+/**
+ * レビューIDとユーザーIDに一致するレビューを取得する
+ */
+export async function fetchReviewById(
+  userId: number,
+  reviewId: number,
+  db: MySql2Database = dbConnections.readonly,
+) {
+  const [review] = await db
+    .select({
+      id: reviews.id,
+      userId: reviews.userId,
+      movieId: reviews.movieId,
+    })
+    .from(reviews)
+    .where(and(eq(reviews.id, reviewId), eq(reviews.userId, userId)))
+    .limit(1);
+  return review ?? null;
+}
+
+/**
+ * レビューを更新する
+ */
+export async function updateReview(
+  reviewId: number,
+  rating: string | null,
+  comment: string | null,
+  db: MySql2Database = dbConnections.default,
+) {
+  await db
+    .update(reviews)
+    .set({
+      rating: rating ?? undefined,
+      comment: comment ?? undefined,
+    })
+    .where(eq(reviews.id, reviewId));
+}
+
 export type CreateReviewInput = {
   userId: number;
   movieId: number;
@@ -119,6 +157,34 @@ export async function createReviewWithWatchHistory(
         watchHistoryId,
       );
     }
+  });
+}
+
+/**
+ * 視聴履歴・ポイントをトランザクションで登録する
+ */
+export async function createWatchHistoryWithPoints(
+  input: CreateWatchHistoryInput,
+  runtimeMinutes: number,
+  db: MySql2Database = dbConnections.default,
+) {
+  return db.transaction(async (tx) => {
+    const [whResult] = await tx.insert(watchHistory).values({
+      userId: input.userId,
+      movieId: input.movieId,
+      platformId: input.platformId,
+      watchedDate: input.watchedDate ?? undefined,
+    });
+    const watchHistoryId = whResult.insertId;
+
+    const watchPoints = calcWatchPoints(runtimeMinutes);
+    await grantPoints(
+      tx,
+      input.userId,
+      watchPoints,
+      "watch_history",
+      watchHistoryId,
+    );
   });
 }
 

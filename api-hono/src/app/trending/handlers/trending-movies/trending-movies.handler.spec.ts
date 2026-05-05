@@ -4,9 +4,11 @@ import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { Hono } from "hono";
 import { StatusCodes } from "http-status-codes";
 import { err, ok } from "neverthrow";
+import pino from "pino";
 import * as trendingService from "../../services/trending-movies/trending-movies.service";
 import trendingHandler from "./trending-movies.handler";
 
+const testLogger = pino({ level: "silent" });
 const mockUser = { id: 1, name: "Test User", email: "test@example.com" };
 
 const mockTrendingMovies = [
@@ -41,15 +43,22 @@ describe("trending-movies.handler", () => {
     spyOn(authMiddleware, "requireAuthMiddleware").mockRestore();
   });
 
+  const makeApp = () => {
+    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
+    testApp.use(async (c, next) => {
+      c.set("logger", testLogger);
+      await next();
+    });
+    trendingHandler(testApp);
+    return testApp;
+  };
+
   test("should return trending movies with hasReview flags", async () => {
     spyOn(trendingService, "getTrendingMovies").mockResolvedValue(
       ok(mockTrendingMovies),
     );
 
-    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
-    trendingHandler(testApp);
-
-    const res = await testApp.request("/v1/trending/movies");
+    const res = await makeApp().request("/v1/trending/movies");
 
     expect(res.status).toBe(StatusCodes.OK);
     expect(await res.json()).toEqual(mockTrendingMovies);
@@ -58,10 +67,7 @@ describe("trending-movies.handler", () => {
   test("should return empty array when no trending movies", async () => {
     spyOn(trendingService, "getTrendingMovies").mockResolvedValue(ok([]));
 
-    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
-    trendingHandler(testApp);
-
-    const res = await testApp.request("/v1/trending/movies");
+    const res = await makeApp().request("/v1/trending/movies");
 
     expect(res.status).toBe(StatusCodes.OK);
     expect(await res.json()).toEqual([]);
@@ -72,10 +78,7 @@ describe("trending-movies.handler", () => {
       err(new trendingService.TrendingMoviesError("tmdb error")),
     );
 
-    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
-    trendingHandler(testApp);
-
-    const res = await testApp.request("/v1/trending/movies");
+    const res = await makeApp().request("/v1/trending/movies");
 
     expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
   });
@@ -83,10 +86,7 @@ describe("trending-movies.handler", () => {
   test("should return 401 when not authenticated", async () => {
     spyOn(authMiddleware, "requireAuthMiddleware").mockRestore();
 
-    const testApp = new Hono<{ Variables: Variables }>().basePath("/v1");
-    trendingHandler(testApp);
-
-    const res = await testApp.request("/v1/trending/movies");
+    const res = await makeApp().request("/v1/trending/movies");
 
     expect(res.status).toBe(StatusCodes.UNAUTHORIZED);
   });
