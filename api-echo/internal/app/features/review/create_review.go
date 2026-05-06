@@ -66,13 +66,8 @@ func (i *createReviewInteractor) Run(
 
 	// トランザクション内でレビュー・視聴履歴・ポイントをまとめて登録
 	return i.db.Transaction(func(tx *gorm.DB) error {
-		// レビューを作成
-		if err := i.reviewService.CreateReview(ctx, tx, operator, movie, rating, comment); err != nil {
-			return err
-		}
-
-		// 作成したレビューを取得
-		review, err := i.reviewService.GetReviewByMovieID(ctx, operator, movie)
+		// レビューを作成（INSERT後にIDが書き戻される）
+		review, err := i.reviewService.CreateReview(ctx, tx, operator, movie, rating, comment)
 		if err != nil {
 			return err
 		}
