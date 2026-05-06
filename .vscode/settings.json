@@ -61,5 +61,6 @@
     "editor.autoIndent": "advanced",
     "diffEditor.ignoreTrimWhitespace": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "typescript.autoClosingTags": false
 }

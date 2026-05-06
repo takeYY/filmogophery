@@ -6,6 +6,7 @@
 
 "use client";
 
+import PasswordInput from "@/components/PasswordInput";
 import { saveToken } from "@/utils/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -77,12 +78,10 @@ export default function Login() {
                 <label htmlFor="password" className="form-label">
                   パスワード
                 </label>
-                <input
-                  type="password"
-                  className="form-control"
+                <PasswordInput
                   id="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={setPassword}
                   required
                 />
               </div>
