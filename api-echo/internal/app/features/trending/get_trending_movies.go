@@ -171,6 +171,7 @@ func (i *getTrendingMoviesInteractor) newMoviesForCreation(tmdbMovies []types.Tm
 		}
 
 		newMovies = append(newMovies, &model.Movies{
+			ID:             int32(tmdbMovie.ID),
 			TmdbID:         int32(tmdbMovie.ID),
 			Title:          tmdbMovie.Title,
 			Overview:       tmdbMovie.Overview,

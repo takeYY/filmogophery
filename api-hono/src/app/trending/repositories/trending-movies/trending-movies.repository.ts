@@ -45,6 +45,7 @@ export async function batchInsertMovies(
     .ignore()
     .values(
       values.map((v) => ({
+        id: v.tmdbId,
         tmdbId: v.tmdbId,
         title: v.title,
         overview: v.overview,

@@ -164,6 +164,7 @@ func (i *searchMoviesInteractor) newMoviesForCreation(tmdbMovies []*types.TmdbMo
 		}
 
 		newMovies = append(newMovies, &model.Movies{
+			ID:             int32(tmdbMovie.ID),
 			TmdbID:         int32(tmdbMovie.ID),
 			Title:          tmdbMovie.Title,
 			Overview:       tmdbMovie.Overview,

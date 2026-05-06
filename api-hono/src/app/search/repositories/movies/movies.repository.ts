@@ -47,6 +47,7 @@ export async function batchCreateMovies(
 
     for (const mv of newMovies) {
       const [result] = await tx.insert(movies).values({
+        id: mv.tmdbId,
         tmdbId: mv.tmdbId,
         title: mv.title,
         overview: mv.overview,
