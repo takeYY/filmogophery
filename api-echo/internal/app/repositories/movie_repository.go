@@ -64,7 +64,14 @@ func (r *movieRepository) BatchCreate(ctx context.Context, tx *gorm.DB, movies [
 		m = query.Use(tx).Movies
 	}
 
-	return m.WithContext(ctx).Omit(field.AssociationFields).CreateInBatches(movies, BATCH_SIZE)
+	// Omit でアソシエーションの自動 INSERT を抑制しつつ、1件ずつ INSERT して採番された ID を構造体に書き戻す。
+	// CreateInBatches はバッチ処理のため ID が書き戻されず、後続の movie_genres 登録で MovieID が 0 になるため使用しない。
+	for _, movie := range movies {
+		if err := m.WithContext(ctx).Omit(field.AssociationFields).Create(movie); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ID に一致する映画を取得

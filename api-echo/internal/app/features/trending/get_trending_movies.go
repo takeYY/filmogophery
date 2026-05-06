@@ -197,7 +197,7 @@ func (i *getTrendingMoviesInteractor) batchCreateMovies(ctx context.Context, new
 	})
 	if err != nil {
 		logger.Error().Msgf("failed to batch create movies: %s", err.Error())
-		return newMovies, nil // FIXME: 何らかの原因で上記処理が失敗しているので後で治すこと
+		return nil, responses.InternalServerError()
 	}
 
 	// 新規登録した映画のIDを取得

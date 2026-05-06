@@ -24,6 +24,8 @@ type (
 		FindAll(ctx context.Context) ([]*model.Genres, error)
 		// 名前と一致するジャンルを取得
 		FindByNames(ctx context.Context, names []string) ([]*model.Genres, error)
+		// IDリストに一致するジャンルを取得
+		FindByIDs(ctx context.Context, ids []int32) ([]*model.Genres, error)
 	}
 
 	genreRepository struct {
@@ -61,5 +63,14 @@ func (r *genreRepository) FindByNames(ctx context.Context, names []string) ([]*m
 
 	return g.WithContext(ctx).
 		Where(g.Name.In(names...)).
+		Find()
+}
+
+// IDリストに一致するジャンルを取得
+func (r *genreRepository) FindByIDs(ctx context.Context, ids []int32) ([]*model.Genres, error) {
+	g := query.Use(r.ReaderDB).Genres
+
+	return g.WithContext(ctx).
+		Where(g.ID.In(ids...)).
 		Find()
 }
