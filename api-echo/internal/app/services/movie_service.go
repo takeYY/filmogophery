@@ -63,22 +63,49 @@ func (s *movieService) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*m
 		return responses.InternalServerError()
 	}
 
-	// 映画ジャンルを紐づける
-	movieGenres := make([]*model.MovieGenres, 0)
+	// 映画に紐付けるジャンルIDを収集
+	genreIDSet := make(map[int32]bool)
 	for _, m := range movies {
 		for _, g := range m.Genres {
-			movieGenres = append(movieGenres, &model.MovieGenres{
-				MovieID: m.ID,
-				GenreID: g.ID,
-			})
+			genreIDSet[g.ID] = true
 		}
 	}
 
-	if len(movieGenres) > 0 {
-		err = s.genreRepo.BatchCreate(ctx, tx, movieGenres)
+	// DBに存在するジャンルIDのみに絞り込む（外部キー制約違反を防ぐ）
+	if len(genreIDSet) > 0 {
+		allGenreIDs := make([]int32, 0, len(genreIDSet))
+		for id := range genreIDSet {
+			allGenreIDs = append(allGenreIDs, id)
+		}
+		existingGenres, err := s.genreRepo.FindByIDs(ctx, allGenreIDs)
 		if err != nil {
-			logger.Error().Msgf("failed to batch create movie_genres: %s", err.Error())
+			logger.Error().Msgf("failed to fetch genres: %s", err.Error())
 			return responses.InternalServerError()
+		}
+		existingGenreIDs := make(map[int32]bool, len(existingGenres))
+		for _, g := range existingGenres {
+			existingGenreIDs[g.ID] = true
+		}
+
+		// 存在するジャンルIDのみで movie_genres を構築
+		movieGenres := make([]*model.MovieGenres, 0)
+		for _, m := range movies {
+			for _, g := range m.Genres {
+				if existingGenreIDs[g.ID] {
+					movieGenres = append(movieGenres, &model.MovieGenres{
+						MovieID: m.ID,
+						GenreID: g.ID,
+					})
+				}
+			}
+		}
+
+		if len(movieGenres) > 0 {
+			err = s.genreRepo.BatchCreate(ctx, tx, movieGenres)
+			if err != nil {
+				logger.Error().Msgf("failed to batch create movie_genres: %s", err.Error())
+				return responses.InternalServerError()
+			}
 		}
 	}
 

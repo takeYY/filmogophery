@@ -12,7 +12,8 @@ TARGET_COMPOSE ?= compose.yml
 	gen_models    \
 	mock          \
 	start         \
-	clean
+	clean         \
+	clear_cache
 
 
 generate_docs:
@@ -65,3 +66,6 @@ clean:
 	make down_v TARGET_COMPOSE=compose.echo.yml
 	make down_v TARGET_COMPOSE=compose.hono.yml
 	docker rm -f api_echo api_hono 2>/dev/null || true
+
+clear_cache:
+	docker exec redis_filmogophery redis-cli FLUSHALL

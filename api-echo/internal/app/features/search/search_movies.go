@@ -164,11 +164,12 @@ func (i *searchMoviesInteractor) newMoviesForCreation(tmdbMovies []*types.TmdbMo
 		}
 
 		newMovies = append(newMovies, &model.Movies{
+			ID:             int32(tmdbMovie.ID),
 			TmdbID:         int32(tmdbMovie.ID),
 			Title:          tmdbMovie.Title,
 			Overview:       tmdbMovie.Overview,
 			ReleaseDate:    releaseDate,
-			RuntimeMinutes: 1, // ここの時間はメンテボタンで修正できるようにする
+			RuntimeMinutes: constant.DEFAULT_RUNTIME_MINUTES,
 			PosterURL:      tmdbMovie.PosterPath,
 			Genres:         genres,
 		})
@@ -189,7 +190,7 @@ func (i *searchMoviesInteractor) batchCreateMovies(ctx context.Context, newMovie
 	})
 	if err != nil {
 		logger.Error().Msgf("failed to batch create movies: %s", err.Error())
-		return newMovies, nil // FIXME: 何らかの原因で上記処理が失敗しているので後で治すこと
+		return nil, responses.InternalServerError()
 	}
 
 	// 新規登録した映画のIDを取得

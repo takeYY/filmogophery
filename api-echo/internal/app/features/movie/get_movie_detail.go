@@ -5,6 +5,7 @@ import (
 
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/types"
+	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/logger"
 )
@@ -83,7 +84,7 @@ func (i *getMovieDetailInteractor) Run(
 	logger.Debug().Msg("successfully get a review")
 
 	// 上映時間を更新
-	if movie.RuntimeMinutes == 0 {
+	if movie.RuntimeMinutes == constant.DEFAULT_RUNTIME_MINUTES {
 		movie.RuntimeMinutes = int32(tmdbRes.data.Runtime)
 		err = i.movieService.UpdateRuntimeMinutes(ctx, nil, movie)
 		if err != nil {

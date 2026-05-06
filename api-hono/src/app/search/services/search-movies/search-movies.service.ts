@@ -1,3 +1,4 @@
+import { defaultRuntimeMinutes } from "@/core/definition";
 import { redisService } from "@/core/services/redis/redis.service";
 import { getMoviesByTitle } from "@/core/services/tmdb/tmdb.service";
 import { Movie } from "@/core/types/movie";
@@ -97,7 +98,7 @@ function toMovieForCreation(m: TmdbMovieResult) {
     title: m.title,
     overview: m.overview,
     releaseDate: m.release_date || "1970-01-01",
-    runtimeMinutes: 1, // メンテボタンで修正できるようにする
+    runtimeMinutes: defaultRuntimeMinutes,
     posterUrl: m.poster_path,
     genreIds: m.genre_ids,
   };
