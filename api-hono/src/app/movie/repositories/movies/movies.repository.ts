@@ -111,3 +111,16 @@ export async function fetchMovieById(
 
   return movie;
 }
+
+export async function updateRuntimeMinutes(
+  id: number,
+  runtimeMinutes: number,
+  db: MySql2Database = dbConnections.default,
+) {
+  const [result] = await db
+    .update(movies)
+    .set({ runtimeMinutes })
+    .where(eq(movies.id, id));
+
+  return result.affectedRows > 0;
+}

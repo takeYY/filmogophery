@@ -29,6 +29,11 @@ type (
 		FindReviewedByUser(ctx context.Context, userID int32, genre string, limit int32, offset int32) ([]*model.Movies, error)
 		// tmdbIDs に一致する映画を取得
 		FindByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([]*model.Movies, error)
+
+		// --- Update --- //
+
+		// 上映時間を更新
+		UpdateRuntimeMinutes(ctx context.Context, tx *gorm.DB, movie *model.Movies) error
 	}
 	SaveMovieInput struct {
 		Target *model.Movies
@@ -135,4 +140,20 @@ func (r *movieRepository) FindByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([
 		Preload(m.Series).
 		Where(m.TmdbID.In(tmdbIDs...)).
 		Find()
+}
+
+// 上映時間を更新
+func (r *movieRepository) UpdateRuntimeMinutes(ctx context.Context, tx *gorm.DB, movie *model.Movies) error {
+	m := query.Use(r.ReaderDB).Movies
+
+	_, err := m.WithContext(ctx).
+		Where(
+			m.ID.Eq(movie.ID),
+		).
+		Omit(field.AssociationFields).
+		UpdateSimple(
+			m.RuntimeMinutes.Value(movie.RuntimeMinutes),
+		)
+
+	return err
 }
