@@ -1,5 +1,6 @@
 "use client";
 
+import PasswordInput from "@/components/PasswordInput";
 import { saveToken } from "@/utils/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -90,12 +91,10 @@ export default function Register() {
                 <label htmlFor="password" className="form-label">
                   パスワード
                 </label>
-                <input
-                  type="password"
-                  className="form-control"
+                <PasswordInput
                   id="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={setPassword}
                   required
                 />
               </div>
@@ -103,12 +102,10 @@ export default function Register() {
                 <label htmlFor="confirmPassword" className="form-label">
                   パスワード（確認）
                 </label>
-                <input
-                  type="password"
-                  className="form-control"
+                <PasswordInput
                   id="confirmPassword"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={setConfirmPassword}
                   required
                 />
               </div>
