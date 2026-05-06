@@ -20,7 +20,7 @@ type (
 		// --- Create --- //
 
 		// レビューを作成
-		CreateReview(ctx context.Context, tx *gorm.DB, operator *model.Users, movie *model.Movies, rating *float64, comment *string) error
+		CreateReview(ctx context.Context, tx *gorm.DB, operator *model.Users, movie *model.Movies, rating *float64, comment *string) (*model.Reviews, error)
 		// 視聴履歴を作成
 		CreateWatchHistory(ctx context.Context, tx *gorm.DB, operator *model.Users, review *model.Reviews, platform *model.Platforms, watchedDate *constant.Date) (*model.WatchHistory, error)
 
@@ -61,30 +61,27 @@ func NewReviewService(
 // レビューを作成
 func (s *reviewService) CreateReview(
 	ctx context.Context, tx *gorm.DB, operator *model.Users, movie *model.Movies, rating *float64, comment *string,
-) error {
+) (*model.Reviews, error) {
 	logger := logger.GetLogger()
 
-	err := s.reviewRepo.Save(
-		ctx,
-		tx,
-		&model.Reviews{
-			UserID:  operator.ID,
-			MovieID: movie.ID,
-			Rating:  rating,
-			Comment: comment,
-		},
-	)
+	review := &model.Reviews{
+		UserID:  operator.ID,
+		MovieID: movie.ID,
+		Rating:  rating,
+		Comment: comment,
+	}
+	err := s.reviewRepo.Save(ctx, tx, review)
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		em := fmt.Sprintf("review already exists for this movie(id=%d): %s", movie.ID, err.Error())
 		logger.Error().Msg(em)
-		return responses.BadRequestError(map[string][]string{"review": {"already exists"}})
+		return nil, responses.BadRequestError(map[string][]string{"review": {"already exists"}})
 	}
 	if err != nil {
 		logger.Error().Msgf("failed to create review: %s", err.Error())
-		return responses.InternalServerError()
+		return nil, responses.InternalServerError()
 	}
 
-	return nil
+	return review, nil
 }
 
 // 視聴履歴を作成

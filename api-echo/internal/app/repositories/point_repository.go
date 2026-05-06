@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
@@ -44,12 +45,28 @@ func (r *pointRepository) FindOrCreateByUserID(ctx context.Context, tx *gorm.DB,
 		up = query.Use(tx).UserPoints
 	}
 
-	return up.WithContext(ctx).
-		Where(
-			up.UserID.Eq(userID),
-		).
-		Omit(field.AssociationFields).
-		FirstOrCreate()
+	// まず既存レコードを検索
+	result, err := up.WithContext(ctx).
+		Where(up.UserID.Eq(userID)).
+		First()
+	if err == nil {
+		return result, nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	// 存在しない場合は初期値で作成
+	defaultLevel := int32(1)
+	newRecord := &model.UserPoints{
+		UserID:      userID,
+		TotalPoints: 0,
+		Level:       &defaultLevel,
+	}
+	if err := up.WithContext(ctx).Omit(field.AssociationFields).Create(newRecord); err != nil {
+		return nil, err
+	}
+	return newRecord, nil
 }
 
 // ポイントを加算してレベルを更新
