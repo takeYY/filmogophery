@@ -29,6 +29,11 @@ type (
 		GetMovieByID(ctx context.Context, movieID int32) (*model.Movies, error)
 		// tmdbIDsに一致する映画を取得
 		GetMoviesByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([]*model.Movies, error)
+
+		// --- Update --- //
+
+		// 上映時間を更新
+		UpdateRuntimeMinutes(ctx context.Context, tx *gorm.DB, movie *model.Movies) error
 	}
 
 	movieService struct {
@@ -138,4 +143,17 @@ func (s *movieService) GetMoviesByTmdbIDs(ctx context.Context, tmdbIDs []int32) 
 	}
 
 	return movies, nil
+}
+
+// 上映時間を更新
+func (s *movieService) UpdateRuntimeMinutes(ctx context.Context, tx *gorm.DB, movie *model.Movies) error {
+	logger := logger.GetLogger()
+
+	err := s.movieRepo.UpdateRuntimeMinutes(ctx, tx, movie)
+	if err != nil {
+		logger.Error().Msgf("failed to update movies: %s", err.Error())
+		return responses.InternalServerError()
+	}
+
+	return nil
 }

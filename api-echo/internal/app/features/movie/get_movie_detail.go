@@ -82,6 +82,15 @@ func (i *getMovieDetailInteractor) Run(
 	}
 	logger.Debug().Msg("successfully get a review")
 
+	// 上映時間を更新
+	if movie.RuntimeMinutes == 0 {
+		movie.RuntimeMinutes = int32(tmdbRes.data.Runtime)
+		err = i.movieService.UpdateRuntimeMinutes(ctx, nil, movie)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	response := &types.MovieDetail{
 		Movie: types.Movie{
 			ID:             movie.ID,

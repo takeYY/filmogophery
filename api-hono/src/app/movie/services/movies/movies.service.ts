@@ -8,6 +8,7 @@ import { Logger } from "pino";
 import {
   fetchMovieById,
   getReviewedMoviesByUser,
+  updateRuntimeMinutes,
 } from "../../repositories/movies/movies.repository";
 import { fetchReviewByMovieId } from "../../repositories/reviews/reviews.repository";
 import { fetchSeriesByMovieId } from "../../repositories/series/series.repository";
@@ -94,6 +95,15 @@ export async function getMovieById(
       name: series.name,
       posterUrl: series.posterUrl,
     };
+  }
+
+  // 上映時間を更新
+  if (movie.runtimeMinute === 0) {
+    movie.runtimeMinute = tmdb.runtime;
+    const updated = await updateRuntimeMinutes(movie.id, movie.runtimeMinute);
+    if (!updated) {
+      logger.warn({ id: movie.id }, "updateRuntimeMinutes: no rows affected");
+    }
   }
 
   const result: MovieDetail = {
