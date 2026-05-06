@@ -1,3 +1,4 @@
+import { defaultRuntimeMinutes } from "@/core/definition";
 import { getTrendingMovies as fetchTmdbTrending } from "@/core/services/tmdb/tmdb.service";
 import { TrendingMovie } from "@/core/types/movie";
 import { TmdbTrendingMovieResult } from "@/core/types/tmdb";
@@ -46,7 +47,7 @@ export async function getTrendingMovies(
       title: m.title,
       overview: m.overview,
       releaseDate: m.release_date || "1970-01-01",
-      runtimeMinutes: 1, // TMDBトレンドAPIでは上映時間が取れないため仮値
+      runtimeMinutes: defaultRuntimeMinutes,
       posterUrl: m.poster_path,
     }));
 

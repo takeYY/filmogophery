@@ -1,3 +1,4 @@
+import { defaultRuntimeMinutes } from "@/core/definition";
 import { err, ok, Result } from "neverthrow";
 import { Logger } from "pino";
 import {
@@ -42,7 +43,7 @@ export async function createWatchHistory(
 
   // 映画情報を取得（ポイント計算に上映時間が必要）
   const movie = await fetchMovieById(review.movieId);
-  const runtimeMinutes = movie?.runtimeMinutes ?? 1;
+  const runtimeMinutes = movie?.runtimeMinutes ?? defaultRuntimeMinutes;
 
   await createWatchHistoryWithPoints(
     {

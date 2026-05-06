@@ -175,7 +175,7 @@ func (i *getTrendingMoviesInteractor) newMoviesForCreation(tmdbMovies []types.Tm
 			Title:          tmdbMovie.Title,
 			Overview:       tmdbMovie.Overview,
 			ReleaseDate:    releaseDate,
-			RuntimeMinutes: 1, // ここの時間はメンテボタンで修正できるようにする
+			RuntimeMinutes: constant.DEFAULT_RUNTIME_MINUTES,
 			PosterURL:      &tmdbMovie.PosterPath,
 			Genres:         genres,
 		})

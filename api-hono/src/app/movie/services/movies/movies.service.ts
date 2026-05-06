@@ -1,3 +1,4 @@
+import { defaultRuntimeMinutes } from "@/core/definition";
 import { users } from "@/core/drizzle/schema";
 import { MovieIsNotFound, TmdbMovieIsNotFound } from "@/core/errors";
 import { getTmdbMovieDetailById } from "@/core/services/tmdb/tmdb.service";
@@ -98,7 +99,7 @@ export async function getMovieById(
   }
 
   // 上映時間を更新
-  if (movie.runtimeMinute === 0) {
+  if (movie.runtimeMinute === defaultRuntimeMinutes) {
     movie.runtimeMinute = tmdb.runtime;
     const updated = await updateRuntimeMinutes(movie.id, movie.runtimeMinute);
     if (!updated) {
