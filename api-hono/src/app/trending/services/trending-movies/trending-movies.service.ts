@@ -72,8 +72,8 @@ export async function getTrendingMovies(
     result.push({
       id: movie.id,
       title: movie.title,
-      posterUrl: movie.posterUrl ?? null,
-      tmdbId: movie.tmdbId,
+      posterURL: movie.posterUrl ?? null,
+      tmdbID: movie.tmdbId,
       hasReview: reviewedIds.has(movie.id),
     });
   }

@@ -38,9 +38,9 @@ export async function getMovies(
       title: movie.title,
       overview: movie.overview,
       releaseDate: movie.releaseDate,
-      runtimeMinute: movie.runtimeMinute,
-      posterUrl: movie.posterUrl,
-      tmdbId: movie.tmdbId,
+      runtimeMinutes: movie.runtimeMinute,
+      posterURL: movie.posterUrl,
+      tmdbID: movie.tmdbId,
       genres,
     };
   });
@@ -94,7 +94,7 @@ export async function getMovieById(
   } else {
     seriesResponse = {
       name: series.name,
-      posterUrl: series.posterUrl,
+      posterURL: series.posterUrl,
     };
   }
 
@@ -108,12 +108,18 @@ export async function getMovieById(
   }
 
   const result: MovieDetail = {
-    ...movie,
+    id: movie.id,
+    title: movie.title,
+    overview: movie.overview,
+    releaseDate: movie.releaseDate,
+    runtimeMinutes: movie.runtimeMinute,
+    posterURL: movie.posterUrl,
+    tmdbID: movie.tmdbId,
+    genres,
     voteAverage,
     voteCount: tmdb.vote_count,
     series: seriesResponse,
     review: reviewResponse,
-    genres,
   };
 
   return ok(result);

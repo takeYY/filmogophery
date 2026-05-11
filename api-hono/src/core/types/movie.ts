@@ -8,9 +8,9 @@ export interface Movie {
   title: string;
   overview: string;
   releaseDate: string;
-  runtimeMinute: number;
-  posterUrl: string | null;
-  tmdbId: number;
+  runtimeMinutes: number;
+  posterURL: string | null;
+  tmdbID: number;
   genres: Genre[];
 }
 
@@ -24,7 +24,7 @@ export interface Review {
 
 export interface Series {
   name: string | null;
-  posterUrl: string | null;
+  posterURL: string | null;
 }
 
 export interface MovieDetail extends Movie {
@@ -37,7 +37,7 @@ export interface MovieDetail extends Movie {
 export interface TrendingMovie {
   id: number;
   title: string;
-  posterUrl: string | null;
-  tmdbId: number;
+  posterURL: string | null;
+  tmdbID: number;
   hasReview: boolean;
 }

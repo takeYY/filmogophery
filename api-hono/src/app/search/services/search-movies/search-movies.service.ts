@@ -67,12 +67,12 @@ export async function searchMovies(
       const names = mv.genreNames?.split(",") ?? [];
       return {
         id: mv.id,
-        tmdbId: mv.tmdbId,
+        tmdbID: mv.tmdbId,
         title: mv.title,
         overview: mv.overview,
         releaseDate: mv.releaseDate,
-        runtimeMinute: mv.runtimeMinute,
-        posterUrl: mv.posterUrl ?? null,
+        runtimeMinutes: mv.runtimeMinute,
+        posterURL: mv.posterUrl ?? null,
         genres: codes.map((code, i) => ({ code, name: names[i] ?? "" })),
       } satisfies Movie;
     })
