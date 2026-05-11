@@ -46,9 +46,9 @@ describe("getMovies", () => {
         title: "テスト映画",
         overview: "テスト映画概要",
         releaseDate: "2026-03-03",
-        runtimeMinute: 314,
-        posterUrl: null,
-        tmdbId: 2,
+        runtimeMinutes: 314,
+        posterURL: null,
+        tmdbID: 2,
         genres: [
           { code: "action", name: "アクション" },
           { code: "sf", name: "SF" },
