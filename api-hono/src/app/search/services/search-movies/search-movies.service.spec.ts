@@ -85,7 +85,7 @@ describe("searchMovies", () => {
 
     expect(result.isOk()).toBe(true);
     expect(data).toHaveLength(1);
-    expect(data[0].tmdbId).toBe(100);
+    expect(data[0].tmdbID).toBe(100);
     expect(data[0].title).toBe("既存映画");
     expect(data[0].genres).toEqual([{ code: "action", name: "アクション" }]);
   });
@@ -132,7 +132,7 @@ describe("searchMovies", () => {
 
     expect(result.isOk()).toBe(true);
     expect(data).toHaveLength(1);
-    expect(data[0].tmdbId).toBe(200);
+    expect(data[0].tmdbID).toBe(200);
     expect(data[0].title).toBe("新規映画");
     expect(moviesRepo.batchCreateMovies).toHaveBeenCalledTimes(1);
   });

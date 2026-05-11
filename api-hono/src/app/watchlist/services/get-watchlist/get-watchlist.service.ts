@@ -12,8 +12,8 @@ export type WatchlistItem = {
     overview: string;
     releaseDate: string;
     runtimeMinutes: number;
-    posterUrl: string | null;
-    tmdbId: number;
+    posterURL: string | null;
+    tmdbID: number;
     genres: { code: string; name: string }[];
   };
 };
@@ -43,8 +43,8 @@ export async function getWatchlist(
         overview: row.movieOverview,
         releaseDate: row.movieReleaseDate,
         runtimeMinutes: row.movieRuntimeMinutes,
-        posterUrl: row.moviePosterUrl ?? null,
-        tmdbId: row.movieTmdbId,
+        posterURL: row.moviePosterUrl ?? null,
+        tmdbID: row.movieTmdbId,
         genres,
       },
     };
