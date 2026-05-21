@@ -125,7 +125,8 @@ CREATE TABLE
         FOREIGN KEY (movie_id) REFERENCES `movies` (id) ON DELETE CASCADE,
         FOREIGN KEY (platform_id) REFERENCES `platforms` (id) ON DELETE CASCADE,
         INDEX idx_user_watched (user_id, watched_date),
-        INDEX idx_watched_date (watched_date)
+        INDEX idx_watched_date (watched_date),
+        INDEX idx_movie_watched (movie_id, watched_date)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- ユーザーポイントテーブル
