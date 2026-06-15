@@ -1,7 +1,6 @@
 "use client";
 
 import PasswordInput from "@/components/PasswordInput";
-import { saveToken } from "@/utils/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -35,8 +34,6 @@ export default function Register() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        saveToken(data);
         router.push("/");
       } else {
         const data = await response.json();

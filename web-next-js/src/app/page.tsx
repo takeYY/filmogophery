@@ -16,7 +16,7 @@ import { Carousel } from "react-bootstrap";
 
 export default function Home() {
   const router = useRouter();
-  const token = useAuth();
+  const { checked } = useAuth();
 
   const [movies, setMovies] = useState<Movie[]>();
   const [trending, setTrending] = useState<TrendingMovie[]>();
@@ -25,13 +25,6 @@ export default function Home() {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const observerTarget = useRef<HTMLDivElement>(null);
-
-  const accessToken = token ? token.accessToken : null;
-
-  const headers: HeadersInit = {};
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
 
   function separateTrending(
     trending: TrendingMovie[] | undefined,
@@ -53,7 +46,6 @@ export default function Home() {
     try {
       const response = await fetch(`/api/movies?offset=${currentOffset}`, {
         method: "GET",
-        headers,
       });
       const newMovies: Movie[] = await response.json();
       return newMovies;
@@ -64,13 +56,13 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!checked) return;
     const loadInitialData = async () => {
       setIsLoading(true);
       try {
         const initialMovies = await fetchMovies(0);
         const res = await fetch(`/api/trending/movies`, {
           method: "GET",
-          headers,
         });
         const trending: TrendingMovie[] = await res.json();
         console.log("moviesのデータ取得: 完了");
@@ -89,7 +81,7 @@ export default function Home() {
     };
 
     loadInitialData();
-  }, []);
+  }, [checked]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

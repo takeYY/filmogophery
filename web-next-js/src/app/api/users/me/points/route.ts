@@ -1,7 +1,11 @@
 import { APIBaseURL } from "@/constants/api";
+import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
-  const token = request.headers.get("Authorization");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  const tokenType = cookieStore.get("token_type")?.value ?? "Bearer";
+
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit") || "20";
   const offset = searchParams.get("offset") || "0";
@@ -10,7 +14,7 @@ export async function GET(request: Request) {
     `${APIBaseURL}/users/me/points?limit=${limit}&offset=${offset}`,
     {
       headers: {
-        Authorization: token || "",
+        Authorization: token ? `${tokenType} ${token}` : "",
       },
     },
   );

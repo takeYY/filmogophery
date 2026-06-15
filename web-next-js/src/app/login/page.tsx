@@ -7,7 +7,6 @@
 "use client";
 
 import PasswordInput from "@/components/PasswordInput";
-import { saveToken } from "@/utils/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
@@ -35,8 +34,6 @@ export default function Login() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        saveToken(data);
         router.push(redirect); // 元のページに戻る
       } else {
         const data = await response.json();

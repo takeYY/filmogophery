@@ -1,7 +1,6 @@
 "use client";
 
 import type { User } from "@/interface";
-import { clearToken, getToken } from "@/utils/auth";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -19,27 +18,22 @@ export function NavLinks() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = getToken();
-      if (!token) return;
-
+    const fetchSession = async () => {
       try {
-        const res = await fetch("/api/users/me", {
-          headers: {
-            Authorization: `${token.tokenType} ${token.accessToken}`,
-          },
-        });
+        const res = await fetch("/api/auth/session");
         if (res.ok) {
           const data = await res.json();
-          setUser(data);
+          setUser(data.user ?? null);
+        } else {
+          setUser(null);
         }
-      } catch (err) {
-        console.error("Failed to fetch user", err);
+      } catch {
+        setUser(null);
       }
     };
 
-    fetchUser();
-  }, []);
+    fetchSession();
+  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -63,16 +57,7 @@ export function NavLinks() {
   };
 
   const handleLogout = async () => {
-    const token = getToken();
-    if (token) {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `${token.tokenType} ${token.accessToken}`,
-        },
-      });
-    }
-    clearToken();
+    await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     router.push("/login");
   };

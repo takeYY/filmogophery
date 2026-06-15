@@ -1,20 +1,23 @@
 import { APIBaseURL } from "@/constants/api";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { _: string; reviewId: string } }
+  { params }: { params: { _: string; reviewId: string } },
 ) {
-  const token = req.headers.get("authorization");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  const tokenType = cookieStore.get("token_type")?.value ?? "Bearer";
+
   const url = `${APIBaseURL}/reviews/${params.reviewId}/history`;
 
   try {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     };
     if (token) {
-      headers.Authorization = token;
+      headers.Authorization = `${tokenType} ${token}`;
     }
 
     const requestData = await req.json();
@@ -36,25 +39,27 @@ export async function POST(
     console.error("Error in API route:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string; reviewId: string } }
+  { params }: { params: { id: string; reviewId: string } },
 ) {
-  const token = req.headers.get("authorization");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  const tokenType = cookieStore.get("token_type")?.value ?? "Bearer";
+
   const url = `${APIBaseURL}/reviews/${params.reviewId}`;
 
   try {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     };
     if (token) {
-      headers.Authorization = token;
+      headers.Authorization = `${tokenType} ${token}`;
     }
 
     const requestData = await req.json();
@@ -76,7 +81,7 @@ export async function PUT(
     console.error("Error in API route:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

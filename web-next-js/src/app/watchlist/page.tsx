@@ -20,21 +20,15 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [watchlist, setWatchlist] = useState<Watchlist[]>([]);
 
-  const token = useAuth();
-  const accessToken = token ? token.accessToken : null;
-
-  const headers: HeadersInit = {};
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
+  const { checked } = useAuth();
 
   useEffect(() => {
+    if (!checked) return;
     const fetchWatchlist = async () => {
       setLoading(true);
       try {
         const response = await fetch(`/api/watchlist`, {
           method: "GET",
-          headers,
         });
         const watchlist: Watchlist[] = await response.json();
         console.log("watchlistのデータ取得: 完了");
@@ -49,7 +43,7 @@ export default function Page() {
       }
     };
     fetchWatchlist();
-  }, [query]);
+  }, [query, checked]);
 
   return (
     <div className="container pb-4">

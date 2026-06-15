@@ -30,20 +30,14 @@ export default function MyPage() {
     localStorage.setItem("pointGuideOpen", String(next));
   };
 
-  const token = useAuth();
-  const accessToken = token ? token.accessToken : null;
-  const tokenType = token ? token.tokenType : "Bearer";
+  const { checked } = useAuth();
 
   useEffect(() => {
+    if (!checked) return;
     const fetchPoints = async () => {
-      if (!accessToken) return;
       setLoading(true);
       try {
-        const res = await fetch("/api/users/me/points", {
-          headers: {
-            Authorization: `${tokenType} ${accessToken}`,
-          },
-        });
+        const res = await fetch("/api/users/me/points");
         if (res.ok) {
           const data: UserPoints = await res.json();
           setUserPoints(data);
@@ -55,7 +49,7 @@ export default function MyPage() {
       }
     };
     fetchPoints();
-  }, [accessToken, tokenType]);
+  }, [checked]);
 
   if (loading) {
     return (
