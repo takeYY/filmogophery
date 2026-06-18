@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -62,7 +62,7 @@ func NewReviewService(
 func (s *reviewService) CreateReview(
 	ctx context.Context, tx *gorm.DB, operator *model.Users, movie *model.Movies, rating *float64, comment *string,
 ) (*model.Reviews, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	review := &model.Reviews{
 		UserID:  operator.ID,
@@ -73,11 +73,11 @@ func (s *reviewService) CreateReview(
 	err := s.reviewRepo.Save(ctx, tx, review)
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		em := fmt.Sprintf("review already exists for this movie(id=%d): %s", movie.ID, err.Error())
-		logger.Error().Msg(em)
+		log.Error().Msg(em)
 		return nil, responses.BadRequestError(map[string][]string{"review": {"already exists"}})
 	}
 	if err != nil {
-		logger.Error().Msgf("failed to create review: %s", err.Error())
+		log.Error().Msgf("failed to create review: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 
@@ -93,14 +93,14 @@ func (s *reviewService) CreateWatchHistory(
 	platform *model.Platforms,
 	watchedDate *constant.Date,
 ) (*model.WatchHistory, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	var parsedWatchedDate *time.Time
 	if watchedDate != nil {
 		parsedDate, err := time.ParseInLocation(constant.DateFormat, string(*watchedDate), time.Local)
 		if err != nil {
 			em := fmt.Sprintf("failed to parse watchedDate: %s", err.Error())
-			logger.Error().Msg(em)
+			log.Error().Msg(em)
 			return nil, responses.BadRequestError(map[string][]string{"WatchedDate": {"failed to parse date"}})
 		}
 		parsedWatchedDate = &parsedDate
@@ -114,46 +114,46 @@ func (s *reviewService) CreateWatchHistory(
 	}
 	err := s.watchHistoryRepo.Save(ctx, tx, watchHistory)
 	if err != nil {
-		logger.Error().Msgf("failed to create watch_history: %s", err.Error())
+		log.Error().Msgf("failed to create watch_history: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
-	logger.Debug().Msg("successfully created watch history")
+	log.Debug().Msg("successfully created watch history")
 
 	return watchHistory, nil
 }
 
 // IDに一致するレビューを取得
 func (s *reviewService) GetReviewByID(ctx context.Context, operator *model.Users, id int32) (*model.Reviews, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	review, err := s.reviewRepo.FindByID(ctx, operator.ID, id)
 	if err != nil {
-		logger.Error().Msgf("failed to get a review(userID=%d, id=%d): %s", operator.ID, id, err.Error())
+		log.Error().Msgf("failed to get a review(userID=%d, id=%d): %s", operator.ID, id, err.Error())
 		return nil, responses.InternalServerError()
 	}
 	if review == nil {
 		em := fmt.Sprintf("review(id=%d) is not found", id)
-		logger.Info().Msg(em)
+		log.Info().Msg(em)
 		return nil, responses.NotFoundError("review", map[string][]string{"id": {fmt.Sprintf("%d", id)}})
 	}
-	logger.Debug().Msg("successfully fetched a review")
+	log.Debug().Msg("successfully fetched a review")
 
 	return review, err
 }
 
 // 映画IDに一致するレビューを取得
 func (s *reviewService) GetReviewByMovieID(ctx context.Context, operator *model.Users, movie *model.Movies) (*model.Reviews, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	review, err := s.reviewRepo.FindByMovieID(ctx, operator.ID, movie.ID)
 	if err != nil {
-		logger.Error().Msgf("failed to get a review(userID=%d, movieID=%d): %s", operator.ID, movie.ID, err.Error())
+		log.Error().Msgf("failed to get a review(userID=%d, movieID=%d): %s", operator.ID, movie.ID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 	if review == nil {
-		logger.Info().Msg("review is not found")
+		log.Info().Msg("review is not found")
 	}
-	logger.Debug().Msg("successfully fetched a review")
+	log.Debug().Msg("successfully fetched a review")
 
 	return review, err
 }
@@ -162,25 +162,25 @@ func (s *reviewService) GetReviewByMovieID(ctx context.Context, operator *model.
 func (s *reviewService) GetWatchHistoryByReviewID(
 	ctx context.Context, operator *model.Users, review *model.Reviews,
 ) ([]*model.WatchHistory, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	watchHistories, err := s.watchHistoryRepo.FindByMovieID(ctx, operator, &review.Movie)
 	if err != nil {
-		logger.Error().Msgf("failed to get a watch history(reviewID=%d): %s", review.ID, err.Error())
+		log.Error().Msgf("failed to get a watch history(reviewID=%d): %s", review.ID, err.Error())
 		return nil, responses.InternalServerError()
 	}
-	logger.Debug().Msg("successfully fetched watch histories")
+	log.Debug().Msg("successfully fetched watch histories")
 
 	return watchHistories, err
 }
 
 // 映画IDリストのうちレビュー済みのIDセットを取得
 func (s *reviewService) GetReviewedMovieIDs(ctx context.Context, userID int32, movieIDs []int32) (map[int32]bool, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	reviewedIDs, err := s.reviewRepo.FindReviewedMovieIDs(ctx, userID, movieIDs)
 	if err != nil {
-		logger.Error().Msgf("failed to get reviewed movie ids: %s", err.Error())
+		log.Error().Msgf("failed to get reviewed movie ids: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 	return reviewedIDs, nil
@@ -188,13 +188,13 @@ func (s *reviewService) GetReviewedMovieIDs(ctx context.Context, userID int32, m
 
 // レビューを更新
 func (s *reviewService) UpdateReview(ctx context.Context, tx *gorm.DB, review *model.Reviews, rating *float64, comment *string) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	review.Rating = rating
 	review.Comment = comment
 	err := s.reviewRepo.Update(ctx, tx, review)
 	if err != nil {
-		logger.Error().Msgf("failed to update review(id=%d): %s", review.ID, err.Error())
+		log.Error().Msgf("failed to update review(id=%d): %s", review.ID, err.Error())
 		return responses.InternalServerError()
 	}
 

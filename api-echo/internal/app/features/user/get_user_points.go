@@ -3,12 +3,13 @@ package user
 import (
 	"context"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -33,7 +34,7 @@ func NewGetUserPointsInteractor(
 }
 
 func (i *getUserPointsInteractor) Run(ctx context.Context, operator *model.Users, limit, offset int32) (*types.UserPoints, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	up, err := i.pointService.GetUserPoints(ctx, operator.ID)
 	if err != nil {
@@ -42,7 +43,7 @@ func (i *getUserPointsInteractor) Run(ctx context.Context, operator *model.Users
 
 	histories, err := i.pointRepo.FindHistoryByUserID(ctx, operator.ID, limit, offset)
 	if err != nil {
-		logger.Error().Msgf("failed to get point history(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to get point history(userID=%d): %s", operator.ID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 

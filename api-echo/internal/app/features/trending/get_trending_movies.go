@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/responses"
@@ -13,7 +14,6 @@ import (
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -43,7 +43,7 @@ func NewGetTrendingMoviesInteractor(
 }
 
 func (i *getTrendingMoviesInteractor) Run(ctx context.Context, operator *model.Users) ([]types.TrendingMovie, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// redis 格納用のキャッシュキーを生成
 	cacheKey := i.newCacheKey()
@@ -56,17 +56,17 @@ func (i *getTrendingMoviesInteractor) Run(ctx context.Context, operator *model.U
 		if err != nil {
 			return nil, err
 		}
-		logger.Debug().Msg("successfully got Trending movies")
+		log.Debug().Msg("successfully got Trending movies")
 
 		// 取得した映画のtmdbIDリストで既存映画を取得
 		mvs, err := i.getExistingMovies(ctx, tmdbMovies.Results)
 		if err != nil {
 			return nil, err
 		}
-		logger.Debug().Msg("successfully got movies by tmdbID")
+		log.Debug().Msg("successfully got movies by tmdbID")
 
 		// moviesテーブルにない映画情報を作成
-		newMovies := i.newMoviesForCreation(tmdbMovies.Results, mvs)
+		newMovies := i.newMoviesForCreation(ctx, tmdbMovies.Results, mvs)
 
 		// moviesテーブルにない映画を一括登録
 		createdMovies, err := i.batchCreateMovies(ctx, newMovies)
@@ -87,7 +87,7 @@ func (i *getTrendingMoviesInteractor) Run(ctx context.Context, operator *model.U
 
 		// Redisにキャッシュ（24時間）
 		if err := i.redisSvc.Set(ctx, cacheKey, movies, 24*time.Hour); err != nil {
-			logger.Warn().Err(err).Msg("failed to cache movies in redis")
+			log.Warn().Err(err).Msg("failed to cache movies in redis")
 		}
 	}
 
@@ -112,19 +112,19 @@ func (i *getTrendingMoviesInteractor) newCacheKey() string {
 }
 
 func (i *getTrendingMoviesInteractor) getMoviesFromRedis(ctx context.Context, key string) []types.TrendingMovie {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// Redisからタイトルに一致する情報を取得
 	var movies []types.TrendingMovie
 	err := i.redisSvc.Get(ctx, key, &movies)
 	if err == nil {
 		// キャッシュヒット
-		logger.Debug().Msg("cache hit from redis")
+		log.Debug().Msg("cache hit from redis")
 		return movies
 	}
 	// redis.Nil以外のエラーはログ出力のみ（キャッシュ障害でサービス停止させない）
 	if err != redis.Nil {
-		logger.Warn().Err(err).Msg("redis get error")
+		log.Warn().Err(err).Msg("redis get error")
 	}
 
 	return nil
@@ -145,8 +145,8 @@ func (i *getTrendingMoviesInteractor) getExistingMovies(ctx context.Context, tmd
 	return movies, nil
 }
 
-func (i *getTrendingMoviesInteractor) newMoviesForCreation(tmdbMovies []types.TmdbTrendingMovie, existingMovies []*model.Movies) []*model.Movies {
-	logger := logger.GetLogger()
+func (i *getTrendingMoviesInteractor) newMoviesForCreation(ctx context.Context, tmdbMovies []types.TmdbTrendingMovie, existingMovies []*model.Movies) []*model.Movies {
+	log := zerolog.Ctx(ctx)
 
 	existingTmdbIDs := make(map[int32]bool)
 	for _, mv := range existingMovies {
@@ -166,7 +166,7 @@ func (i *getTrendingMoviesInteractor) newMoviesForCreation(tmdbMovies []types.Tm
 
 		releaseDate, err := constant.ToTime(tmdbMovie.ReleaseDate)
 		if err != nil {
-			logger.Error().Msgf("failed to convert release_date to time")
+			log.Error().Msgf("failed to convert release_date to time")
 			releaseDate = constant.GetDefaultDate()
 		}
 
@@ -190,13 +190,13 @@ func (i *getTrendingMoviesInteractor) batchCreateMovies(ctx context.Context, new
 		return nil, nil
 	}
 
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	err := i.db.Transaction(func(tx *gorm.DB) error {
 		return i.movieSvc.BatchCreate(ctx, tx, newMovies)
 	})
 	if err != nil {
-		logger.Error().Msgf("failed to batch create movies: %s", err.Error())
+		log.Error().Msgf("failed to batch create movies: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 
@@ -209,7 +209,7 @@ func (i *getTrendingMoviesInteractor) batchCreateMovies(ctx context.Context, new
 	// ジャンル情報を含めて再取得
 	newMoviesWithGenres, err := i.movieSvc.GetMoviesByTmdbIDs(ctx, newTmdbIDs)
 	if err != nil {
-		logger.Error().Msgf("failed to get newly created movies: %s", err.Error())
+		log.Error().Msgf("failed to get newly created movies: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 

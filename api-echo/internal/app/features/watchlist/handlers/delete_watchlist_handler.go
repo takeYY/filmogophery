@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/watchlist"
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -41,14 +41,14 @@ func (h *deleteWatchlistHandler) Register(g *echo.Group) {
 }
 
 func (h *deleteWatchlistHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed DELETE watchlist")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed DELETE watchlist")
 
 	var req deleteWatchlistInput
 	if err := c.Bind(&req); err != nil {
 		return responses.ParseBindError(err)
 	}
-	logger.Info().Msg("successfully validated params")
+	log.Info().Msg("successfully validated params")
 
 	err := h.interactor.Run(
 		c.Request().Context(),

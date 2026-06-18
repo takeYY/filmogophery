@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/review"
 	"filmogophery/internal/app/responses"
@@ -15,7 +16,6 @@ import (
 	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -55,8 +55,8 @@ func (h *postReviewHandler) Register(g *echo.Group) {
 }
 
 func (h *postReviewHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed POST review")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed POST review")
 
 	var req postReviewInput
 	if err := c.Bind(&req); err != nil {
@@ -65,7 +65,7 @@ func (h *postReviewHandler) handle(c echo.Context) error {
 	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
 		return responses.ValidationError(errs)
 	}
-	logger.Info().Msg("successfully validated params")
+	log.Info().Msg("successfully validated params")
 
 	var whInput *review.WatchHistoryInput
 	if req.WatchHistory != nil {

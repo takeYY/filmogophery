@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/platform"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -34,8 +34,8 @@ func (h *getPlatformsHandler) Register(g *echo.Group) {
 }
 
 func (h *getPlatformsHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed GET platforms")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed GET platforms")
 
 	result, err := h.interactor.Run(
 		c.Request().Context(),

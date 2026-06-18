@@ -3,11 +3,12 @@ package watchlist
 import (
 	"context"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -31,12 +32,12 @@ func NewGetWatchlistInteractor(
 func (i *getWatchlistInteractor) Run(
 	ctx context.Context, operator *model.Users, limit int32, offset int32,
 ) ([]types.Watchlist, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// ウォッチリストを取得
 	watchlist, err := i.watchlistRepo.FindByUserID(ctx, operator, limit, offset)
 	if err != nil {
-		logger.Error().Msg("failed to fetch watchlist")
+		log.Error().Msg("failed to fetch watchlist")
 		return nil, responses.InternalServerError()
 	}
 

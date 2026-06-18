@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -32,12 +33,12 @@ func NewAddWatchlistInteractor(
 }
 
 func (i *addWatchlistInteractor) Run(ctx context.Context, operator *model.Users, movieID int32, priority int32) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// 映画の存在確認
 	movie, err := i.movieRepo.FindByID(ctx, movieID)
 	if err != nil {
-		logger.Error().Msgf("failed to fetch movie: %s", err.Error())
+		log.Error().Msgf("failed to fetch movie: %s", err.Error())
 		return responses.InternalServerError()
 	}
 	if movie == nil {
@@ -51,7 +52,7 @@ func (i *addWatchlistInteractor) Run(ctx context.Context, operator *model.Users,
 		Priority: &priority,
 	})
 	if err != nil {
-		logger.Error().Msgf("failed to create watchlist: %s", err.Error())
+		log.Error().Msgf("failed to create watchlist: %s", err.Error())
 		return responses.InternalServerError()
 	}
 

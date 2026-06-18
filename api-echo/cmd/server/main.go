@@ -15,6 +15,7 @@ import (
 	"filmogophery/internal/pkg/hasher"
 	"filmogophery/internal/pkg/jwt"
 	"filmogophery/internal/pkg/logger"
+	myMiddleware "filmogophery/internal/pkg/middleware"
 	"filmogophery/internal/pkg/redis"
 )
 
@@ -82,13 +83,7 @@ func newBcryptHasher() *hasher.IPasswordHasher {
 
 func newEchoServer(conf *config.Config, gormDB *gorm.DB, serviceContainer services.IServiceContainer) *echo.Echo {
 	e := echo.New()
-	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogURI:    true,
-		LogStatus: true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			return nil
-		},
-	}))
+	e.Use(myMiddleware.RequestLoggerMiddleware) // requestId 付き child logger を context に付与
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 

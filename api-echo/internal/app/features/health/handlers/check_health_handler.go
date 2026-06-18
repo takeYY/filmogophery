@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/routers"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -27,8 +27,8 @@ func (h *checkHealthHandler) Register(g *echo.Group) {
 }
 
 func (h *checkHealthHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed GET health")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed GET health")
 
 	return c.JSON(http.StatusOK, "system all green")
 }
