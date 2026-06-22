@@ -52,7 +52,7 @@ func (i *getTrendingMoviesInteractor) Run(ctx context.Context, operator *model.U
 	movies := i.getMoviesFromRedis(ctx, cacheKey)
 	if movies == nil {
 		// Redis になければ TMDb APIから人気映画を取得
-		tmdbMovies, err := i.tmdbSvc.GetTrendingMovies()
+		tmdbMovies, err := i.tmdbSvc.GetTrendingMovies(ctx)
 		if err != nil {
 			return nil, err
 		}

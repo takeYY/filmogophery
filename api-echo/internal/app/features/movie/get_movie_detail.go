@@ -61,7 +61,7 @@ func (i *getMovieDetailInteractor) Run(
 	reviewCh := make(chan reviewResult, 1)
 
 	go func() {
-		tmdb, err := i.tmdbService.GetMovieDetailByID(movie.TmdbID)
+		tmdb, err := i.tmdbService.GetMovieDetailByID(ctx, movie.TmdbID)
 		tmdbCh <- tmdbResult{tmdb, err}
 	}()
 

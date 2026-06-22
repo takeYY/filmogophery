@@ -37,7 +37,7 @@ func (th *TmdbHandler) SearchTmdbMovies(c echo.Context) error {
 		return responses.BadRequestError(map[string][]string{"q": {"must not be empty"}})
 	}
 
-	movies, err := th.TmdbService.SearchMovies(&q)
+	movies, err := th.TmdbService.SearchMovies(c.Request().Context(), &q)
 	if err != nil {
 		return responses.NotFoundError("movie", map[string][]string{"q": {q}})
 	}

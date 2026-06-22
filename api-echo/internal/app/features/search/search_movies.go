@@ -57,7 +57,7 @@ func (i *searchMoviesInteractor) Run(ctx context.Context, title string, limit in
 	}
 
 	// Redis になければ TMDb APIから映画情報を取得
-	tmdbMovies, err := i.tmdbSvc.GetMoviesByTitle(title, limit, offset)
+	tmdbMovies, err := i.tmdbSvc.GetMoviesByTitle(ctx, title, limit, offset)
 	if err != nil {
 		return nil, err
 	}

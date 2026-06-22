@@ -1,20 +1,23 @@
 package services
 
 import (
+	"context"
+
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/types"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
 	ITmdbService interface {
 		// IDに一致する映画詳細を取得
-		GetMovieDetailByID(id int32) (*types.TmdbMovieDetail, error)
+		GetMovieDetailByID(ctx context.Context, id int32) (*types.TmdbMovieDetail, error)
 		// タイトルに一致する映画を取得
-		GetMoviesByTitle(title string, limit int32, offset int32) (*types.TmdbSearchMovieResult, error)
+		GetMoviesByTitle(ctx context.Context, title string, limit int32, offset int32) (*types.TmdbSearchMovieResult, error)
 		// トレンド映画を取得
-		GetTrendingMovies() (*types.TmdbTrendingMovieResult, error)
+		GetTrendingMovies(ctx context.Context) (*types.TmdbTrendingMovieResult, error)
 	}
 
 	tmdbService struct {
@@ -29,29 +32,29 @@ func NewTmdbService(tmdbRepo repositories.ITmdbRepository) ITmdbService {
 }
 
 // IDに一致する映画詳細を取得
-func (s *tmdbService) GetMovieDetailByID(id int32) (*types.TmdbMovieDetail, error) {
-	logger := logger.GetLogger()
+func (s *tmdbService) GetMovieDetailByID(ctx context.Context, id int32) (*types.TmdbMovieDetail, error) {
+	log := zerolog.Ctx(ctx)
 
 	movieDetail, err := s.tmdbRepo.GetMovieDetail(id)
 	if err != nil {
-		logger.Error().Msgf("failed to get a movie(id=%d) detail: %s", id, err.Error())
+		log.Error().Msgf("failed to get a movie(id=%d) detail: %s", id, err.Error())
 		return nil, responses.InternalServerError()
 	}
-	logger.Debug().Msg("successfully fetch tmdb movie detail")
+	log.Debug().Msg("successfully fetch tmdb movie detail")
 
 	return movieDetail, nil
 }
 
 // タイトルに一致する映画を取得
-func (s *tmdbService) GetMoviesByTitle(title string, limit int32, offset int32) (*types.TmdbSearchMovieResult, error) {
-	logger := logger.GetLogger()
+func (s *tmdbService) GetMoviesByTitle(ctx context.Context, title string, limit int32, offset int32) (*types.TmdbSearchMovieResult, error) {
+	log := zerolog.Ctx(ctx)
 
 	// pageを計算
 	page := (offset / 20) + 1
 
 	movies, err := s.tmdbRepo.GetMoviesByTitle(title, page)
 	if err != nil {
-		logger.Error().Msgf("failed to fetch movies from tmdb: %s", err.Error())
+		log.Error().Msgf("failed to fetch movies from tmdb: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 
@@ -73,12 +76,12 @@ func (s *tmdbService) GetMoviesByTitle(title string, limit int32, offset int32) 
 }
 
 // トレンド映画を取得
-func (s *tmdbService) GetTrendingMovies() (*types.TmdbTrendingMovieResult, error) {
-	logger := logger.GetLogger()
+func (s *tmdbService) GetTrendingMovies(ctx context.Context) (*types.TmdbTrendingMovieResult, error) {
+	log := zerolog.Ctx(ctx)
 
 	movies, err := s.tmdbRepo.GetTrendingMovies()
 	if err != nil {
-		logger.Error().Msgf("failed to fetch movies from tmdb: %s", err.Error())
+		log.Error().Msgf("failed to fetch movies from tmdb: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 
