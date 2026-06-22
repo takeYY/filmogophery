@@ -3,10 +3,11 @@ package services
 import (
 	"context"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -32,11 +33,11 @@ func NewGenreService(
 
 // 全てのジャンルを取得
 func (s *genreService) GetAllGenres(ctx context.Context) ([]*model.Genres, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	genres, err := s.genreRepo.FindAll(ctx)
 	if err != nil {
-		logger.Error().Msgf("failed to fetch genres: %s", err.Error())
+		log.Error().Msgf("failed to fetch genres: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 

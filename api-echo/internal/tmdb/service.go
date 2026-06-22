@@ -1,9 +1,11 @@
 package tmdb
 
 import (
+	"context"
 	"strings"
 
-	"filmogophery/internal/pkg/logger"
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/pkg/tokenizer"
 )
 
@@ -19,8 +21,8 @@ func NewTmdbService(tmdbClient ITmdbClient) *TmdbService {
 	}
 }
 
-func (ts *TmdbService) SearchMovies(q *string) ([]*SearchMovieDto, error) {
-	logger := logger.GetLogger()
+func (ts *TmdbService) SearchMovies(ctx context.Context, q *string) ([]*SearchMovieDto, error) {
+	log := zerolog.Ctx(ctx)
 
 	ch := make(chan *tokenizer.NEologd, 1)
 	r := strings.NewReader(*q)
@@ -36,11 +38,11 @@ func (ts *TmdbService) SearchMovies(q *string) ([]*SearchMovieDto, error) {
 		qs = append(qs, k.Surface)
 	}
 	query := strings.Join(qs, " ")
-	logger.Info().Msgf("query is [%s]", query)
+	log.Info().Msgf("query is [%s]", query)
 
 	movies, err := ts.tmdbClient.SearchMovies(query)
 	if err != nil {
-		logger.Error().Msg("Error fetching movies")
+		log.Error().Msg("Error fetching movies")
 		return nil, err
 	}
 

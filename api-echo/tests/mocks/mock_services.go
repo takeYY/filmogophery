@@ -10,6 +10,7 @@
 package mocks
 
 import (
+	context "context"
 	types "filmogophery/internal/app/types"
 	reflect "reflect"
 
@@ -40,46 +41,46 @@ func (m *MockITmdbService) EXPECT() *MockITmdbServiceMockRecorder {
 }
 
 // GetMovieDetailByID mocks base method.
-func (m *MockITmdbService) GetMovieDetailByID(arg0 int32) (*types.TmdbMovieDetail, error) {
+func (m *MockITmdbService) GetMovieDetailByID(arg0 context.Context, arg1 int32) (*types.TmdbMovieDetail, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMovieDetailByID", arg0)
+	ret := m.ctrl.Call(m, "GetMovieDetailByID", arg0, arg1)
 	ret0, _ := ret[0].(*types.TmdbMovieDetail)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMovieDetailByID indicates an expected call of GetMovieDetailByID.
-func (mr *MockITmdbServiceMockRecorder) GetMovieDetailByID(arg0 any) *gomock.Call {
+func (mr *MockITmdbServiceMockRecorder) GetMovieDetailByID(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovieDetailByID", reflect.TypeOf((*MockITmdbService)(nil).GetMovieDetailByID), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovieDetailByID", reflect.TypeOf((*MockITmdbService)(nil).GetMovieDetailByID), arg0, arg1)
 }
 
 // GetMoviesByTitle mocks base method.
-func (m *MockITmdbService) GetMoviesByTitle(arg0 string, arg1, arg2 int32) (*types.TmdbSearchMovieResult, error) {
+func (m *MockITmdbService) GetMoviesByTitle(arg0 context.Context, arg1 string, arg2, arg3 int32) (*types.TmdbSearchMovieResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMoviesByTitle", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetMoviesByTitle", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*types.TmdbSearchMovieResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetMoviesByTitle indicates an expected call of GetMoviesByTitle.
-func (mr *MockITmdbServiceMockRecorder) GetMoviesByTitle(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockITmdbServiceMockRecorder) GetMoviesByTitle(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMoviesByTitle", reflect.TypeOf((*MockITmdbService)(nil).GetMoviesByTitle), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMoviesByTitle", reflect.TypeOf((*MockITmdbService)(nil).GetMoviesByTitle), arg0, arg1, arg2, arg3)
 }
 
 // GetTrendingMovies mocks base method.
-func (m *MockITmdbService) GetTrendingMovies() (*types.TmdbTrendingMovieResult, error) {
+func (m *MockITmdbService) GetTrendingMovies(arg0 context.Context) (*types.TmdbTrendingMovieResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTrendingMovies")
+	ret := m.ctrl.Call(m, "GetTrendingMovies", arg0)
 	ret0, _ := ret[0].(*types.TmdbTrendingMovieResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTrendingMovies indicates an expected call of GetTrendingMovies.
-func (mr *MockITmdbServiceMockRecorder) GetTrendingMovies() *gomock.Call {
+func (mr *MockITmdbServiceMockRecorder) GetTrendingMovies(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrendingMovies", reflect.TypeOf((*MockITmdbService)(nil).GetTrendingMovies))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrendingMovies", reflect.TypeOf((*MockITmdbService)(nil).GetTrendingMovies), arg0)
 }

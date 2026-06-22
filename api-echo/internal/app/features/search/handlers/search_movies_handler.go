@@ -5,13 +5,13 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/search"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/validators"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -45,8 +45,8 @@ func (h *searchMoviesHandler) Register(g *echo.Group) {
 }
 
 func (h *searchMoviesHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed GET search movies")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed GET search movies")
 
 	var req searchMoviesInput
 	if err := c.Bind(&req); err != nil {
@@ -55,7 +55,7 @@ func (h *searchMoviesHandler) handle(c echo.Context) error {
 	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
 		return responses.ValidationError(errs)
 	}
-	logger.Info().Msg("successfully validated params")
+	log.Info().Msg("successfully validated params")
 
 	result, err := h.interactor.Run(
 		c.Request().Context(),

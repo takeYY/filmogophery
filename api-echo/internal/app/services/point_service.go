@@ -3,13 +3,13 @@ package services
 import (
 	"context"
 
+	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 // ポイント付与量の定義
@@ -104,20 +104,20 @@ func NewPointService(pointRepo repositories.IPointRepository) IPointService {
 func (s *pointService) GrantWatchHistoryPoints(
 	ctx context.Context, tx *gorm.DB, operator *model.Users, watchHistory *model.WatchHistory, movie *model.Movies,
 ) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	points := CalcWatchPoints(movie.RuntimeMinutes)
 
 	// 現在のポイントを取得してレベルを計算
 	current, err := s.pointRepo.FindOrCreateByUserID(ctx, tx, operator.ID)
 	if err != nil {
-		logger.Error().Msgf("failed to get user points(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to get user points(userID=%d): %s", operator.ID, err.Error())
 		return responses.InternalServerError()
 	}
 	newLevel := CalcLevel(current.TotalPoints + points)
 
 	if _, err := s.pointRepo.AddPoints(ctx, tx, operator.ID, points, newLevel); err != nil {
-		logger.Error().Msgf("failed to add watch history points(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to add watch history points(userID=%d): %s", operator.ID, err.Error())
 		return responses.InternalServerError()
 	}
 
@@ -127,11 +127,11 @@ func (s *pointService) GrantWatchHistoryPoints(
 		Action:      constant.PointActionWatchHistory,
 		ReferenceID: watchHistory.ID,
 	}); err != nil {
-		logger.Error().Msgf("failed to save point history(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to save point history(userID=%d): %s", operator.ID, err.Error())
 		return responses.InternalServerError()
 	}
 
-	logger.Info().Msgf("granted %d points for watch history(userID=%d)", points, operator.ID)
+	log.Info().Msgf("granted %d points for watch history(userID=%d)", points, operator.ID)
 	return nil
 }
 
@@ -139,18 +139,18 @@ func (s *pointService) GrantWatchHistoryPoints(
 func (s *pointService) GrantReviewPoints(
 	ctx context.Context, tx *gorm.DB, operator *model.Users, review *model.Reviews,
 ) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// 現在のポイントを取得してレベルを計算
 	current, err := s.pointRepo.FindOrCreateByUserID(ctx, tx, operator.ID)
 	if err != nil {
-		logger.Error().Msgf("failed to get user points(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to get user points(userID=%d): %s", operator.ID, err.Error())
 		return responses.InternalServerError()
 	}
 	newLevel := CalcLevel(current.TotalPoints + PointsForReview)
 
 	if _, err := s.pointRepo.AddPoints(ctx, tx, operator.ID, PointsForReview, newLevel); err != nil {
-		logger.Error().Msgf("failed to add review points(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to add review points(userID=%d): %s", operator.ID, err.Error())
 		return responses.InternalServerError()
 	}
 
@@ -160,21 +160,21 @@ func (s *pointService) GrantReviewPoints(
 		Action:      constant.PointActionReview,
 		ReferenceID: review.ID,
 	}); err != nil {
-		logger.Error().Msgf("failed to save point history(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to save point history(userID=%d): %s", operator.ID, err.Error())
 		return responses.InternalServerError()
 	}
 
-	logger.Info().Msgf("granted %d points for review(userID=%d)", PointsForReview, operator.ID)
+	log.Info().Msgf("granted %d points for review(userID=%d)", PointsForReview, operator.ID)
 	return nil
 }
 
 // ユーザーのポイント・レベルを取得する
 func (s *pointService) GetUserPoints(ctx context.Context, userID int32) (*model.UserPoints, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	up, err := s.pointRepo.FindOrCreateByUserID(ctx, nil, userID)
 	if err != nil {
-		logger.Error().Msgf("failed to get user points(userID=%d): %s", userID, err.Error())
+		log.Error().Msgf("failed to get user points(userID=%d): %s", userID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 	return up, nil

@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/user"
 	"filmogophery/internal/app/repositories"
@@ -13,7 +14,6 @@ import (
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -44,8 +44,8 @@ func (h *getUserPointsHandler) Register(g *echo.Group) {
 }
 
 func (h *getUserPointsHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed GET user points")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed GET user points")
 
 	req := getUserPointsQuery{Limit: 20, Offset: 0}
 	if err := c.Bind(&req); err != nil {

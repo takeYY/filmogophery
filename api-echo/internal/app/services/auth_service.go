@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"time"
 
+	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
@@ -15,7 +16,6 @@ import (
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/jwt"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -71,12 +71,12 @@ func (s *authService) GenerateToken(
 }
 
 func (s *authService) RevokeToken(ctx context.Context, tx *gorm.DB, user *model.Users, now time.Time) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// 有効なトークンを取得
 	activeTokens, err := s.tokenRepo.FindActiveTokenByUserID(ctx, user, now)
 	if err != nil {
-		logger.Error().Msgf("failed to fetch active tokens: %s", err.Error())
+		log.Error().Msgf("failed to fetch active tokens: %s", err.Error())
 		return responses.InternalServerError()
 	}
 	if len(activeTokens) == 0 {
@@ -91,7 +91,7 @@ func (s *authService) RevokeToken(ctx context.Context, tx *gorm.DB, user *model.
 	// トークンを無効化
 	err = s.tokenRepo.Revoke(ctx, tx, tokenIDs, now)
 	if err != nil {
-		logger.Error().Msgf("failed to update active tokens: %s", err.Error())
+		log.Error().Msgf("failed to update active tokens: %s", err.Error())
 		return responses.InternalServerError()
 	}
 

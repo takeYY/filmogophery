@@ -3,11 +3,12 @@ package movie
 import (
 	"context"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -47,20 +48,20 @@ func NewGetMovieDetailInteractor(
 func (i *getMovieDetailInteractor) Run(
 	ctx context.Context, operator *model.Users, movieID int32,
 ) (*types.MovieDetail, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// 映画詳細を取得
 	movie, err := i.movieService.GetMovieByID(ctx, movieID)
 	if err != nil {
 		return nil, err
 	}
-	logger.Debug().Msg("successfully get a movie")
+	log.Debug().Msg("successfully get a movie")
 
 	tmdbCh := make(chan tmdbResult, 1)
 	reviewCh := make(chan reviewResult, 1)
 
 	go func() {
-		tmdb, err := i.tmdbService.GetMovieDetailByID(movie.TmdbID)
+		tmdb, err := i.tmdbService.GetMovieDetailByID(ctx, movie.TmdbID)
 		tmdbCh <- tmdbResult{tmdb, err}
 	}()
 
@@ -76,12 +77,12 @@ func (i *getMovieDetailInteractor) Run(
 	if tmdbRes.err != nil {
 		return nil, tmdbRes.err
 	}
-	logger.Debug().Msg("successfully get a movie from tmdb")
+	log.Debug().Msg("successfully get a movie from tmdb")
 
 	if reviewRes.err != nil {
 		return nil, reviewRes.err
 	}
-	logger.Debug().Msg("successfully get a review")
+	log.Debug().Msg("successfully get a review")
 
 	// 上映時間を更新
 	if movie.RuntimeMinutes == constant.DEFAULT_RUNTIME_MINUTES {

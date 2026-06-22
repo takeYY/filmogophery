@@ -3,10 +3,11 @@ package services
 import (
 	"context"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -41,11 +42,11 @@ func NewWatchHistoryService(
 func (s *watchHistoryService) GetByMovieID(
 	ctx context.Context, operator *model.Users, movie *model.Movies,
 ) ([]*model.WatchHistory, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	whs, err := s.watchHistRepo.FindByMovieID(ctx, operator, movie)
 	if err != nil {
-		logger.Error().Msgf("failed to get a watch history(movieID=%d): %s", movie.ID, err.Error())
+		log.Error().Msgf("failed to get a watch history(movieID=%d): %s", movie.ID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 
@@ -56,11 +57,11 @@ func (s *watchHistoryService) GetByMovieID(
 func (s *watchHistoryService) GetByUserID(
 	ctx context.Context, operator *model.Users, limit, offset int32,
 ) ([]*model.WatchHistory, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	whs, err := s.watchHistRepo.FindByUserID(ctx, operator, limit, offset)
 	if err != nil {
-		logger.Error().Msgf("failed to get a watch history(userID=%d): %s", operator.ID, err.Error())
+		log.Error().Msgf("failed to get a watch history(userID=%d): %s", operator.ID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 

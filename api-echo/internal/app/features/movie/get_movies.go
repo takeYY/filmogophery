@@ -3,10 +3,11 @@ package movie
 import (
 	"context"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -26,7 +27,7 @@ func NewGetMoviesInteractor(movieService services.IMovieService) GetMoviesUseCas
 }
 
 func (i *getMoviesInteractor) Run(ctx context.Context, operator *model.Users, genre string, limit int32, offset int32) ([]types.Movie, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// ユーザーがレビューした映画を取得（ジャンル絞り込み可）
 	movies, err := i.movieService.GetReviewedMoviesByUser(ctx, operator.ID, genre, limit, offset)
@@ -48,7 +49,7 @@ func (i *getMoviesInteractor) Run(ctx context.Context, operator *model.Users, ge
 			Genres:         types.NewGenresByModel(m.Genres),
 		})
 	}
-	logger.Debug().Msg("successfully set movies response")
+	log.Debug().Msg("successfully set movies response")
 
 	return response, nil
 }

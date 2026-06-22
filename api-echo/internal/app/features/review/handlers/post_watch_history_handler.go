@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/review"
 	"filmogophery/internal/app/responses"
@@ -15,7 +16,6 @@ import (
 	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/constant"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -49,18 +49,18 @@ func (h *postReviewHistoryHandler) Register(g *echo.Group) {
 }
 
 func (h *postReviewHistoryHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed POST review history")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed POST review history")
 
 	var req postReviewHistoryInput
 	if err := c.Bind(&req); err != nil {
-		logger.Error().Msgf("failed to bind: %s", err.Error())
+		log.Error().Msgf("failed to bind: %s", err.Error())
 		return responses.ParseBindError(err)
 	}
 	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
 		return responses.ValidationError(errs)
 	}
-	logger.Info().Msg("successfully validated params")
+	log.Info().Msg("successfully validated params")
 
 	err := h.interactor.Run(
 		c.Request().Context(),

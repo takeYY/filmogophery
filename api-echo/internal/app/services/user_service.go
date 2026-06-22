@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
@@ -11,7 +12,6 @@ import (
 	"filmogophery/internal/app/types"
 	"filmogophery/internal/pkg/gen/model"
 	"filmogophery/internal/pkg/hasher"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -58,13 +58,13 @@ func NewUserService(
 func (s *userService) CreateUser(
 	ctx context.Context, username string, email string, password string,
 ) (*types.Token, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 	now := time.Now()
 
 	// パスワードをハッシュ化
 	pwdHash, err := s.hasher.Hash(password)
 	if err != nil {
-		logger.Error().Msgf("failed to hash password: %s", err.Error())
+		log.Error().Msgf("failed to hash password: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 
@@ -80,19 +80,19 @@ func (s *userService) CreateUser(
 		err := s.userRepo.Save(ctx, tx, user)
 		if err != nil {
 			if err.Error() == "duplicated key not allowed" {
-				logger.Error().Msg("duplicated user")
+				log.Error().Msg("duplicated user")
 				errors := make(map[string][]string)
 				errors["username"] = []string{"username is already taken"}
 				return responses.ConflictError("user", errors)
 			}
-			logger.Error().Msgf("failed to create user: %s", err.Error())
+			log.Error().Msgf("failed to create user: %s", err.Error())
 			return responses.InternalServerError()
 		}
 
 		// トークンを登録
 		token, err = s.authSvc.GenerateToken(ctx, tx, user.ID, now)
 		if err != nil {
-			logger.Error().Msgf("failed to create refresh token: %s", err.Error())
+			log.Error().Msgf("failed to create refresh token: %s", err.Error())
 			return responses.InternalServerError()
 		}
 
@@ -107,16 +107,16 @@ func (s *userService) CreateUser(
 
 // ユーザーのログイン
 func (s *userService) LoginUser(ctx context.Context, email, password string) (*types.Token, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 	now := time.Now()
 
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		logger.Error().Msgf("failed to fetch user: %s", err.Error())
+		log.Error().Msgf("failed to fetch user: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 	if user == nil {
-		logger.Error().Msgf("user(%s) is not found", email)
+		log.Error().Msgf("user(%s) is not found", email)
 		errors := make(map[string][]string)
 		errors["user"] = []string{"user is not found"}
 		return nil, responses.NotFoundError("user", errors)
@@ -124,7 +124,7 @@ func (s *userService) LoginUser(ctx context.Context, email, password string) (*t
 
 	// パスワードを検証
 	if err := s.hasher.Compare(user.PasswordHash, password); err != nil {
-		logger.Error().Msgf("invalid password for user(%s): %s", email, err.Error())
+		log.Error().Msgf("invalid password for user(%s): %s", email, err.Error())
 		errors := make(map[string][]string)
 		errors["user"] = []string{"invalid email or password"}
 		return nil, responses.UnauthorizedError(errors)
@@ -136,7 +136,7 @@ func (s *userService) LoginUser(ctx context.Context, email, password string) (*t
 		user.LastLoginAt = &now
 		err := s.userRepo.Update(ctx, tx, user)
 		if err != nil {
-			logger.Error().Msgf("failed to update user: %s", err.Error())
+			log.Error().Msgf("failed to update user: %s", err.Error())
 			return responses.InternalServerError()
 		}
 
@@ -149,7 +149,7 @@ func (s *userService) LoginUser(ctx context.Context, email, password string) (*t
 		// 新しい有効なトークンを生成
 		token, err = s.authSvc.GenerateToken(ctx, tx, user.ID, now)
 		if err != nil {
-			logger.Error().Msgf("failed to create refresh token: %s", err.Error())
+			log.Error().Msgf("failed to create refresh token: %s", err.Error())
 			return responses.InternalServerError()
 		}
 

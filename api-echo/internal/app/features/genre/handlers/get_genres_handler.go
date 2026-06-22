@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/genre"
 	"filmogophery/internal/app/routers"
 	"filmogophery/internal/app/services"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -34,8 +34,8 @@ func (h *getGenresHandler) Register(g *echo.Group) {
 }
 
 func (h *getGenresHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed GET genres")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed GET genres")
 
 	result, err := h.interactor.Run(
 		c.Request().Context(),

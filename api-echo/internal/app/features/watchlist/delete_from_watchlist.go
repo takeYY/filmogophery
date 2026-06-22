@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/rs/zerolog"
+
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -29,12 +30,12 @@ func NewDeleteFromWatchlistInteractor(
 }
 
 func (i *deleteFromWatchlistInteractor) Run(ctx context.Context, operator *model.Users, watchlistID int32) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// ウォッチリストから削除
 	affected, err := i.watchlistRepo.DeleteByID(ctx, nil, watchlistID)
 	if err != nil {
-		logger.Error().Msgf("failed to delete from watchlist(id=%d): %s", watchlistID, err.Error())
+		log.Error().Msgf("failed to delete from watchlist(id=%d): %s", watchlistID, err.Error())
 		return responses.InternalServerError()
 	}
 	if affected == 0 {

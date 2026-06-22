@@ -66,10 +66,10 @@ func TestGetMovieDetailHandler_handle(t *testing.T) {
 	})
 
 	tmdbSvc := mocks.NewMockITmdbService(ctrl)
-	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Eq(m1.TmdbID)).Return(&types.TmdbMovieDetail{
+	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Any(), gomock.Eq(m1.TmdbID)).Return(&types.TmdbMovieDetail{
 		TmdbMovieCommon: types.TmdbMovieCommon{VoteAverage: 6.282, VoteCount: 4},
 	}, nil)
-	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Eq(m2.TmdbID)).Return(&types.TmdbMovieDetail{
+	tmdbSvc.EXPECT().GetMovieDetailByID(gomock.Any(), gomock.Eq(m2.TmdbID)).Return(&types.TmdbMovieDetail{
 		TmdbMovieCommon: types.TmdbMovieCommon{VoteAverage: 3.184, VoteCount: 92},
 	}, nil)
 

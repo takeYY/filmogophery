@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 
 	"filmogophery/internal/app/repositories"
 	"filmogophery/internal/app/responses"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -54,12 +54,12 @@ func NewMovieService(
 
 // 映画を一括作成
 func (s *movieService) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*model.Movies) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	// 映画を一括作成
 	err := s.movieRepo.BatchCreate(ctx, tx, movies)
 	if err != nil {
-		logger.Error().Msgf("failed to batch create movies: %s", err.Error())
+		log.Error().Msgf("failed to batch create movies: %s", err.Error())
 		return responses.InternalServerError()
 	}
 
@@ -79,7 +79,7 @@ func (s *movieService) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*m
 		}
 		existingGenres, err := s.genreRepo.FindByIDs(ctx, allGenreIDs)
 		if err != nil {
-			logger.Error().Msgf("failed to fetch genres: %s", err.Error())
+			log.Error().Msgf("failed to fetch genres: %s", err.Error())
 			return responses.InternalServerError()
 		}
 		existingGenreIDs := make(map[int32]bool, len(existingGenres))
@@ -103,7 +103,7 @@ func (s *movieService) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*m
 		if len(movieGenres) > 0 {
 			err = s.genreRepo.BatchCreate(ctx, tx, movieGenres)
 			if err != nil {
-				logger.Error().Msgf("failed to batch create movie_genres: %s", err.Error())
+				log.Error().Msgf("failed to batch create movie_genres: %s", err.Error())
 				return responses.InternalServerError()
 			}
 		}
@@ -114,58 +114,58 @@ func (s *movieService) BatchCreate(ctx context.Context, tx *gorm.DB, movies []*m
 
 // 映画一覧を取得
 func (s *movieService) GetMovies(ctx context.Context, genre string, limit int32, offset int32) ([]*model.Movies, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	movies, err := s.movieRepo.FindByGenre(ctx, genre, limit, offset)
 	if err != nil {
-		logger.Error().Msgf("failed to get movies: %s", err.Error())
+		log.Error().Msgf("failed to get movies: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
-	logger.Debug().Msg("successfully fetched movies")
+	log.Debug().Msg("successfully fetched movies")
 
 	return movies, err
 }
 
 // ユーザーがレビューした映画一覧を取得（ジャンル絞り込み可）
 func (s *movieService) GetReviewedMoviesByUser(ctx context.Context, userID int32, genre string, limit int32, offset int32) ([]*model.Movies, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	movies, err := s.movieRepo.FindReviewedByUser(ctx, userID, genre, limit, offset)
 	if err != nil {
-		logger.Error().Msgf("failed to get reviewed movies for user(id=%d): %s", userID, err.Error())
+		log.Error().Msgf("failed to get reviewed movies for user(id=%d): %s", userID, err.Error())
 		return nil, responses.InternalServerError()
 	}
-	logger.Debug().Msg("successfully fetched reviewed movies")
+	log.Debug().Msg("successfully fetched reviewed movies")
 
 	return movies, err
 }
 
 // IDに一致する映画を取得
 func (s *movieService) GetMovieByID(ctx context.Context, movieID int32) (*model.Movies, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	movie, err := s.movieRepo.FindByID(ctx, movieID)
 	if err != nil {
-		logger.Error().Msgf("failed to get a movie(id=%d): %s", movieID, err.Error())
+		log.Error().Msgf("failed to get a movie(id=%d): %s", movieID, err.Error())
 		return nil, responses.InternalServerError()
 	}
 	if movie == nil {
 		em := fmt.Sprintf("movie(id=%d) is not found", movieID)
-		logger.Error().Msg(em)
+		log.Error().Msg(em)
 		return nil, responses.NotFoundError("movie", map[string][]string{"id": {fmt.Sprintf("%d", movieID)}})
 	}
-	logger.Debug().Msg("successfully fetched a movie")
+	log.Debug().Msg("successfully fetched a movie")
 
 	return movie, err
 }
 
 // tmdbIDsに一致する映画を取得
 func (s *movieService) GetMoviesByTmdbIDs(ctx context.Context, tmdbIDs []int32) ([]*model.Movies, error) {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	movies, err := s.movieRepo.FindByTmdbIDs(ctx, tmdbIDs)
 	if err != nil {
-		logger.Error().Msgf("failed to get movies: %s", err.Error())
+		log.Error().Msgf("failed to get movies: %s", err.Error())
 		return nil, responses.InternalServerError()
 	}
 
@@ -174,11 +174,11 @@ func (s *movieService) GetMoviesByTmdbIDs(ctx context.Context, tmdbIDs []int32) 
 
 // 上映時間を更新
 func (s *movieService) UpdateRuntimeMinutes(ctx context.Context, tx *gorm.DB, movie *model.Movies) error {
-	logger := logger.GetLogger()
+	log := zerolog.Ctx(ctx)
 
 	err := s.movieRepo.UpdateRuntimeMinutes(ctx, tx, movie)
 	if err != nil {
-		logger.Error().Msgf("failed to update movies: %s", err.Error())
+		log.Error().Msgf("failed to update movies: %s", err.Error())
 		return responses.InternalServerError()
 	}
 

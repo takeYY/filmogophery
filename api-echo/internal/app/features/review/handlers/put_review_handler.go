@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
 
 	"filmogophery/internal/app/features/review"
 	"filmogophery/internal/app/responses"
@@ -11,7 +12,6 @@ import (
 	"filmogophery/internal/app/services"
 	"filmogophery/internal/app/validators"
 	"filmogophery/internal/pkg/gen/model"
-	"filmogophery/internal/pkg/logger"
 )
 
 type (
@@ -42,8 +42,8 @@ func (h *putReviewHandler) Register(g *echo.Group) {
 }
 
 func (h *putReviewHandler) handle(c echo.Context) error {
-	logger := logger.GetLogger()
-	logger.Info().Msg("accessed PUT review")
+	log := zerolog.Ctx(c.Request().Context())
+	log.Info().Msg("accessed PUT review")
 
 	var req putReviewInput
 	if err := c.Bind(&req); err != nil {
@@ -52,7 +52,7 @@ func (h *putReviewHandler) handle(c echo.Context) error {
 	if errs := validators.ValidateRequest(&req); len(errs) > 0 {
 		return responses.ValidationError(errs)
 	}
-	logger.Info().Msg("successfully validated params")
+	log.Info().Msg("successfully validated params")
 
 	err := h.interactor.Run(
 		c.Request().Context(),
