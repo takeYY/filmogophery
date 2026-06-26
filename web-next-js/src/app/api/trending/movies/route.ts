@@ -1,13 +1,17 @@
 import { APIBaseURL } from "@/constants/api";
+import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  const tokenType = cookieStore.get("token_type")?.value ?? "Bearer";
+
   const url = `${APIBaseURL}/trending/movies`;
 
   const headers: HeadersInit = {};
   if (token) {
-    headers.Authorization = token;
+    headers.Authorization = `${tokenType} ${token}`;
   }
 
   const res = await fetch(url, { headers });
