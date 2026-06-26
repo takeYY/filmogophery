@@ -42,17 +42,10 @@ type (
 	}
 )
 
-var (
-	conf *Config = nil
-)
-
-// 設定ファイルを読み込み、Config構造体を返す
+// 設定ファイルを読み込み、Config構造体を返す。
+// fxがデフォルトでシングルトンとして管理するため、グローバル変数は不要。
 func LoadConfig() *Config {
-	if conf != nil {
-		return conf
-	}
-
-	conf = &Config{
+	return &Config{
 		Server: server{
 			Port: os.Getenv("SERVER_PORT"),
 		},
@@ -87,6 +80,4 @@ func LoadConfig() *Config {
 			JWT_SECRET: os.Getenv("JWT_SECRET"),
 		},
 	}
-
-	return conf
 }
