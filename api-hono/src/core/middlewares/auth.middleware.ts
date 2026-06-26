@@ -34,7 +34,7 @@ export const requireAuthMiddleware = createMiddleware<{
   try {
     payload = (await verify(
       tokenString,
-      environment.TOKEN.JWT_SECRET!,
+      environment.TOKEN.JWT_SECRET,
       "HS256",
     )) as JWTPayload;
   } catch (err) {

@@ -69,7 +69,7 @@ export async function login(
     // アクセストークンを生成
     const accessToken = await sign(
       { user_id: user.id, exp: Math.floor(expiresAt.getTime() / 1000) },
-      environment.TOKEN.JWT_SECRET!,
+      environment.TOKEN.JWT_SECRET,
       "HS256",
     );
 
