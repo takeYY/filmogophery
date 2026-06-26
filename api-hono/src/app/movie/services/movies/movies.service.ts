@@ -58,7 +58,7 @@ export async function getMovieById(
   const movie = await fetchMovieById(id);
   if (movie === undefined) {
     logger.info({ id }, "movie is not found");
-    return err(new MovieIsNotFound());
+    return err(new MovieIsNotFound(id));
   }
 
   const codes = movie.genreCodes?.split(",") || [];
@@ -67,7 +67,7 @@ export async function getMovieById(
 
   const tmdbMovie = await getTmdbMovieDetailById(movie.tmdbId);
   if (tmdbMovie.isErr()) {
-    return err(new TmdbMovieIsNotFound());
+    return err(new TmdbMovieIsNotFound(movie.tmdbId));
   }
   const tmdb = (await tmdbMovie.value.json()) as TmdbMovieDetailResponse;
 

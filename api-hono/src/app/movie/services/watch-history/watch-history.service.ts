@@ -25,7 +25,7 @@ export async function getMovieWatchHistory(
   const movie = await fetchMovieById(movieId);
   if (!movie) {
     logger.info({ movieId }, "movie not found");
-    return err(new MovieIsNotFound());
+    return err(new MovieIsNotFound(movieId));
   }
 
   const rows = await fetchWatchHistoryByMovieId(userId, movieId);
