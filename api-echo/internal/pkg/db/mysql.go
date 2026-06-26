@@ -17,15 +17,9 @@ import (
 	"filmogophery/internal/pkg/config"
 )
 
-var (
-	gormDB *gorm.DB = nil
-)
-
+// ConnectDB はDBへの接続を確立し *gorm.DB を返す。
+// fxがデフォルトでシングルトンとして管理するため、グローバル変数は不要。
 func ConnectDB(conf *config.Config) *gorm.DB {
-	if gormDB != nil {
-		return gormDB
-	}
-
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		log.Error(fmt.Printf("failed to load location %s", err))
@@ -74,7 +68,7 @@ func ConnectDB(conf *config.Config) *gorm.DB {
 	db.SetMaxOpenConns(coreCount * 2)
 	db.SetConnMaxLifetime(time.Hour)
 
-	gormDB, err = gorm.Open(mysql.New(mysql.Config{
+	gormDB, err := gorm.Open(mysql.New(mysql.Config{
 		Conn: db,
 	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
