@@ -1,4 +1,5 @@
 import { app } from "./core/app";
+import { environment } from "./core/environment";
 
 import "@/app/auth";
 import "@/app/health";
@@ -11,6 +12,6 @@ import "@/app/user";
 import "@/app/watchlist";
 
 export default {
-  port: process.env.SERVER_PORT,
+  port: environment.SERVER.PORT,
   fetch: app.fetch,
 };
