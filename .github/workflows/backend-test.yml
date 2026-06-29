@@ -47,8 +47,6 @@ jobs:
       - name: Build & Test
         run: |
           docker compose -f compose.shared.yml -f compose.hono.yml build
-          docker compose -f compose.shared.yml -f compose.hono.yml up -d db
+          docker compose -f compose.shared.yml -f compose.hono.yml up -d db redis
           sleep 30
-          docker compose -f compose.shared.yml -f compose.hono.yml up -d api_hono
-          docker compose -f compose.shared.yml -f compose.hono.yml exec api_hono bun install
-          docker compose -f compose.shared.yml -f compose.hono.yml exec api_hono bun test
+          docker compose -f compose.shared.yml -f compose.hono.yml run --rm api_hono bun test
