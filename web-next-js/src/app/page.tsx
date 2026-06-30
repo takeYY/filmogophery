@@ -8,7 +8,7 @@
 
 import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
-import { Genre, Movie, TrendingMovie } from "@/interface/index";
+import { Movie, TrendingMovie } from "@/interface/index";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -189,66 +189,14 @@ export default function Home() {
         ) : (
           <>
             <div className="row row-cols-md-3 g-4">
-              {movies.map((movie: Movie, index: number) => {
-                return (
-                  <div className="col" key={`movie-card-${movie.id || index}`}>
-                    <button
-                      className="card mb-2 bg-dark border-info"
-                      onClick={() => router.push(`/movie/${movie.id}`)}
-                    >
-                      <div className="row g-0">
-                        <div className="col-md-4">
-                          {/* ポスター */}
-                          <Image
-                            src={
-                              posterUrlPrefix +
-                              (movie.posterURL
-                                ? movie.posterURL
-                                : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
-                            }
-                            className="card-img-top"
-                            alt="..."
-                            width={200}
-                            height={200}
-                          />
-                        </div>
-                        <div className="col-md-8">
-                          <div className="card-body text-light">
-                            {/* タイトル */}
-                            <h5 className="card-title">{movie.title}</h5>
-                            {/* ジャンル */}
-                            {movie.genres.length !== 0 && (
-                              <div className="card-text d-grid gap-2 d-md-block">
-                                {movie.genres.map((g: Genre, i: number) => {
-                                  return (
-                                    <button
-                                      key={i}
-                                      type="button"
-                                      className="btn btn-outline-info btn-sm"
-                                    >
-                                      {g.name}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
-                            {/* 公開日 */}
-                            <p className="card-text">
-                              公開日：{movie.releaseDate.substring(0, 10)}
-                            </p>
-                            {/* 概要 */}
-                            <p className="card-text">
-                              {movie.overview.length > 40
-                                ? movie.overview.substring(0, 37) + "..."
-                                : movie.overview}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                );
-              })}
+              {movies.map((movie: Movie, index: number) => (
+                <div className="col" key={`movie-card-${movie.id || index}`}>
+                  <MovieCard
+                    movie={movie}
+                    onClick={() => router.push(`/movie/${movie.id}`)}
+                  />
+                </div>
+              ))}
             </div>
 
             <div

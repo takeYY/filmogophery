@@ -1,9 +1,7 @@
 "use client";
 
-import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
-import { Genre, Movie } from "@/interface/index";
-import Image from "next/image";
+import { Movie } from "@/interface/index";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -97,10 +95,14 @@ export default function SearchMovies() {
         </div>
       ) : (
         <div className="row row-cols-md-3 g-4">
-          {movies.map((movie: Movie) => {
-            return (
-              <div className="col" key={movie.id}>
-                <div className="card mb-2 bg-dark border-info position-relative">
+          {movies.map((movie: Movie) => (
+            <div className="col" key={movie.id}>
+              <MovieCard
+                movie={movie}
+                imageWidth={250}
+                imageHeight={375}
+                className="position-relative"
+                overlay={
                   <button
                     className={`position-absolute top-0 start-0 m-2 btn btn-sm rounded-circle ${
                       addedToWatchlist.includes(movie.id)
@@ -114,72 +116,19 @@ export default function SearchMovies() {
                   >
                     {addedToWatchlist.includes(movie.id) ? "✓" : "➕"}
                   </button>
-                  <div className="row g-0">
-                    <div className="col-md-4">
-                      {/* ポスター */}
-                      <Image
-                        src={
-                          posterUrlPrefix +
-                          (movie.posterURL
-                            ? movie.posterURL
-                            : "/Agz71U0wcesx87micVn731Z1vPu.jpg")
-                        }
-                        className="card-img-top w-100 h-auto"
-                        alt="..."
-                        width={250}
-                        height={375}
-                        style={{ objectFit: "cover" }}
-                      />
-                    </div>
-                    <div className="col-md-8">
-                      <div className="card-body text-light">
-                        {/* タイトル */}
-                        <h5 className="card-title">{movie.title}</h5>
-                        {/* ジャンル */}
-                        {movie.genres.length !== 0 && (
-                          <div className="card-text d-grid gap-2 d-md-block">
-                            {movie.genres.map((g: Genre, i: number) => {
-                              return (
-                                <button
-                                  key={g.code}
-                                  type="button"
-                                  className="btn btn-outline-info btn-sm"
-                                >
-                                  {g.name}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                        {/* 公開日 */}
-                        <p className="card-text">公開日：{movie.releaseDate}</p>
-                        {/* 概要 */}
-                        <p className="card-text">
-                          {movie.overview.length > 40
-                            ? movie.overview.substring(0, 37) + "..."
-                            : movie.overview}
-                        </p>
-
-                        <div className="border-top border-success">
-                          <div className="row mt-2">
-                            {/* TODO: レビューを登録するアクションを実装すること。ただし、既にレビュー済みであればこのリンクは消すこと */}
-                            <div className="col text-center">
-                              <Link
-                                className="btn btn-outline-success"
-                                href={`/movie/${movie.id}/review/create`}
-                              >
-                                Review
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                }
+                actions={
+                  // TODO: レビュー済みであればこのリンクは消すこと
+                  <Link
+                    className="btn btn-outline-success"
+                    href={`/movie/${movie.id}/review/create`}
+                  >
+                    Review
+                  </Link>
+                }
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>
