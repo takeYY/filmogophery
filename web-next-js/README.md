@@ -40,6 +40,28 @@ npm run test:e2e:ui
 npm run test:e2e:report
 ```
 
+### ローカルで Docker を使って実行する（CI と環境を統一）
+
+フォントレンダリングを CI と完全に一致させるには、Playwright 公式イメージ上で実行します。
+
+```bash
+# プロジェクトルートから実行
+docker run --rm \
+  -v $(pwd)/web-next-js:/work \
+  -w /work \
+  mcr.microsoft.com/playwright:v1.61.1-noble \
+  bash -c "npm ci && npm run test:e2e"
+
+# ベースライン画像の更新
+docker run --rm \
+  -v $(pwd)/web-next-js:/work \
+  -w /work \
+  mcr.microsoft.com/playwright:v1.61.1-noble \
+  bash -c "npm ci && npm run test:e2e:update"
+```
+
+> **Note:** ベースライン画像は必ずこの Docker コマンドで生成・更新してからコミットしてください。ホスト OS で生成した画像は CI と一致しない場合があります。
+
 ### 特定の画面だけ実行する
 
 ```bash
