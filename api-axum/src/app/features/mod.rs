@@ -1,0 +1,9 @@
+pub mod auth;
+pub mod health;
+pub mod master;
+pub mod movie;
+pub mod review;
+pub mod search;
+pub mod trending;
+pub mod user;
+pub mod watchlist;

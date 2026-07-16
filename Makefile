@@ -9,6 +9,7 @@ TARGET_COMPOSE ?= compose.yml
 	down_v		  \
 	test_echo	  \
 	test_hono     \
+	test_axum     \
 	gen_models    \
 	mock          \
 	start         \
@@ -46,6 +47,11 @@ test_hono:
 	docker compose -f compose.shared.yml -f compose.hono.yml exec api_hono bun test
 	make stop TARGET_COMPOSE=compose.hono.yml
 
+test_axum:
+	make up_d TARGET_COMPOSE=compose.axum.yml
+	docker compose -f compose.shared.yml -f compose.axum.yml exec api_axum cargo test
+	make stop TARGET_COMPOSE=compose.axum.yml
+
 gen_models:
 	make up_d TARGET_COMPOSE=compose.echo.yml
 	docker compose -f compose.shared.yml -f compose.echo.yml exec api_echo go run cmd/gen/gorm_gen.go
@@ -65,7 +71,8 @@ start:
 clean:
 	make down_v TARGET_COMPOSE=compose.echo.yml
 	make down_v TARGET_COMPOSE=compose.hono.yml
-	docker rm -f api_echo api_hono 2>/dev/null || true
+	make down_v TARGET_COMPOSE=compose.axum.yml
+	docker rm -f api_echo api_hono api_axum 2>/dev/null || true
 
 clear_cache:
 	docker exec redis_filmogophery redis-cli FLUSHALL
