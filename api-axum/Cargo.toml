@@ -1,0 +1,53 @@
+[package]
+name = "api-axum"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "server"
+path = "src/main.rs"
+
+[dependencies]
+# Web framework
+axum = { version = "0.8.4", features = ["macros"] }
+tokio = { version = "1.45.1", features = ["full"] }
+tower = { version = "0.5.2", features = ["full"] }
+tower-http = { version = "0.6.6", features = ["cors", "trace", "request-id", "util"] }
+
+# Database
+sqlx = { version = "0.8.6", features = ["mysql", "runtime-tokio-native-tls", "chrono", "bigdecimal"] }
+
+# Redis
+# TODO: fred クレートを使用予定（v10でfeature名が変更された）
+# fred = { version = "10.1.0", features = ["tokio-native-tls"] }
+
+# Auth
+jsonwebtoken = "10.4.0"
+bcrypt = "0.17.0"
+uuid = { version = "1.16.0", features = ["v4"] }
+
+# Serialization
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+
+# Validation
+validator = { version = "0.19.0", features = ["derive"] }
+
+# Error handling
+thiserror = "2.0.12"
+anyhow = "1.0.98"
+
+# Configuration
+dotenvy = "0.15.7"
+envy = "0.4.2"
+
+# Logging
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+
+# Misc
+chrono = { version = "0.4.41", features = ["serde"] }
+async-trait = "0.1.88"
+
+[dev-dependencies]
+axum-test = "17.0.0"
