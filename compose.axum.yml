@@ -1,0 +1,22 @@
+services:
+  api_axum:
+    container_name: api_axum
+    build:
+      context: .
+      dockerfile: ./docker/server/Dockerfile.axum
+      target: dev
+    ports:
+      - 8000:8000
+    volumes:
+      - ./api-axum/:/usr/src/app
+      - axum_target:/usr/src/app/target
+    env_file:
+      - ./api-axum/.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  axum_target:

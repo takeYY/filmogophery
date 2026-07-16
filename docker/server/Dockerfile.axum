@@ -1,0 +1,55 @@
+# --- Dev Stage for Local --- #
+FROM rust:1.88-bookworm AS dev
+
+ENV TZ=Asia/Tokyo
+ENV APP_DIR=/usr/src/app
+
+# cargo-watch でホットリロード（--locked でクレートの依存バージョンを固定）
+RUN cargo install cargo-watch --locked
+
+WORKDIR ${APP_DIR}
+
+# 依存クレートを先にキャッシュ（ソースが変わっても再ビルドを最小化）
+COPY ./api-axum/Cargo.toml ./api-axum/Cargo.lock* ./
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs && \
+    cargo build && \
+    rm -rf src
+
+COPY ./api-axum/ .
+
+CMD ["cargo", "watch", "-x", "run"]
+
+
+# --- Build Stage --- #
+FROM rust:1.88-bookworm AS builder
+
+ENV TZ=Asia/Tokyo
+ENV APP_DIR=/usr/src/app
+
+WORKDIR ${APP_DIR}
+
+COPY ./api-axum/Cargo.toml ./api-axum/Cargo.lock* ./
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs && \
+    cargo build --release && \
+    rm -rf src
+
+COPY ./api-axum/ .
+
+# タイムスタンプを更新して差分ビルドを確実に行う
+RUN touch src/main.rs && \
+    cargo build --release
+
+
+# --- Deploy Stage --- #
+FROM debian:bookworm-slim AS deploy
+
+ENV TZ=Asia/Tokyo
+
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libssl3 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/src/app/target/release/server /server
+
+CMD ["/server"]
