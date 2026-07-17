@@ -6,6 +6,7 @@
 
 "use client";
 
+import { MovieCard } from "@/components/MovieCard";
 import { posterUrlPrefix } from "@/constants/poster";
 import { useAuth } from "@/hooks/useAuth";
 import { Movie, TrendingMovie } from "@/interface/index";
