@@ -1,17 +1,16 @@
-"use client";
-
-import { NavLinks } from "@/components/nav-links";
+import { ConditionalNav } from "@/components/ConditionalNav";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { usePathname } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Filmogophery",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-  const hideNav = pathname === "/login" || pathname === "/register";
-
   return (
     <html lang="ja">
       <head>
@@ -21,7 +20,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-dark text-light">
-        {!hideNav && <NavLinks />}
+        <ConditionalNav />
         {children}
       </body>
     </html>
