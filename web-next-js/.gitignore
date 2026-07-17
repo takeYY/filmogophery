@@ -9,6 +9,11 @@
 # testing
 /coverage
 
+# playwright - 実行時の生成物（gitに含めない）
+/test-results/
+/playwright-report/
+# ベースライン画像（__snapshots__）はgitに含める
+
 # next.js
 /.next/
 /out/
