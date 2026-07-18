@@ -7,7 +7,22 @@ on:
     branches: ["main"]
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - "web-next-js/**"
+
   test-e2e:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     timeout-minutes: 15
     # Playwright 公式イメージを使用してフォントレンダリングを統一
     runs-on: ubuntu-latest

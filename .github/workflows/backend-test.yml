@@ -10,7 +10,34 @@ env:
   ARCH: x64
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      echo: ${{ steps.filter.outputs.echo }}
+      hono: ${{ steps.filter.outputs.hono }}
+      axum: ${{ steps.filter.outputs.axum }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            echo:
+              - "api-echo/**"
+              - "compose.shared.yml"
+              - "compose.echo.yml"
+            hono:
+              - "api-hono/**"
+              - "compose.shared.yml"
+              - "compose.hono.yml"
+            axum:
+              - "api-axum/**"
+              - "compose.shared.yml"
+              - "compose.axum.yml"
+
   test-echo:
+    needs: changes
+    if: needs.changes.outputs.echo == 'true'
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +62,8 @@ jobs:
           docker compose -f compose.shared.yml -f compose.echo.yml exec api_echo gotest -v ./... -cover
 
   test-hono:
+    needs: changes
+    if: needs.changes.outputs.hono == 'true'
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
@@ -50,3 +79,24 @@ jobs:
           docker compose -f compose.shared.yml -f compose.hono.yml up -d db redis
           sleep 30
           docker compose -f compose.shared.yml -f compose.hono.yml run --rm api_hono bun test
+
+  test-axum:
+    needs: changes
+    if: needs.changes.outputs.axum == 'true'
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        run: cp ./api-axum/.example.env ./api-axum/.env
+
+      - name: Build & Test
+        run: |
+          docker compose -f compose.shared.yml -f compose.axum.yml build
+          docker compose -f compose.shared.yml -f compose.axum.yml up -d db
+          sleep 30
+          docker compose -f compose.shared.yml -f compose.axum.yml run --rm \
+            -e DATABASE_URL=mysql://user:password@db:3306/db4test \
+            api_axum cargo test -- --include-ignored

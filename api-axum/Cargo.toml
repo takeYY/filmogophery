@@ -15,14 +15,14 @@ tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.6", features = ["cors", "trace", "request-id", "util"] }
 
 # Database
-sqlx = { version = "0.8.6", features = ["mysql", "runtime-tokio-native-tls", "chrono", "bigdecimal"] }
+sqlx = { version = "0.8.6", features = ["mysql", "runtime-tokio-native-tls", "chrono", "bigdecimal", "migrate"] }
 
 # Redis
 # TODO: fred クレートを使用予定（v10でfeature名が変更された）
 # fred = { version = "10.1.0", features = ["tokio-native-tls"] }
 
 # Auth
-jsonwebtoken = "10.4.0"
+jsonwebtoken = { version = "10.4.0", features = ["rust_crypto"] }
 bcrypt = "0.17.0"
 uuid = { version = "1.16.0", features = ["v4"] }
 
