@@ -36,12 +36,16 @@ api-axum/
     │   └── features/        # 機能ごとのモジュール
     │       ├── health/
     │       │   ├── mod.rs
-    │       │   ├── handler.rs   # HTTPハンドラ・ルート定義・テスト
-    │       │   └── use_case.rs  # ビジネスロジック
+    │       │   ├── handler.rs      # HTTPハンドラ・ルート定義・テスト
+    │       │   └── use_case.rs     # ビジネスロジック
+    │       ├── user/
+    │       │   ├── mod.rs
+    │       │   ├── handler.rs      # HTTPハンドラ・ルート定義
+    │       │   ├── use_case.rs     # ビジネスロジック（repository trait を呼び出す）
+    │       │   └── repository.rs   # DB アクセス（trait 定義 + MySQL 実装）
     │       ├── auth/
     │       ├── movie/
     │       ├── review/
-    │       ├── user/
     │       ├── watchlist/
     │       ├── trending/
     │       ├── search/
@@ -52,18 +56,23 @@ api-axum/
         ├── logger.rs        # tracing 初期化
         ├── redis.rs         # Redis クライアント
         └── middleware/
-            └── auth.rs      # Bearer JWT 認証ミドルウェア
+            └── auth.rs      # Bearer JWT 認証ミドルウェア + AuthUser エクストラクタ
 ```
 
 ### アーキテクチャ
 
-各 feature は `handler.rs`（HTTPレイヤー）と `use_case.rs`（ビジネスロジック）に分離しています。Echo 実装の Handler/Interactor パターンに対応します。
+各 feature は 3 層に分離しています。Echo 実装の Handler / Interactor / Repository パターンに対応します。
 
 ```
 Request
-  └─ handler.rs    # Bind / Validate → use_case 呼び出し → Response
-       └─ use_case.rs  # ビジネスロジック → Repository
+  └─ handler.rs      # Bind / Validate → use_case 呼び出し → Response
+       └─ use_case.rs    # ビジネスロジック（repository trait に依存）
+            └─ repository.rs  # trait 定義 + MySQL 実装（sqlx による SQL 発行）
 ```
+
+`repository.rs` は trait（`UserRepository` など）と MySQL 実装（`MySqlUserRepository` など）を同一ファイルに置きます。将来テストでモックに差し替える場合は trait を実装した別の struct を用意します。
+
+> `health` など DB アクセスが不要な feature は `repository.rs` を持ちません。
 
 ## How to use it
 
