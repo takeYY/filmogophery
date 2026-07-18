@@ -218,13 +218,12 @@ impl TokenRepository for MySqlTokenRepository<'_> {
 
 /// Repository テスト
 ///
-/// `sqlx::test` マクロが自動的に `TEST_DATABASE_URL` 環境変数に接続した
-/// 一時データベースを用意し、テスト終了時にロールバックする。
-/// CI では `TEST_DATABASE_URL` を MySQL の db4test に向ける。
+/// `DATABASE_URL` 環境変数が設定されている場合のみ実行される。
+/// CI では `db4test` に向ける。
 ///
 /// # 実行方法
 /// ```sh
-/// TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/db4test" cargo test
+/// DATABASE_URL="mysql://user:password@127.0.0.1:3306/db4test" cargo test -- --include-ignored
 /// ```
 #[cfg(test)]
 mod tests {
@@ -233,9 +232,17 @@ mod tests {
 
     use super::*;
 
+    // ── テスト用プール ────────────────────────────────────────────
+
+    /// `DATABASE_URL` 環境変数からプールを構築する。
+    /// 未設定の場合は None を返し、呼び出し元でテストをスキップする。
+    async fn test_pool() -> Option<MySqlPool> {
+        let url = std::env::var("DATABASE_URL").ok()?;
+        MySqlPool::connect(&url).await.ok()
+    }
+
     // ── テスト用ヘルパー ─────────────────────────────────────────
 
-    /// テスト用ユーザーを INSERT して id を返す
     async fn insert_test_user(pool: &MySqlPool, username: &str, email: &str) -> i32 {
         let now = Utc::now();
         let result = sqlx::query(
@@ -250,11 +257,9 @@ mod tests {
         .execute(pool)
         .await
         .expect("failed to insert test user");
-
         result.last_insert_id() as i32
     }
 
-    /// テスト用 user_points レコードを INSERT する
     async fn insert_test_user_points(pool: &MySqlPool, user_id: i32, total_points: i32, level: i32) {
         let now = Utc::now();
         sqlx::query(
@@ -271,7 +276,6 @@ mod tests {
         .expect("failed to insert test user_points");
     }
 
-    /// テスト用 point_history レコードを INSERT する
     async fn insert_test_point_history(
         pool: &MySqlPool,
         user_id: i32,
@@ -290,56 +294,65 @@ mod tests {
         .execute(pool)
         .await
         .expect("failed to insert test point_history");
-
         result.last_insert_id() as i32
+    }
+
+    /// テストデータの衝突を避けるためユーザー名・メールにサフィックスを付ける
+    fn unique(base: &str) -> String {
+        format!("{}_{}", base, uuid::Uuid::new_v4().simple())
     }
 
     // ── UserRepository テスト ─────────────────────────────────────
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_user_find_by_email_returns_user(pool: MySqlPool) {
-        let user_id = insert_test_user(&pool, "alice", "alice@example.com").await;
+    async fn test_user_find_by_email_returns_user() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let username = unique("alice");
+        let email = unique("alice@example.com");
+        let user_id = insert_test_user(&pool, &username, &email).await;
         let repo = MySqlUserRepository(&pool);
 
-        let result = repo.find_by_email("alice@example.com").await;
+        let result = repo.find_by_email(&email).await;
 
         assert!(result.is_ok());
-        let user = result.unwrap();
-        assert!(user.is_some());
-        let user = user.unwrap();
+        let user = result.unwrap().expect("user should exist");
         assert_eq!(user.id, user_id);
-        assert_eq!(user.username, "alice");
+        assert_eq!(user.username, username);
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_user_find_by_email_returns_none_for_unknown(pool: MySqlPool) {
+    async fn test_user_find_by_email_returns_none_for_unknown() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
         let repo = MySqlUserRepository(&pool);
 
-        let result = repo.find_by_email("nobody@example.com").await;
+        let result = repo.find_by_email("nobody_unknown@example.com").await;
 
         assert!(result.is_ok());
         assert!(result.unwrap().is_none());
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_user_find_by_id_returns_user(pool: MySqlPool) {
-        let user_id = insert_test_user(&pool, "bob", "bob@example.com").await;
+    async fn test_user_find_by_id_returns_user() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let username = unique("bob");
+        let email = unique("bob@example.com");
+        let user_id = insert_test_user(&pool, &username, &email).await;
         let repo = MySqlUserRepository(&pool);
 
         let result = repo.find_by_id(user_id).await;
 
         assert!(result.is_ok());
-        let user = result.unwrap();
-        assert!(user.is_some());
-        assert_eq!(user.unwrap().username, "bob");
+        let user = result.unwrap().expect("user should exist");
+        assert_eq!(user.username, username);
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_user_find_by_id_returns_none_for_unknown(pool: MySqlPool) {
+    async fn test_user_find_by_id_returns_none_for_unknown() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
         let repo = MySqlUserRepository(&pool);
 
         let result = repo.find_by_id(999999).await;
@@ -348,63 +361,61 @@ mod tests {
         assert!(result.unwrap().is_none());
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_user_create_inserts_and_returns_id(pool: MySqlPool) {
+    async fn test_user_create_inserts_and_returns_id() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
         let repo = MySqlUserRepository(&pool);
+        let username = unique("carol");
+        let email = unique("carol@example.com");
         let now = Utc::now();
 
-        let result = repo
-            .create("carol", "carol@example.com", "hashed_pw", now)
-            .await;
+        let result = repo.create(&username, &email, "hashed_pw", now).await;
 
         assert!(result.is_ok());
         let user_id = result.unwrap();
         assert!(user_id > 0);
-
-        // 実際に挿入されていること
-        let found = repo.find_by_id(user_id).await.unwrap();
-        assert!(found.is_some());
-        assert_eq!(found.unwrap().username, "carol");
+        let found = repo.find_by_id(user_id).await.unwrap().expect("should be found");
+        assert_eq!(found.username, username);
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_user_create_returns_conflict_on_duplicate_email(pool: MySqlPool) {
-        insert_test_user(&pool, "dave", "dave@example.com").await;
+    async fn test_user_create_returns_conflict_on_duplicate_email() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let username = unique("dave");
+        let email = unique("dave@example.com");
+        insert_test_user(&pool, &username, &email).await;
         let repo = MySqlUserRepository(&pool);
         let now = Utc::now();
 
-        // 同じメールで再登録
-        let result = repo
-            .create("dave2", "dave@example.com", "hashed_pw", now)
-            .await;
+        let result = repo.create(&unique("dave2"), &email, "hashed_pw", now).await;
 
         assert!(matches!(result, Err(AppError::Conflict(_))));
     }
 
     // ── PointRepository テスト ────────────────────────────────────
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_point_find_by_user_id_returns_row(pool: MySqlPool) {
-        let user_id = insert_test_user(&pool, "eve", "eve@example.com").await;
+    async fn test_point_find_by_user_id_returns_row() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let user_id = insert_test_user(&pool, &unique("eve"), &unique("eve@example.com")).await;
         insert_test_user_points(&pool, user_id, 250, 3).await;
         let repo = MySqlPointRepository(&pool);
 
         let result = repo.find_by_user_id(user_id).await;
 
         assert!(result.is_ok());
-        let row = result.unwrap();
-        assert!(row.is_some());
-        let row = row.unwrap();
+        let row = result.unwrap().expect("row should exist");
         assert_eq!(row.total_points, 250);
         assert_eq!(row.level, 3);
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_point_find_by_user_id_returns_none_for_unknown(pool: MySqlPool) {
+    async fn test_point_find_by_user_id_returns_none_for_unknown() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
         let repo = MySqlPointRepository(&pool);
 
         let result = repo.find_by_user_id(999999).await;
@@ -413,11 +424,11 @@ mod tests {
         assert!(result.unwrap().is_none());
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_point_find_history_returns_ordered_records(pool: MySqlPool) {
-        let user_id = insert_test_user(&pool, "frank", "frank@example.com").await;
-        // 2件挿入（created_at の順序は INSERT 順に依存）
+    async fn test_point_find_history_returns_ordered_records() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let user_id = insert_test_user(&pool, &unique("frank"), &unique("frank@example.com")).await;
         insert_test_point_history(&pool, user_id, 20, "review", 1).await;
         insert_test_point_history(&pool, user_id, 10, "watch_history", 2).await;
         let repo = MySqlPointRepository(&pool);
@@ -432,25 +443,26 @@ mod tests {
         assert_eq!(rows[1].action, "review");
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_point_find_history_respects_limit_and_offset(pool: MySqlPool) {
-        let user_id = insert_test_user(&pool, "grace", "grace@example.com").await;
+    async fn test_point_find_history_respects_limit_and_offset() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let user_id = insert_test_user(&pool, &unique("grace"), &unique("grace@example.com")).await;
         insert_test_point_history(&pool, user_id, 20, "review", 1).await;
         insert_test_point_history(&pool, user_id, 10, "watch_history", 2).await;
         insert_test_point_history(&pool, user_id, 15, "watch_history", 3).await;
         let repo = MySqlPointRepository(&pool);
 
-        // limit=1, offset=1 → 2番目の1件だけ
         let result = repo.find_history_by_user_id(user_id, 1, 1).await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 1);
     }
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_point_find_history_returns_empty_for_unknown_user(pool: MySqlPool) {
+    async fn test_point_find_history_returns_empty_for_unknown_user() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
         let repo = MySqlPointRepository(&pool);
 
         let result = repo.find_history_by_user_id(999999, 10, 0).await;
@@ -461,26 +473,24 @@ mod tests {
 
     // ── TokenRepository テスト ────────────────────────────────────
 
-    #[sqlx::test]
+    #[tokio::test]
     #[ignore = "requires DATABASE_URL"]
-    async fn test_token_save_refresh_token_inserts_record(pool: MySqlPool) {
-        let user_id = insert_test_user(&pool, "henry", "henry@example.com").await;
+    async fn test_token_save_refresh_token_inserts_record() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let user_id = insert_test_user(&pool, &unique("henry"), &unique("henry@example.com")).await;
         let repo = MySqlTokenRepository(&pool);
         let now = Utc::now();
         let expires_at = now + chrono::Duration::days(30);
+        let token_hash = unique("token_hash");
 
-        let result = repo
-            .save_refresh_token(user_id, "token_hash_value", expires_at, now)
-            .await;
+        let result = repo.save_refresh_token(user_id, &token_hash, expires_at, now).await;
 
         assert!(result.is_ok());
-
-        // DB に実際に保存されていること
         let count: i64 = sqlx::query_scalar(
             "SELECT COUNT(*) FROM refresh_tokens WHERE user_id = ? AND token_hash = ?",
         )
         .bind(user_id)
-        .bind("token_hash_value")
+        .bind(&token_hash)
         .fetch_one(&pool)
         .await
         .unwrap();
