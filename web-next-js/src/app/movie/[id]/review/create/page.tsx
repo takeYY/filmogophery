@@ -9,7 +9,6 @@
 import { PointToast } from "@/components/PointToast";
 import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
-import { useAuth } from "@/hooks/useAuth";
 import { usePointToast } from "@/hooks/usePointToast";
 import { Genre, MovieDetail, Platform } from "@/interface/index";
 import Image from "next/image";
@@ -25,17 +24,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const [selectedPlatformId, setSelectedPlatformId] = useState<string>("");
   const [watchedDate, setWatchedDate] = useState<string>("");
 
-  const token = useAuth();
-  const accessToken = token ? token.accessToken : null;
-
-  const headers: HeadersInit = {};
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
-
-  const authHeader = token ? `${token.tokenType} ${token.accessToken}` : "";
   const { toastData, captureBeforePoints, showToastAfter, closeToast } =
-    usePointToast(authHeader);
+    usePointToast();
 
   // movieDetailが更新されたときにrangeValueを設定
   useEffect(() => {
@@ -49,8 +39,8 @@ export default function Page({ params }: { params: { id: string } }) {
       console.log("movieDetailのデータ取得中...");
       try {
         const [movieRes, platformRes] = await Promise.all([
-          fetch(`/api/movies/${params.id}`, { method: "GET", headers }),
-          fetch(`/api/platforms`, { method: "GET", headers }),
+          fetch(`/api/movies/${params.id}`, { method: "GET" }),
+          fetch(`/api/platforms`, { method: "GET" }),
         ]);
         const movieDetail: MovieDetail = await movieRes.json();
         const platforms: Platform[] = await platformRes.json();
@@ -87,7 +77,6 @@ export default function Page({ params }: { params: { id: string } }) {
       const before = await captureBeforePoints();
       const response = await fetch(`/api/movies/${params.id}/reviews`, {
         method: "POST",
-        headers,
         body: JSON.stringify(jsonData),
       });
       const resultCode: number = response.status;

@@ -5,7 +5,7 @@
  */
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
+import { MovieCard } from "@/components/MovieCard";
 import { Watchlist } from "@/interface/index";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -18,30 +18,23 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [watchlist, setWatchlist] = useState<Watchlist[]>([]);
 
-  const { checked } = useAuth();
-
   useEffect(() => {
-    if (!checked) return;
     const fetchWatchlist = async () => {
       setLoading(true);
       try {
         const response = await fetch(`/api/watchlist`, {
           method: "GET",
         });
-        const watchlist: Watchlist[] = await response.json();
-        console.log("watchlistのデータ取得: 完了");
-        console.log("%o", watchlist);
-
-        setWatchlist(watchlist);
+        const data: Watchlist[] = await response.json();
+        setWatchlist(data);
       } catch {
-        console.log("watchlistのデータ取得: エラー。空配列で定義します");
         setWatchlist([]);
       } finally {
         setLoading(false);
       }
     };
     fetchWatchlist();
-  }, [query, checked]);
+  }, [query]);
 
   return (
     <div className="container pb-4">

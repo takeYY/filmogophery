@@ -5,7 +5,6 @@
  */
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
 import { UserPoints } from "@/interface/index";
 import { useEffect, useState } from "react";
 
@@ -21,7 +20,6 @@ export default function MyPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("pointGuideOpen");
-    // 初回（未設定）はデフォルトで開く、一度閉じたら以降は閉じた状態を維持
     setGuideOpen(saved === null ? true : saved === "true");
   }, []);
 
@@ -30,10 +28,7 @@ export default function MyPage() {
     localStorage.setItem("pointGuideOpen", String(next));
   };
 
-  const { checked } = useAuth();
-
   useEffect(() => {
-    if (!checked) return;
     const fetchPoints = async () => {
       setLoading(true);
       try {
@@ -49,7 +44,7 @@ export default function MyPage() {
       }
     };
     fetchPoints();
-  }, [checked]);
+  }, []);
 
   if (loading) {
     return (

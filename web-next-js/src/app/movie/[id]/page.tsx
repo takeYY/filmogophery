@@ -8,7 +8,6 @@
 
 import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
-import { useAuth } from "@/hooks/useAuth";
 import { Genre, MovieDetail, WatchHistory } from "@/interface/index";
 import { formatRelativeTime } from "@/utils/date";
 import Image from "next/image";
@@ -24,14 +23,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [showAlert, setShowAlert] = useState(isUpdated);
   const [movie, setMovie] = useState<MovieDetail | null>();
   const [watchHistory, setWatchHistory] = useState<WatchHistory[] | []>();
-
-  const token = useAuth();
-  const accessToken = token ? token.accessToken : null;
-
-  const headers: HeadersInit = {};
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
 
   // アラートの自動非表示とURL更新
   useEffect(() => {
@@ -62,7 +53,6 @@ export default function Page({ params }: { params: { id: string } }) {
       try {
         const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
-          headers,
           cache: "no-store",
         });
         const movie: MovieDetail = await response.json();
@@ -83,7 +73,6 @@ export default function Page({ params }: { params: { id: string } }) {
             `/api/watchHistory/${movie.review.id}`,
             {
               method: "GET",
-              headers,
               cache: "no-store",
             },
           );
