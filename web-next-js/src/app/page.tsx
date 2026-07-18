@@ -6,8 +6,8 @@
 
 "use client";
 
+import { MovieCard } from "@/components/MovieCard";
 import { posterUrlPrefix } from "@/constants/poster";
-import { useAuth } from "@/hooks/useAuth";
 import { Movie, TrendingMovie } from "@/interface/index";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,6 @@ import { Carousel } from "react-bootstrap";
 
 export default function Home() {
   const router = useRouter();
-  const { checked } = useAuth();
 
   const [movies, setMovies] = useState<Movie[]>();
   const [trending, setTrending] = useState<TrendingMovie[]>();
@@ -56,7 +55,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!checked) return;
     const loadInitialData = async () => {
       setIsLoading(true);
       try {
@@ -64,12 +62,11 @@ export default function Home() {
         const res = await fetch(`/api/trending/movies`, {
           method: "GET",
         });
-        const trending: TrendingMovie[] = await res.json();
-        console.log("moviesのデータ取得: 完了");
+        const trendingData: TrendingMovie[] = await res.json();
 
         setMovies(initialMovies);
-        setTrending(trending);
-        setSeparated(separateTrending(trending, 5));
+        setTrending(trendingData);
+        setSeparated(separateTrending(trendingData, 5));
         setOffset(12);
         setHasMore(initialMovies.length === 12);
       } catch (error) {
@@ -81,7 +78,7 @@ export default function Home() {
     };
 
     loadInitialData();
-  }, [checked]);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

@@ -9,7 +9,6 @@
 import { PointToast } from "@/components/PointToast";
 import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
-import { useAuth } from "@/hooks/useAuth";
 import { usePointToast } from "@/hooks/usePointToast";
 import { Genre, MovieDetail, Platform } from "@/interface/index";
 import Image from "next/image";
@@ -27,17 +26,8 @@ export default function Page({
   const [movieDetail, setMovie] = useState<MovieDetail>();
   const [rangeValue, onChange] = useState<string>("");
 
-  const token = useAuth();
-  const accessToken = token ? token.accessToken : null;
-
-  const headers: HeadersInit = {};
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
-
-  const authHeader = token ? `${token.tokenType} ${token.accessToken}` : "";
   const { toastData, captureBeforePoints, showToastAfter, closeToast } =
-    usePointToast(authHeader);
+    usePointToast();
 
   // movieDetailが更新されたときにrangeValueを設定
   useEffect(() => {
@@ -52,7 +42,6 @@ export default function Page({
       try {
         const response = await fetch(`/api/platforms`, {
           method: "GET",
-          headers,
         });
         const platforms: Platform[] = await response.json();
 
@@ -69,7 +58,6 @@ export default function Page({
       try {
         const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
-          headers,
         });
         const movieDetail: MovieDetail = await response.json();
 
@@ -100,7 +88,6 @@ export default function Page({
         `/api/movies/${params.id}/reviews/${params.reviewId}`,
         {
           method: "POST",
-          headers,
           body: JSON.stringify(jsonData),
         },
       );

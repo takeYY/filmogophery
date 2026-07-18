@@ -8,7 +8,6 @@
 
 import StarRating from "@/components/Rating";
 import { posterUrlPrefix } from "@/constants/poster";
-import { useAuth } from "@/hooks/useAuth";
 import { Genre, MovieDetail } from "@/interface/index";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -19,14 +18,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [movieDetail, setMovie] = useState<MovieDetail>();
   const [rangeValue, onChange] = useState<string>("");
-
-  const token = useAuth();
-  const accessToken = token ? token.accessToken : null;
-
-  const headers: HeadersInit = {};
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
 
   // movieDetailが更新されたときにrangeValueを設定
   useEffect(() => {
@@ -41,7 +32,6 @@ export default function Page({ params }: { params: { id: string } }) {
       try {
         const response = await fetch(`/api/movies/${params.id}`, {
           method: "GET",
-          headers,
         });
         const movieDetail: MovieDetail = await response.json();
 
@@ -69,9 +59,8 @@ export default function Page({ params }: { params: { id: string } }) {
         `/api/movies/${params.id}/reviews/${movieDetail?.review?.id}`,
         {
           method: "PUT",
-          headers,
           body: JSON.stringify(jsonData),
-        }
+        },
       );
       const resultCode: number = response.status;
       console.log("感想の更新完了: %o", resultCode);

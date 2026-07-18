@@ -2,11 +2,9 @@ import { PointToastData } from "@/components/PointToast";
 import { UserPoints } from "@/interface/index";
 import { useState } from "react";
 
-async function fetchUserPoints(authHeader: string): Promise<UserPoints | null> {
+async function fetchUserPoints(): Promise<UserPoints | null> {
   try {
-    const res = await fetch("/api/users/me/points?limit=1&offset=0", {
-      headers: { Authorization: authHeader },
-    });
+    const res = await fetch("/api/users/me/points?limit=1&offset=0");
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -14,17 +12,17 @@ async function fetchUserPoints(authHeader: string): Promise<UserPoints | null> {
   }
 }
 
-export function usePointToast(authHeader: string) {
+export function usePointToast() {
   const [toastData, setToastData] = useState<PointToastData | null>(null);
 
   // アクション実行前に呼ぶ
   const captureBeforePoints = async (): Promise<UserPoints | null> => {
-    return fetchUserPoints(authHeader);
+    return fetchUserPoints();
   };
 
   // アクション実行後に呼ぶ
   const showToastAfter = async (before: UserPoints | null) => {
-    const after = await fetchUserPoints(authHeader);
+    const after = await fetchUserPoints();
     if (!after || !before) return;
     if (after.totalPoints === before.totalPoints) return;
 

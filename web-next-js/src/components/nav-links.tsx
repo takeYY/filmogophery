@@ -1,6 +1,6 @@
 "use client";
 
-import type { User } from "@/interface";
+import { useUser } from "@/hooks/useUser";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -12,28 +12,10 @@ export function NavLinks() {
   const q = searchParams.get("query");
 
   const [query, setQuery] = useState<string>(q ? q : "");
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useUser();
   const [showDropdown, setShowDropdown] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const res = await fetch("/api/auth/session");
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user ?? null);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        setUser(null);
-      }
-    };
-
-    fetchSession();
-  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -58,7 +40,6 @@ export function NavLinks() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    setUser(null);
     router.push("/login");
   };
 
@@ -173,6 +154,7 @@ export function NavLinks() {
               className="btn btn-outline-primary"
               type="submit"
               disabled={!query.trim()}
+              aria-label="検索"
             >
               <i className="bi bi-search"></i>
             </button>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
 import { Movie } from "@/interface/index";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -14,14 +13,6 @@ export default function SearchMovies() {
   const [loading, setLoading] = useState(true);
   const [addedToWatchlist, setAddedToWatchlist] = useState<number[]>([]);
 
-  const token = useAuth();
-  const accessToken = token ? token.accessToken : null;
-
-  const headers: HeadersInit = {};
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
-
   useEffect(() => {
     const fetchMovie = async () => {
       if (!query) {
@@ -33,7 +24,6 @@ export default function SearchMovies() {
       try {
         const response = await fetch(`/api/search/movie?query=${query}`, {
           method: "GET",
-          headers,
         });
         const movies: Movie[] = await response.json();
         console.log("moviesのデータ取得: 完了");
@@ -50,34 +40,23 @@ export default function SearchMovies() {
     fetchMovie();
   }, [query]);
 
-  const addWatchList = useCallback(
-    async (movie: Movie) => {
-      if (!accessToken) {
-        console.log("未認証のため、ウォッチリストに追加できません");
-        return;
-      }
+  const addWatchList = useCallback(async (movie: Movie) => {
+    try {
+      const response = await fetch("/api/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ movieId: movie.id }),
+      });
 
-      try {
-        const response = await fetch("/api/watchlist", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({ movieId: movie.id }),
-        });
-
-        if (response.ok) {
-          setAddedToWatchlist((prev) => [...prev, movie.id]);
-        } else {
-          console.log("failed to add watch list");
-        }
-      } catch {
+      if (response.ok) {
+        setAddedToWatchlist((prev) => [...prev, movie.id]);
+      } else {
         console.log("failed to add watch list");
       }
-    },
-    [accessToken],
-  );
+    } catch {
+      console.log("failed to add watch list");
+    }
+  }, []);
 
   return (
     <div className="container pb-4">
