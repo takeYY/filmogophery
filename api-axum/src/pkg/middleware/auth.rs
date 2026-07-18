@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Request, State},
+    extract::{FromRequestParts, Request, State},
+    http::request::Parts,
     middleware::Next,
     response::Response,
 };
 
 use crate::app::responses::AppError;
 use crate::config::Config;
-use crate::pkg::jwt;
+use crate::pkg::jwt::{self, Claims};
 
 /// JWT 認証ミドルウェア
 /// Authorization: Bearer <token> ヘッダーを検証し、
@@ -35,4 +36,24 @@ pub async fn require_auth(
     request.extensions_mut().insert(claims);
 
     Ok(next.run(request).await)
+}
+
+/// 認証済みユーザーのクレームを取り出す Extractor
+/// protected_routes 内のハンドラで `AuthUser(claims): AuthUser` として使用する。
+pub struct AuthUser(pub Claims);
+
+impl<S> FromRequestParts<S> for AuthUser
+where
+    S: Send + Sync,
+{
+    type Rejection = AppError;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        parts
+            .extensions
+            .get::<Claims>()
+            .cloned()
+            .map(AuthUser)
+            .ok_or(AppError::Unauthorized)
+    }
 }
