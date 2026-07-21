@@ -384,6 +384,14 @@ mod tests {
             *self.call_count.lock().unwrap() += 1;
             Ok(())
         }
+
+        async fn revoke_active_tokens(
+            &self,
+            _user_id: i32,
+            _now: DateTime<Utc>,
+        ) -> Result<(), AppError> {
+            Ok(())
+        }
     }
 
     // ── レベル計算テスト ─────────────────────────────────────────

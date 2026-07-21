@@ -15,8 +15,8 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | getCurrentUser          | User         |   ✅( )    |  ✅  |  ✅  |
 | getUser                 | User         |    ( )     |      |      |
 | getUserPoints           | User         |   ✅( )    |  ✅  |  ✅  |
-| login                   | Auth         |   ✅( )    |  ✅  |      |
-| logout                  | Auth         |   ✅( )    |  ✅  |      |
+| login                   | Auth         |   ✅( )    |  ✅  |  ✅  |
+| logout                  | Auth         |   ✅( )    |  ✅  |  ✅  |
 | getMovies               | Movie        |   ✅(✅)   |  ✅  |      |
 | getMovieDetail          | Movie        |   ✅(🚧)   |  ✅  |      |
 | searchMovies            | Movie        |   ✅(🚧)   |  ✅  |      |
