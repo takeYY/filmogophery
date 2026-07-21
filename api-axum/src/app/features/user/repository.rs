@@ -71,6 +71,13 @@ pub trait TokenRepository {
         expires_at: DateTime<Utc>,
         now: DateTime<Utc>,
     ) -> Result<(), AppError>;
+
+    /// ユーザーの有効なリフレッシュトークンをすべて無効化する
+    async fn revoke_active_tokens(
+        &self,
+        user_id: i32,
+        now: DateTime<Utc>,
+    ) -> Result<(), AppError>;
 }
 
 // ─── MySQL 実装 ───────────────────────────────────────────────
@@ -207,6 +214,31 @@ impl TokenRepository for MySqlTokenRepository<'_> {
         .await
         .map_err(|e| {
             error!("save_refresh_token failed (user_id={user_id}): {e}");
+            AppError::InternalServerError
+        })?;
+
+        Ok(())
+    }
+
+    async fn revoke_active_tokens(
+        &self,
+        user_id: i32,
+        now: DateTime<Utc>,
+    ) -> Result<(), AppError> {
+        sqlx::query(
+            "UPDATE refresh_tokens
+             SET revoked_at = ?
+             WHERE user_id = ?
+               AND revoked_at IS NULL
+               AND expires_at > ?",
+        )
+        .bind(now)
+        .bind(user_id)
+        .bind(now)
+        .execute(self.0)
+        .await
+        .map_err(|e| {
+            error!("revoke_active_tokens failed (user_id={user_id}): {e}");
             AppError::InternalServerError
         })?;
 
@@ -495,5 +527,51 @@ mod tests {
         .await
         .unwrap();
         assert_eq!(count, 1);
+    }
+
+    #[tokio::test]
+    #[ignore = "requires DATABASE_URL"]
+    async fn test_token_revoke_active_tokens_sets_revoked_at() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let user_id = insert_test_user(&pool, &unique("ivan"), &unique("ivan@example.com")).await;
+        let repo = MySqlTokenRepository(&pool);
+        let now = Utc::now();
+        let expires_at = now + chrono::Duration::days(30);
+
+        // 有効なトークンを2件保存
+        repo.save_refresh_token(user_id, &unique("hash_a"), expires_at, now).await.unwrap();
+        repo.save_refresh_token(user_id, &unique("hash_b"), expires_at, now).await.unwrap();
+
+        let result = repo.revoke_active_tokens(user_id, now).await;
+
+        assert!(result.is_ok());
+        // revoked_at が設定されたレコードが2件あること
+        let revoked_count: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM refresh_tokens WHERE user_id = ? AND revoked_at IS NOT NULL",
+        )
+        .bind(user_id)
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(revoked_count, 2);
+    }
+
+    #[tokio::test]
+    #[ignore = "requires DATABASE_URL"]
+    async fn test_token_revoke_does_not_affect_already_revoked() {
+        let pool = test_pool().await.expect("DATABASE_URL not set");
+        let user_id = insert_test_user(&pool, &unique("judy"), &unique("judy@example.com")).await;
+        let repo = MySqlTokenRepository(&pool);
+        let now = Utc::now();
+        let expires_at = now + chrono::Duration::days(30);
+        let token_hash = unique("hash_c");
+
+        repo.save_refresh_token(user_id, &token_hash, expires_at, now).await.unwrap();
+        // 1回目の revoke
+        repo.revoke_active_tokens(user_id, now).await.unwrap();
+        // 2回目の revoke は何も変えない（0件更新でエラーにならない）
+        let result = repo.revoke_active_tokens(user_id, now).await;
+
+        assert!(result.is_ok());
     }
 }

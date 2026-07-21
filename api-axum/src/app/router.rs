@@ -38,12 +38,13 @@ pub fn create_router(config: Arc<Config>, db: Option<MySqlPool>) -> Router {
     // 認証不要ルート
     let public_routes = Router::new()
         .merge(health::routes())
-        .merge(auth::routes())
+        .merge(auth::public_routes())
         .merge(user::public_routes())
         .merge(master::routes());
 
     // 認証必要ルート
     let protected_routes = Router::new()
+        .merge(auth::protected_routes())
         .merge(user::protected_routes())
         .merge(movie::routes())
         .merge(review::routes())
