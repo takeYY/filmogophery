@@ -31,6 +31,6 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | addToWatchlist          | Watchlist    |   ✅(🚧)   |  ✅  |      |
 | updateWatchlistItem     | Watchlist    |   🚧(🚧)   |      |      |
 | removeFromWatchlist     | Watchlist    |   ✅(🚧)   |  ✅  |      |
-| getGenres               | Master       |   ✅(✅)   |  ✅  |      |
-| getPlatforms            | Master       |   ✅(✅)   |  ✅  |      |
+| getGenres               | Master       |   ✅(✅)   |  ✅  |  ✅  |
+| getPlatforms            | Master       |   ✅(✅)   |  ✅  |  ✅  |
 | getSeries               | Master       |   🚧(🚧)   |      |      |
