@@ -18,21 +18,34 @@ use crate::app::features::{
 };
 use crate::config::Config;
 use crate::pkg::middleware::auth::require_auth;
+use crate::pkg::redis::RedisClient;
+use crate::pkg::tmdb::TmdbClient;
 
 /// ハンドラが共有するアプリケーション状態
 #[derive(Clone)]
 pub struct AppState {
     pub config: Arc<Config>,
     /// DB接続プール。起動時に接続できなかった場合は None になる。
-    /// 実際のDBアクセスが必要なハンドラでは None チェックを行うこと。
     pub db: Option<MySqlPool>,
+    /// TMDB API クライアント
+    pub tmdb: Arc<TmdbClient>,
+    /// Redis クライアント。起動時に接続できなかった場合は None になる。
+    pub redis: Option<Arc<RedisClient>>,
 }
 
 /// アプリケーションルーターを構築する
-pub fn create_router(config: Arc<Config>, db: Option<MySqlPool>) -> Router {
+pub fn create_router(
+    config: Arc<Config>,
+    db: Option<MySqlPool>,
+    redis: Option<Arc<RedisClient>>,
+) -> Router {
+    let tmdb = Arc::new(TmdbClient::new(&config.tmdb.access_token));
+
     let state = AppState {
         config: Arc::clone(&config),
         db,
+        tmdb,
+        redis,
     };
 
     // 認証不要ルート
