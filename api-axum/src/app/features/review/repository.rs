@@ -7,13 +7,17 @@ use crate::app::responses::AppError;
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct ReviewRow {
+    #[allow(dead_code)]
     pub id: i32,
+    #[allow(dead_code)]
     pub user_id: i32,
+    #[allow(dead_code)]
     pub movie_id: i32,
 }
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct MovieRuntimeRow {
+    #[allow(dead_code)]
     pub id: i32,
     pub runtime_minutes: i32,
 }

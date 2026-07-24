@@ -307,16 +307,6 @@ mod tests {
             }
         }
 
-        fn with_detail(row: MovieDetailRow) -> Self {
-            Self {
-                reviewed_rows: vec![],
-                detail_row: Some(row),
-                tmdb_rows: vec![],
-                batch_insert_count: Mutex::new(0),
-                should_fail: false,
-            }
-        }
-
         fn empty() -> Self {
             Self {
                 reviewed_rows: vec![],
@@ -335,10 +325,6 @@ mod tests {
                 batch_insert_count: Mutex::new(0),
                 should_fail: true,
             }
-        }
-
-        fn insert_count(&self) -> u32 {
-            *self.batch_insert_count.lock().unwrap()
         }
     }
 

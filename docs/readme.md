@@ -27,10 +27,10 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | getMovieWatchHistory    | WatchHistory |   ✅(✅)   |  ✅  |      |
 | createMovieWatchHistory | WatchHistory |   ✅(✅)   |  ✅  |      |
 | getWatchHistory         | WatchHistory |   ✅( )    |  ✅  |      |
-| getWatchlist            | Watchlist    |   ✅(🚧)   |  ✅  |      |
-| addToWatchlist          | Watchlist    |   ✅(🚧)   |  ✅  |      |
+| getWatchlist            | Watchlist    |   ✅(🚧)   |  ✅  |  ✅  |
+| addToWatchlist          | Watchlist    |   ✅(🚧)   |  ✅  |  ✅  |
 | updateWatchlistItem     | Watchlist    |   🚧(🚧)   |      |      |
-| removeFromWatchlist     | Watchlist    |   ✅(🚧)   |  ✅  |      |
+| removeFromWatchlist     | Watchlist    |   ✅(🚧)   |  ✅  |  ✅  |
 | getGenres               | Master       |   ✅(✅)   |  ✅  |  ✅  |
 | getPlatforms            | Master       |   ✅(✅)   |  ✅  |  ✅  |
 | getSeries               | Master       |   🚧(🚧)   |      |      |

@@ -462,6 +462,8 @@ mod tests {
         let pool = test_pool().await.expect("DATABASE_URL not set");
         let user_id = insert_test_user(&pool, &unique("frank"), &unique("frank@example.com")).await;
         insert_test_point_history(&pool, user_id, 20, "review", 1).await;
+        // タイムスタンプの精度が 1 秒のため、INSERT 間に待機して順序を確定させる
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
         insert_test_point_history(&pool, user_id, 10, "watch_history", 2).await;
         let repo = MySqlPointRepository(&pool);
 

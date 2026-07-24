@@ -500,4 +500,15 @@ mod tests {
 
         assert!(matches!(result, Err(AppError::ValidationError(_))));
     }
+
+    #[tokio::test]
+    async fn test_update_review_propagates_repo_error() {
+        let review_repo = MockReviewRepository::failing();
+
+        // find_by_id が失敗 → InternalServerError
+        let input = UpdateReviewInput { rating: Some(4.0), comment: None };
+        let result = update_review(&review_repo, 1, 1, input).await;
+
+        assert!(matches!(result, Err(AppError::InternalServerError)));
+    }
 }
