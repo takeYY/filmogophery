@@ -3,3 +3,4 @@ pub mod jwt;
 pub mod logger;
 pub mod middleware;
 pub mod redis;
+pub mod tmdb;

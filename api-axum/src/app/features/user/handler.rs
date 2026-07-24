@@ -185,6 +185,8 @@ mod tests {
         AppState {
             config: test_config(),
             db: None,
+            tmdb: Arc::new(crate::pkg::tmdb::TmdbClient::new("")),
+            redis: None,
         }
     }
 

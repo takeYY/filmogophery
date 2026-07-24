@@ -8,7 +8,7 @@ mod pkg;
 
 use app::router::create_router;
 use config::Config;
-use pkg::db;
+use pkg::{db, redis::RedisClient};
 
 #[tokio::main]
 async fn main() {
@@ -21,8 +21,6 @@ async fn main() {
     pkg::logger::init(&config.log);
 
     // DB 接続
-    // 接続に失敗してもサーバーは起動させる（ヘルスチェック等が機能するように）
-    // TODO: 実装が進んだら None の場合はサーバーを起動しない形に変える
     let db_pool = match db::connect(&config.database).await {
         Ok(pool) => {
             info!("Successfully connected to database");
@@ -34,9 +32,21 @@ async fn main() {
         }
     };
 
+    // Redis 接続
+    let redis = match RedisClient::connect(&config.redis).await {
+        Ok(client) => {
+            info!("Successfully connected to Redis");
+            Some(Arc::new(client))
+        }
+        Err(e) => {
+            tracing::warn!("Failed to connect to Redis: {}. Starting without Redis.", e);
+            None
+        }
+    };
+
     let config = Arc::new(config);
 
-    let router = create_router(config.clone(), db_pool);
+    let router = create_router(config.clone(), db_pool, redis);
 
     let addr = format!("0.0.0.0:{}", config.server.port);
     let listener = tokio::net::TcpListener::bind(&addr)
