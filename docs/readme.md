@@ -24,9 +24,9 @@ npx @redocly/cli build-docs docs/openapi.yaml --output docs/index.html
 | getMyReviews            | Review       |    ( )     |      |      |
 | createReview            | Review       |   ✅(✅)   |  ✅  |  ✅  |
 | updateReview            | Review       |   ✅(🚧)   |  ✅  |  ✅  |
-| getMovieWatchHistory    | WatchHistory |   ✅(✅)   |  ✅  |      |
-| createMovieWatchHistory | WatchHistory |   ✅(✅)   |  ✅  |      |
-| getWatchHistory         | WatchHistory |   ✅( )    |  ✅  |      |
+| getMovieWatchHistory    | WatchHistory |   ✅(✅)   |  ✅  |  ✅  |
+| createMovieWatchHistory | WatchHistory |   ✅(✅)   |  ✅  |  ✅  |
+| getWatchHistory         | WatchHistory |   ✅( )    |  ✅  |  ✅  |
 | getWatchlist            | Watchlist    |   ✅(🚧)   |  ✅  |  ✅  |
 | addToWatchlist          | Watchlist    |   ✅(🚧)   |  ✅  |  ✅  |
 | updateWatchlistItem     | Watchlist    |   🚧(🚧)   |      |      |
