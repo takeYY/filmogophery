@@ -94,8 +94,8 @@ impl WatchlistRepository for MySqlWatchlistRepository<'_> {
 
     async fn create(&self, user_id: i32, movie_id: i32, priority: i32) -> Result<(), AppError> {
         sqlx::query(
-            "INSERT INTO watchlist (user_id, movie_id, priority, added_at, created_at, updated_at)
-             VALUES (?, ?, ?, NOW(), NOW(), NOW())",
+            "INSERT INTO watchlist (user_id, movie_id, priority)
+             VALUES (?, ?, ?)",
         )
         .bind(user_id)
         .bind(movie_id)

@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::app::responses::{ApiResult, AppError};
+use crate::app::responses::ApiResult;
 
 use super::repository::MasterRepository;
 
@@ -59,7 +59,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::app::features::master::repository::{GenreRow, MasterRepository, PlatformRow};
+    use crate::app::features::master::repository::{GenreRow, PlatformRow};
+    use crate::app::responses::AppError;
 
     // ── モック ────────────────────────────────────────────────────
 
