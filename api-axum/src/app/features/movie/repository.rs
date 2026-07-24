@@ -54,6 +54,37 @@ pub struct MovieTmdbRow {
     pub genre_names: Option<String>,
 }
 
+/// watch_history + platform + movie + genres 結合行（ユーザー視聴履歴一覧用）
+#[derive(Debug, sqlx::FromRow)]
+pub struct WatchHistoryRow {
+    pub id: i32,
+    pub watched_date: Option<chrono::NaiveDate>,
+    // platform
+    pub platform_id: i32,
+    pub platform_code: String,
+    pub platform_name: String,
+    // movie
+    pub movie_id: i32,
+    pub movie_title: String,
+    pub movie_overview: String,
+    pub movie_release_date: Option<chrono::NaiveDate>,
+    pub movie_runtime_minutes: i32,
+    pub movie_poster_url: Option<String>,
+    pub movie_tmdb_id: i32,
+    pub genre_codes: Option<String>,
+    pub genre_names: Option<String>,
+}
+
+/// watch_history + platform 結合行（映画ごとの視聴履歴用）
+#[derive(Debug, sqlx::FromRow)]
+pub struct MovieWatchHistoryRow {
+    pub id: i32,
+    pub watched_date: Option<chrono::NaiveDate>,
+    pub platform_id: i32,
+    pub platform_code: String,
+    pub platform_name: String,
+}
+
 // ─── Repository trait ─────────────────────────────────────────
 
 pub trait MovieRepository {
@@ -84,6 +115,24 @@ pub trait MovieRepository {
         &self,
         movies: &[NewMovieInput],
     ) -> Result<(), AppError>;
+
+    /// 映画の視聴履歴一覧を取得（プラットフォーム情報付き）
+    async fn find_watch_history_by_movie_id(
+        &self,
+        user_id: i32,
+        movie_id: i32,
+    ) -> Result<Vec<MovieWatchHistoryRow>, AppError>;
+
+    /// ユーザーの視聴履歴一覧を取得（映画・プラットフォーム・ジャンル情報付き）
+    async fn find_watch_history_by_user_id(
+        &self,
+        user_id: i32,
+        limit: i32,
+        offset: i32,
+    ) -> Result<Vec<WatchHistoryRow>, AppError>;
+
+    /// 映画の存在確認（軽量）
+    async fn movie_exists(&self, movie_id: i32) -> Result<bool, AppError>;
 }
 
 pub struct NewMovieInput {
@@ -287,6 +336,88 @@ impl MovieRepository for MySqlMovieRepository<'_> {
         }
 
         Ok(())
+    }
+
+    async fn find_watch_history_by_movie_id(
+        &self,
+        user_id: i32,
+        movie_id: i32,
+    ) -> Result<Vec<MovieWatchHistoryRow>, AppError> {
+        sqlx::query_as(
+            "SELECT
+                 wh.id,
+                 wh.watched_date,
+                 p.id   AS platform_id,
+                 p.code AS platform_code,
+                 p.name AS platform_name
+             FROM watch_history wh
+             INNER JOIN platforms p ON p.id = wh.platform_id
+             WHERE wh.user_id = ? AND wh.movie_id = ?
+             ORDER BY wh.watched_date DESC",
+        )
+        .bind(user_id)
+        .bind(movie_id)
+        .fetch_all(self.0)
+        .await
+        .map_err(|e| {
+            error!("find_watch_history_by_movie_id failed: {e}");
+            AppError::InternalServerError
+        })
+    }
+
+    async fn find_watch_history_by_user_id(
+        &self,
+        user_id: i32,
+        limit: i32,
+        offset: i32,
+    ) -> Result<Vec<WatchHistoryRow>, AppError> {
+        sqlx::query_as(
+            "SELECT
+                 wh.id,
+                 wh.watched_date,
+                 p.id              AS platform_id,
+                 p.code            AS platform_code,
+                 p.name            AS platform_name,
+                 m.id              AS movie_id,
+                 m.title           AS movie_title,
+                 m.overview        AS movie_overview,
+                 m.release_date    AS movie_release_date,
+                 m.runtime_minutes AS movie_runtime_minutes,
+                 m.poster_url      AS movie_poster_url,
+                 m.tmdb_id         AS movie_tmdb_id,
+                 GROUP_CONCAT(DISTINCT g.code ORDER BY g.code) AS genre_codes,
+                 GROUP_CONCAT(DISTINCT g.name ORDER BY g.code) AS genre_names
+             FROM watch_history wh
+             INNER JOIN platforms p ON p.id = wh.platform_id
+             INNER JOIN movies m ON m.id = wh.movie_id
+             LEFT  JOIN movie_genres mg ON mg.movie_id = m.id
+             LEFT  JOIN genres g ON g.id = mg.genre_id
+             WHERE wh.user_id = ?
+             GROUP BY wh.id, p.id, m.id
+             ORDER BY wh.watched_date DESC
+             LIMIT ? OFFSET ?",
+        )
+        .bind(user_id)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(self.0)
+        .await
+        .map_err(|e| {
+            error!("find_watch_history_by_user_id failed (user_id={user_id}): {e}");
+            AppError::InternalServerError
+        })
+    }
+
+    async fn movie_exists(&self, movie_id: i32) -> Result<bool, AppError> {
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM movies WHERE id = ?")
+            .bind(movie_id)
+            .fetch_one(self.0)
+            .await
+            .map_err(|e| {
+                error!("movie_exists failed (movie_id={movie_id}): {e}");
+                AppError::InternalServerError
+            })?;
+        Ok(count > 0)
     }
 }
 

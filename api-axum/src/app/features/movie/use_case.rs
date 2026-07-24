@@ -273,6 +273,100 @@ where
     Ok(results)
 }
 
+// ─── WatchHistory レスポンス型 ────────────────────────────────
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlatformItem {
+    pub id: i32,
+    pub code: String,
+    pub name: String,
+}
+
+/// GET /v1/movies/{movieId}/watch-history レスポンスアイテム
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MovieWatchHistoryResponse {
+    pub id: i32,
+    pub platform: PlatformItem,
+    pub watched_at: Option<chrono::NaiveDate>,
+}
+
+/// GET /v1/users/me/watch-history レスポンスアイテム
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WatchHistoryResponse {
+    pub id: i32,
+    pub watched_at: Option<chrono::NaiveDate>,
+    pub platform: PlatformItem,
+    pub movie: MovieResponse,
+}
+
+/// GET /v1/movies/{movieId}/watch-history — 映画の視聴履歴一覧
+pub async fn get_movie_watch_history<R>(
+    repo: &R,
+    user_id: i32,
+    movie_id: i32,
+) -> ApiResult<Vec<MovieWatchHistoryResponse>>
+where
+    R: MovieRepository,
+{
+    let rows = repo.find_watch_history_by_movie_id(user_id, movie_id).await?;
+
+    let result = rows
+        .into_iter()
+        .map(|r| MovieWatchHistoryResponse {
+            id: r.id,
+            platform: PlatformItem {
+                id: r.platform_id,
+                code: r.platform_code,
+                name: r.platform_name,
+            },
+            watched_at: r.watched_date,
+        })
+        .collect();
+
+    Ok(result)
+}
+
+/// GET /v1/users/me/watch-history — ユーザーの視聴履歴一覧
+pub async fn get_watch_history<R>(
+    repo: &R,
+    user_id: i32,
+    limit: i32,
+    offset: i32,
+) -> ApiResult<Vec<WatchHistoryResponse>>
+where
+    R: MovieRepository,
+{
+    let rows = repo.find_watch_history_by_user_id(user_id, limit, offset).await?;
+
+    let result = rows
+        .into_iter()
+        .map(|r| WatchHistoryResponse {
+            id: r.id,
+            watched_at: r.watched_date,
+            platform: PlatformItem {
+                id: r.platform_id,
+                code: r.platform_code,
+                name: r.platform_name,
+            },
+            movie: MovieResponse {
+                id: r.movie_id,
+                title: r.movie_title,
+                overview: r.movie_overview,
+                release_date: r.movie_release_date,
+                runtime_minutes: r.movie_runtime_minutes,
+                poster_url: r.movie_poster_url,
+                tmdb_id: r.movie_tmdb_id,
+                genres: parse_genres(r.genre_codes.as_deref(), r.genre_names.as_deref()),
+            },
+        })
+        .collect();
+
+    Ok(result)
+}
+
 // ─── テスト ───────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -282,7 +376,8 @@ mod tests {
 
     use super::*;
     use crate::app::features::movie::repository::{
-        MovieDetailRow, MovieRepository, MovieRow, MovieTmdbRow, NewMovieInput,
+        MovieDetailRow, MovieRepository, MovieRow, MovieTmdbRow, MovieWatchHistoryRow,
+        NewMovieInput, WatchHistoryRow,
     };
     use crate::app::responses::AppError;
 
@@ -438,6 +533,30 @@ mod tests {
             *self.batch_insert_count.lock().unwrap() += 1;
             Ok(())
         }
+
+        async fn find_watch_history_by_movie_id(
+            &self,
+            _user_id: i32,
+            _movie_id: i32,
+        ) -> Result<Vec<MovieWatchHistoryRow>, AppError> {
+            if self.should_fail { return Err(AppError::InternalServerError); }
+            Ok(vec![])
+        }
+
+        async fn find_watch_history_by_user_id(
+            &self,
+            _user_id: i32,
+            _limit: i32,
+            _offset: i32,
+        ) -> Result<Vec<WatchHistoryRow>, AppError> {
+            if self.should_fail { return Err(AppError::InternalServerError); }
+            Ok(vec![])
+        }
+
+        async fn movie_exists(&self, _movie_id: i32) -> Result<bool, AppError> {
+            if self.should_fail { return Err(AppError::InternalServerError); }
+            Ok(true)
+        }
     }
 
     // ── get_movies テスト ─────────────────────────────────────────
@@ -545,5 +664,37 @@ mod tests {
     #[test]
     fn test_parse_genres_empty_string_returns_empty() {
         assert!(parse_genres(Some(""), Some("")).is_empty());
+    }
+
+    // ── get_movie_watch_history テスト ────────────────────────────
+
+    #[tokio::test]
+    async fn test_get_movie_watch_history_returns_list() {
+        let repo = MockMovieRepository::empty();
+        let result = get_movie_watch_history(&repo, 1, 1).await.unwrap();
+        assert!(result.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_get_movie_watch_history_propagates_repo_error() {
+        let repo = MockMovieRepository::failing();
+        let result = get_movie_watch_history(&repo, 1, 1).await;
+        assert!(matches!(result, Err(AppError::InternalServerError)));
+    }
+
+    // ── get_watch_history テスト ──────────────────────────────────
+
+    #[tokio::test]
+    async fn test_get_watch_history_returns_list() {
+        let repo = MockMovieRepository::empty();
+        let result = get_watch_history(&repo, 1, 12, 0).await.unwrap();
+        assert!(result.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_get_watch_history_propagates_repo_error() {
+        let repo = MockMovieRepository::failing();
+        let result = get_watch_history(&repo, 1, 12, 0).await;
+        assert!(matches!(result, Err(AppError::InternalServerError)));
     }
 }
